@@ -1,0 +1,26 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "fip_alert_rules.yml"
+
+scrape_configs:
+  # AA Gateway FIP metrics from pushgateway
+  - job_name: 'aa-gateway-fips'
+    static_configs:
+      - targets: ['pushgateway:9091']
+    scrape_interval: 30s
+    honor_labels: true
+
+  # Direct Flask app metrics (if available)
+  - job_name: 'flask-app'
+    static_configs:
+      - targets: ['aa-gateway-backend:5000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []

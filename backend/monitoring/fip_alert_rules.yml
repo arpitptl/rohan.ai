@@ -1,0 +1,57 @@
+
+groups:
+  - name: fip_critical_alerts
+    rules:
+      - alert: FIPConsentsFailureHigh
+        expr: fip_consent_success_rate < 30
+        for: 2m
+        labels:
+          severity: critical
+          team: aa-gateway
+        annotations:
+          summary: "Critical: {{ $labels.fip_name }} consent failure rate is {{ $value }}%"
+          description: "FIP {{ $labels.fip_name }} ({{ $labels.bank_name }}) has consent success rate below 30% for more than 2 minutes"
+          action: "Activate manual data collection immediately"
+
+      - alert: FIPDataFetchFailureHigh
+        expr: fip_data_fetch_success_rate < 30
+        for: 2m
+        labels:
+          severity: critical
+          team: aa-gateway
+        annotations:
+          summary: "Critical: {{ $labels.fip_name }} data fetch failure rate is {{ $value }}%"
+          description: "FIP {{ $labels.fip_name }} ({{ $labels.bank_name }}) has data fetch success rate below 30%"
+
+  - name: fip_warning_alerts
+    rules:
+      - alert: FIPConsentsFailureModerate
+        expr: fip_consent_success_rate < 70 and fip_consent_success_rate >= 30
+        for: 5m
+        labels:
+          severity: warning
+          team: aa-gateway
+        annotations:
+          summary: "Warning: {{ $labels.fip_name }} consent success rate is {{ $value }}%"
+          description: "FIP {{ $labels.fip_name }} ({{ $labels.bank_name }}) showing degraded performance"
+          action: "Prepare fallback procedures"
+
+      - alert: FIPResponseTimeHigh
+        expr: fip_avg_response_time_seconds > 5
+        for: 3m
+        labels:
+          severity: warning
+          team: aa-gateway
+        annotations:
+          summary: "{{ $labels.fip_name }} response time is {{ $value }}s"
+          description: "FIP {{ $labels.fip_name }} response time exceeds 5 seconds"
+
+      - alert: FIPStatusDegraded
+        expr: fip_status <= 0.5
+        for: 1m
+        labels:
+          severity: warning
+          team: aa-gateway
+        annotations:
+          summary: "{{ $labels.fip_name }} status is degraded"
+          description: "FIP {{ $labels.fip_name }} operational status is degraded or critical"
