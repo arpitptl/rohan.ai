@@ -10,11 +10,11 @@ import time
 # Import services
 from services.bedrock_service import BedrockService
 from services.metrics_service import MetricsService
-from services.prometheus_service import PrometheusBackfiller, PrometheusService
+from services.prometheus_service import PrometheusService
 from models.predictions import db, Prediction
 from utils.logger import logger
 from services.backfill_historical_data import backfill_historical_metrics, GenerateHistoricalData
-
+from services.predictor import predictor_main
 # Load environment variables
 load_dotenv()
 
@@ -213,6 +213,7 @@ def push_historical_metrics():
         backfill_historical_metrics()
         # g = GenerateHistoricalData()
         # g.generate_historical_data()
+        # predictor_main()
    
         return jsonify({
             'success': True,
