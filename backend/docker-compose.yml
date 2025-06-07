@@ -16,29 +16,35 @@ services:
       - ./data:/app/data
     depends_on:
       - pushgateway
-      - prometheus
+      # - prometheus
     networks:
       - aa-gateway-network
 
-  # Prometheus for metrics storage
-  prometheus:
-    image: prom/prometheus:v2.40.0
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./monitoring/fip_alert_rules.yml:/etc/prometheus/fip_alert_rules.yml
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    restart: unless-stopped
-    networks:
-      - aa-gateway-network
+  # # Prometheus for metrics storage
+  # prometheus:
+  #   image: prom/prometheus:v2.40.0
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #     - ./monitoring/fip_alert_rules.yml:/etc/prometheus/fip_alert_rules.yml
+  #     - prometheus_data:/prometheus
+  #   command:
+  #     - '--config.file=/etc/prometheus/prometheus.yml'
+  #     - '--storage.tsdb.path=/prometheus'
+  #     - '--log.level=debug'
+  #     - '--web.console.libraries=/etc/prometheus/console_libraries'
+  #     - '--web.console.templates=/etc/prometheus/consoles'
+  #     - '--storage.tsdb.retention.time=60d'
+  #     # - '--web.enable-lifecycle'
+  #     - '--web.enable-remote-write-receiver'
+  #     - '--storage.tsdb.allow-overlapping-blocks'
+  #     - '--storage.tsdb.min-block-duration=60d'
+  #     - '--storage.tsdb.max-block-duration=60d'
+  #     - '--query.lookback-delta=8760h' 
+  #   restart: unless-stopped
+  #   networks:
+  #     - aa-gateway-network
 
   # Prometheus Pushgateway for batch metrics
   pushgateway:
@@ -67,6 +73,28 @@ services:
     networks:
       - aa-gateway-network
 
+ # VictoriaMetrics (replaces Prometheus)
+  victoriametrics:
+    image: victoriametrics/victoria-metrics:v1.95.1
+    ports:
+      - "8428:8428"  # VictoriaMetrics HTTP API
+      - "9090:8428"  # Map to 9090 for Grafana compatibility
+    volumes:
+      - ./monitoring/vm_config.yml:/etc/victoria-metrics/config.yml
+      - vm_data:/victoria-metrics-data
+    command:
+      - '--storageDataPath=/victoria-metrics-data'
+      - '--retentionPeriod=12'  # 12 months retention
+      - '--httpListenAddr=:8428'
+      - '--promscrape.config=/etc/victoria-metrics/config.yml'
+      - '--promscrape.config.strictParse=false' 
+      - '--search.cacheTimestampOffset=1500h'  # Allow future timestamps up to 24h
+      - '--search.maxQueryDuration=1500h'  # Allow longer queries
+      - '--loggerLevel=INFO'
+    restart: unless-stopped
+    networks:
+      - aa-gateway-network
+
 networks:
   aa-gateway-network:
     driver: bridge
@@ -74,3 +102,4 @@ networks:
 volumes:
   prometheus_data:
   grafana_data:
+  vm_data:

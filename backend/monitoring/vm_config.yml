@@ -1,0 +1,22 @@
+global:
+  scrape_interval: 15s
+  external_labels:
+    cluster: 'aa-gateway'
+
+scrape_configs:
+
+  # AA Gateway FIP metrics from pushgateway  
+  - job_name: 'aa-gateway-fips'
+    static_configs:
+      - targets: ['pushgateway:9091']
+    scrape_interval: 30s
+    honor_labels: true
+    honor_timestamps: true
+
+  # # Direct Flask app metrics
+  # - job_name: 'flask-app'
+  #   static_configs:
+  #     - targets: ['aa-gateway-backend:5000']
+  #   metrics_path: '/metrics'
+  #   scrape_interval: 10s
+  #   honor_timestamps: true

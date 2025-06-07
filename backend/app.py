@@ -10,15 +10,25 @@ import time
 # Import services
 from services.bedrock_service import BedrockService
 from services.metrics_service import MetricsService
-from services.prometheus_service import PrometheusService
-from models.predictions import db, Prediction, FIPMetrics
+from services.prometheus_service import PrometheusBackfiller, PrometheusService
+from models.predictions import db, Prediction
 from utils.logger import logger
+from services.backfill_historical_data import backfill_historical_metrics, GenerateHistoricalData
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)
+# Update CORS configuration to allow requests from both ports
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "*"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///aa_gateway.db')
@@ -188,6 +198,25 @@ def get_system_overview():
         return jsonify({
             'success': True,
             'data': overview,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+
+@app.route('/api/metrics/historical', methods=['POST'])
+def push_historical_metrics():
+    """Generate and push historical metrics to VictoriaMetrics"""
+    try:
+        logger.info("Pushing historical metrics to VictoriaMetrics")
+
+        backfill_historical_metrics()
+        # g = GenerateHistoricalData()
+        # g.generate_historical_data()
+   
+        return jsonify({
+            'success': True,
+            'message': 'Historical metrics generated and pushed to VictoriaMetrics',
             'timestamp': datetime.utcnow().isoformat()
         })
     except Exception as e:
