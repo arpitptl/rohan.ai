@@ -26,4 +26,4 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
 # Database files
-aa_gateway.db
+backend/instance/aa_gateway.db
