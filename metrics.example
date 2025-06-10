@@ -1,0 +1,113 @@
+# HELP fip_avg_response_time_seconds FIP average response time in seconds
+# TYPE fip_avg_response_time_seconds gauge
+fip_avg_response_time_seconds{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips"} 4
+fip_avg_response_time_seconds{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips"} 3.45
+fip_avg_response_time_seconds{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips"} 3.74
+fip_avg_response_time_seconds{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips"} 6.06
+fip_avg_response_time_seconds{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips"} 2.02
+fip_avg_response_time_seconds{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips"} 1.78
+fip_avg_response_time_seconds{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips"} 5
+fip_avg_response_time_seconds{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips"} 2.54
+fip_avg_response_time_seconds{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips"} 3.63
+fip_avg_response_time_seconds{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips"} 1.31
+fip_avg_response_time_seconds{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips"} 4.77
+# HELP fip_consent_success_rate FIP consent approval success rate percentage
+# TYPE fip_consent_success_rate gauge
+fip_consent_success_rate{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips"} 12
+fip_consent_success_rate{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips"} 62.1
+fip_consent_success_rate{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips"} 79.4
+fip_consent_success_rate{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips"} 58.2
+fip_consent_success_rate{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips"} 61
+fip_consent_success_rate{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips"} 89.7
+fip_consent_success_rate{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips"} 73.8
+fip_consent_success_rate{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips"} 86.8
+fip_consent_success_rate{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips"} 81.2
+fip_consent_success_rate{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips"} 89
+fip_consent_success_rate{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips"} 60.3
+# HELP fip_data_fetch_success_rate FIP data fetch success rate percentage
+# TYPE fip_data_fetch_success_rate gauge
+fip_data_fetch_success_rate{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips"} 11.6
+fip_data_fetch_success_rate{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips"} 57.9
+fip_data_fetch_success_rate{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips"} 75.5
+fip_data_fetch_success_rate{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips"} 53.9
+fip_data_fetch_success_rate{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips"} 56.4
+fip_data_fetch_success_rate{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips"} 86.3
+fip_data_fetch_success_rate{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips"} 70.7
+fip_data_fetch_success_rate{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips"} 80.3
+fip_data_fetch_success_rate{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips"} 75.7
+fip_data_fetch_success_rate{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips"} 86
+fip_data_fetch_success_rate{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips"} 58.3
+# HELP fip_error_rate FIP error rate percentage
+# TYPE fip_error_rate gauge
+fip_error_rate{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips"} 88
+fip_error_rate{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips"} 37.9
+fip_error_rate{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips"} 20.6
+fip_error_rate{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips"} 41.8
+fip_error_rate{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips"} 39
+fip_error_rate{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips"} 10.3
+fip_error_rate{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips"} 26.2
+fip_error_rate{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips"} 13.2
+fip_error_rate{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips"} 18.8
+fip_error_rate{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips"} 11
+fip_error_rate{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips"} 39.7
+# HELP fip_status FIP operational status (1=healthy, 0.5=degraded, 0=critical)
+# TYPE fip_status gauge
+fip_status{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips"} 0
+fip_status{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips"} 0.5
+fip_status{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips"} 0.8
+fip_status{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips"} 0.5
+fip_status{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips"} 0.5
+fip_status{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips"} 1
+fip_status{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips"} 0.5
+fip_status{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips"} 0.8
+fip_status{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips"} 0.8
+fip_status{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips"} 1
+fip_status{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips"} 0.5
+# HELP fip_total_requests_created Total requests processed by FIP
+# TYPE fip_total_requests_created gauge
+fip_total_requests_created{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289908526e+09
+fip_total_requests_created{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289908583e+09
+fip_total_requests_created{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289909213e+09
+fip_total_requests_created{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289909263e+09
+fip_total_requests_created{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289909916e+09
+fip_total_requests_created{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289909966e+09
+fip_total_requests_created{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289911165e+09
+fip_total_requests_created{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289911213e+09
+fip_total_requests_created{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289907522e+09
+fip_total_requests_created{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289907577e+09
+fip_total_requests_created{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289907873e+09
+fip_total_requests_created{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289908004e+09
+fip_total_requests_created{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289910655e+09
+fip_total_requests_created{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289910705e+09
+fip_total_requests_created{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289908876e+09
+fip_total_requests_created{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.749443128990893e+09
+fip_total_requests_created{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289909556e+09
+fip_total_requests_created{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289909604e+09
+fip_total_requests_created{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.749443128990669e+09
+fip_total_requests_created{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.749443128990679e+09
+fip_total_requests_created{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 1.7494431289910245e+09
+fip_total_requests_created{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 1.7494431289910293e+09
+# HELP fip_total_requests_total Total requests processed by FIP
+# TYPE fip_total_requests_total counter
+fip_total_requests_total{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips",request_type="consent"} 152
+fip_total_requests_total{bank_name="Axis Bank",fip_name="axis-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 39
+fip_total_requests_total{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 99
+fip_total_requests_total{bank_name="Bank of India",fip_name="boi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 42
+fip_total_requests_total{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips",request_type="consent"} 118
+fip_total_requests_total{bank_name="Canara Bank",fip_name="canara-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 44
+fip_total_requests_total{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips",request_type="consent"} 63
+fip_total_requests_total{bank_name="Central Bank of India",fip_name="central-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 123
+fip_total_requests_total{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips",request_type="consent"} 177
+fip_total_requests_total{bank_name="HDFC Bank",fip_name="hdfc-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 56
+fip_total_requests_total{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips",request_type="consent"} 105
+fip_total_requests_total{bank_name="ICICI Bank",fip_name="icici-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 53
+fip_total_requests_total{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips",request_type="consent"} 165
+fip_total_requests_total{bank_name="Indian Overseas Bank",fip_name="iob-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 71
+fip_total_requests_total{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips",request_type="consent"} 191
+fip_total_requests_total{bank_name="Kotak Mahindra Bank",fip_name="kotak-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 52
+fip_total_requests_total{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips",request_type="consent"} 87
+fip_total_requests_total{bank_name="Punjab National Bank",fip_name="pnb-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 77
+fip_total_requests_total{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 124
+fip_total_requests_total{bank_name="State Bank of India",fip_name="sbi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 92
+fip_total_requests_total{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips",request_type="consent"} 58
+fip_total_requests_total{bank_name="Union Bank of India",fip_name="ubi-fip",instance="",job="aa_gateway_fips",request_type="data_fetch"} 139

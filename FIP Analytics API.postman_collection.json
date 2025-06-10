@@ -1,0 +1,1047 @@
+{
+	"info": {
+		"_postman_id": "d5eeebe6-b02a-40e8-b0b1-c85935bc48d9",
+		"name": "FIP Analytics API",
+		"description": "API for FIP (Financial Information Provider) Analytics and Monitoring",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31359708"
+	},
+	"item": [
+		{
+			"name": "api",
+			"item": [
+				{
+					"name": "analytics",
+					"item": [
+						{
+							"name": "Analyze historical patterns using AI",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"days_back\": 7\n//   \"pattern_types\": [\n//     \"<string>\",\n//     \"<string>\"\n//   ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/historical-patterns",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"historical-patterns"
+									]
+								},
+								"description": "Analyze patterns in FIP performance data without full predictions"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": \"<integer>\",\n  \"pattern_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/historical-patterns",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"historical-patterns"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"analysis_summary\": {\n            \"data_quality\": {\n                \"avg_data_completeness\": 100.0,\n                \"fips_with_data\": 11\n            },\n            \"fips_analyzed\": 11,\n            \"pattern_types\": [\n                \"maintenance\",\n                \"performance\",\n                \"anomalies\"\n            ],\n            \"time_range\": {\n                \"duration_hours\": 166.0,\n                \"end_time\": \"2025-06-09T07:00:00\",\n                \"start_time\": \"2025-06-02T09:00:00\",\n                \"total_data_points\": 6776\n            }\n        },\n        \"patterns\": {\n            \"anomaly_analysis\": {\n                \"axis-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"boi-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"canara-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"central-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"hdfc-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"icici-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"iob-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"kotak-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"pnb-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"sbi-fip\": [\n                    \"No significant anomalies\"\n                ],\n                \"ubi-fip\": [\n                    \"No significant anomalies\"\n                ]\n            },\n            \"fip_performance\": {\n                \"axis-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 10:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 1.2%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.012256068106838278\n                },\n                \"boi-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"degrading\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 16:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.5%\",\n                        \"Average response time: 3.8s\",\n                        \"Trend: Degrading\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.024585582565830003\n                },\n                \"canara-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 10:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 9:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.9%\",\n                        \"Average response time: 4.2s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.02874471576356041\n                },\n                \"central-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 15:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Peak performance at 3:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.4%\",\n                        \"Average response time: 4.3s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.023543067123859434\n                },\n                \"hdfc-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 16:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 4:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.5%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.024522394197211143\n                },\n                \"icici-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 16:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 3.1%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.031081586628615328\n                },\n                \"iob-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 10:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.8%\",\n                        \"Average response time: 4.1s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.027504037746766064\n                },\n                \"kotak-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 15:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 3.1%\",\n                        \"Average response time: 3.8s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.03096139949542653\n                },\n                \"pnb-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 7:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 12:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 2:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.9%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.02905633968309664\n                },\n                \"sbi-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"improving\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 12:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 6:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 0:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 3.1%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Improving\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.031306229034400584\n                },\n                \"ubi-fip\": {\n                    \"anomalies_detected\": [\n                        \"No significant anomalies\"\n                    ],\n                    \"health_trend\": \"degrading\",\n                    \"key_patterns\": [\n                        \"Clear daily performance pattern detected in consent_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in data_fetch_success_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in response_time\",\n                        \"Peak performance at 16:00\",\n                        \"Clear daily performance pattern detected in error_rate\",\n                        \"Peak performance at 5:00\",\n                        \"Clear daily performance pattern detected in status\",\n                        \"Peak performance at 1:00\",\n                        \"Peak performance at 5:00\"\n                    ],\n                    \"maintenance_patterns\": [\n                        \"Typical maintenance window: 2-4 AM\",\n                        \"Performance degrades before maintenance cycles\"\n                    ],\n                    \"performance_insights\": [\n                        \"Average consent success: 2.4%\",\n                        \"Average response time: 4.0s\",\n                        \"Trend: Degrading\"\n                    ],\n                    \"risk_level\": \"critical\",\n                    \"stability_score\": 0.024373701145084678\n                }\n            },\n            \"maintenance_insights\": {\n                \"maintenance_window_recommendations\": [\n                    \"Consolidate maintenance windows: 2-4 AM Sunday for maximum impact minimization\",\n                    \"Implement rolling updates to avoid simultaneous FIP outages\",\n                    \"Coordinate with high-volume FIPs for advance user notifications\"\n                ],\n                \"seasonal_effects\": [\n                    \"Festival periods show 40% increase in transaction failures\",\n                    \"Quarter-end reporting creates system-wide performance pressure\",\n                    \"Summer months show higher cooling-related infrastructure issues\"\n                ],\n                \"time_based_patterns\": [\n                    \"Monday morning performance dips due to weekend maintenance recovery\",\n                    \"Friday evening degradation as maintenance windows approach\",\n                    \"Month-end spikes in error rates due to increased transaction volume\"\n                ]\n            },\n            \"maintenance_windows\": {\n                \"axis-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [1, 3, 5, 6, 7]\",\n                        \"frequency\": 0.18032786885245902,\n                        \"hours\": [\n                            1,\n                            3,\n                            5,\n                            6,\n                            7\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Friday\",\n                        \"frequency\": 0.18032786885245902,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"boi-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [7, 10, 12]\",\n                        \"frequency\": 0.13008130081300814,\n                        \"hours\": [\n                            7,\n                            10,\n                            12\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Friday\",\n                        \"frequency\": 0.13008130081300814,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"canara-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [3, 4, 5, 6, 14]\",\n                        \"frequency\": 0.2032520325203252,\n                        \"hours\": [\n                            3,\n                            4,\n                            5,\n                            6,\n                            14\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Tuesday\"\n                        ],\n                        \"days\": [\n                            0,\n                            1\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Tuesday\",\n                        \"frequency\": 0.2032520325203252,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"central-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [6, 15, 20, 23]\",\n                        \"frequency\": 0.1951219512195122,\n                        \"hours\": [\n                            6,\n                            15,\n                            20,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday\",\n                        \"frequency\": 0.1951219512195122,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"hdfc-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [0, 5, 7, 8, 12, 15, 16, 23]\",\n                        \"frequency\": 0.22131147540983606,\n                        \"hours\": [\n                            0,\n                            5,\n                            7,\n                            8,\n                            12,\n                            15,\n                            16,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday, Friday\",\n                        \"frequency\": 0.22131147540983606,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"icici-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [16, 18, 20]\",\n                        \"frequency\": 0.11475409836065574,\n                        \"hours\": [\n                            16,\n                            18,\n                            20\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            2,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Wednesday, Friday\",\n                        \"frequency\": 0.11475409836065574,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"iob-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [7, 13, 21]\",\n                        \"frequency\": 0.11475409836065574,\n                        \"hours\": [\n                            7,\n                            13,\n                            21\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Tuesday\",\n                            \"Wednesday\"\n                        ],\n                        \"days\": [\n                            0,\n                            1,\n                            2\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Tuesday, Wednesday\",\n                        \"frequency\": 0.11475409836065574,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"kotak-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [6, 7, 14, 22, 23]\",\n                        \"frequency\": 0.18181818181818182,\n                        \"hours\": [\n                            6,\n                            7,\n                            14,\n                            22,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Tuesday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            1,\n                            3,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Tuesday, Thursday, Friday\",\n                        \"frequency\": 0.18181818181818182,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"pnb-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [5, 6, 14, 15, 18, 19]\",\n                        \"frequency\": 0.19672131147540983,\n                        \"hours\": [\n                            5,\n                            6,\n                            14,\n                            15,\n                            18,\n                            19\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            2,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Wednesday, Friday\",\n                        \"frequency\": 0.19672131147540983,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"sbi-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [14, 19, 20]\",\n                        \"frequency\": 0.125,\n                        \"hours\": [\n                            14,\n                            19,\n                            20\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Tuesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            1,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Tuesday, Friday\",\n                        \"frequency\": 0.125,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"ubi-fip\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [0, 4, 5, 7, 8, 10, 14, 23]\",\n                        \"frequency\": 0.19672131147540983,\n                        \"hours\": [\n                            0,\n                            4,\n                            5,\n                            7,\n                            8,\n                            10,\n                            14,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday\",\n                        \"frequency\": 0.19672131147540983,\n                        \"type\": \"recurring_daily\"\n                    }\n                ]\n            },\n            \"performance_patterns\": {\n                \"common_failure_patterns\": [\n                    \"Peak hour performance degradation (9-11 AM, 2-4 PM)\",\n                    \"Weekend maintenance windows affecting availability\",\n                    \"Response time spikes correlating with high error rates\",\n                    \"Cascading failures during system-wide load events\"\n                ],\n                \"overall_health_trend\": \"degrading\",\n                \"peak_performance_hours\": [\n                    \"6-8 AM\",\n                    \"12-2 PM\",\n                    \"8-10 PM\"\n                ],\n                \"system_wide_correlations\": [\n                    \"Strong negative correlation between success rate and response time\",\n                    \"Error rate increases significantly when response time > 5 seconds\",\n                    \"Status degradation typically precedes success rate drops by 15-30 minutes\"\n                ]\n            }\n        }\n    },\n    \"metadata\": {\n        \"analysis_type\": \"historical_patterns\",\n        \"days_analyzed\": 7,\n        \"pattern_types_requested\": [\n            \"maintenance\",\n            \"performance\",\n            \"anomalies\"\n        ]\n    },\n    \"success\": true\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": \"<integer>\",\n  \"pattern_types\": [\n    \"<string>\",\n    \"<string>\"\n  ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/historical-patterns",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"historical-patterns"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Generate business-focused insights",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"insight_categories\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"time_horizon\": \"<string>\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/business-insights",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"business-insights"
+									]
+								},
+								"description": "Generate insights and strategic recommendations for business stakeholders"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"insight_categories\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"time_horizon\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/business-insights",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"business-insights"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": true,\n  \"data\": {\n    \"insights\": {\n      \"executive\": {\n        \"summary\": {\n          \"overall_health\": \"System stable with 3 FIPs requiring attention\",\n          \"key_risks\": [\n            \"Potential 5000 users affected in next 24 hours\",\n            \"Estimated ₹50,000 revenue at risk\"\n          ]\n        },\n        \"financial_impact\": {\n          \"potential_revenue_loss\": 50000,\n          \"operational_costs\": 20000,\n          \"prevention_investment\": 5000\n        }\n      },\n      \"operational\": {\n        \"resource_optimization\": [\n          \"Implement dynamic load balancing\",\n          \"Optimize manual processing team schedules\"\n        ],\n        \"automation_opportunities\": [\n          \"Automated customer notifications\",\n          \"Auto-scaling of resources\"\n        ]\n      },\n      \"strategic\": {\n        \"infrastructure_investments\": [\n          {\n            \"recommendation\": \"Implement redundant connections\",\n            \"expected_roi\": \"300% within 6 months\",\n            \"priority\": \"high\"\n          }\n        ]\n      }\n    },\n    \"performance_summary\": {\n      \"system_health_score\": 85,\n      \"reliability_trend\": \"improving\",\n      \"user_impact_projection\": 5000,\n      \"cost_impact_projection\": 50000\n    }\n  }\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"insight_categories\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"time_horizon\": \"<string>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/business-insights",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"business-insights"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get predicted maintenance schedules",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"days_back\": \"<integer>\",\n  \"forecast_days\": \"<integer>\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/maintenance-schedule",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"maintenance-schedule"
+									]
+								},
+								"description": "Get maintenance schedules based on historical patterns"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": \"<integer>\",\n  \"forecast_days\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/maintenance-schedule",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"maintenance-schedule"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"maintenance_schedule\": {\n            \"axis-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [1, 3, 5, 6, 7]\",\n                        \"frequency\": 0.18032786885245902,\n                        \"hours\": [\n                            1,\n                            3,\n                            5,\n                            6,\n                            7\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Friday\",\n                        \"frequency\": 0.18032786885245902,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            1,\n                            3,\n                            5,\n                            6,\n                            7\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"boi-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [7, 10, 12]\",\n                        \"frequency\": 0.13008130081300814,\n                        \"hours\": [\n                            7,\n                            10,\n                            12\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Friday\",\n                        \"frequency\": 0.13008130081300814,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            7,\n                            10,\n                            12\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"canara-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [3, 4, 5, 6, 14]\",\n                        \"frequency\": 0.2032520325203252,\n                        \"hours\": [\n                            3,\n                            4,\n                            5,\n                            6,\n                            14\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Tuesday\"\n                        ],\n                        \"days\": [\n                            0,\n                            1\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Tuesday\",\n                        \"frequency\": 0.2032520325203252,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            3,\n                            4,\n                            5,\n                            6,\n                            14\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Tuesday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Tuesday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"central-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [6, 15, 20, 23]\",\n                        \"frequency\": 0.1951219512195122,\n                        \"hours\": [\n                            6,\n                            15,\n                            20,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday\",\n                        \"frequency\": 0.1951219512195122,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            6,\n                            15,\n                            20,\n                            23\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Thursday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"hdfc-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [0, 5, 7, 8, 12, 15, 16, 23]\",\n                        \"frequency\": 0.22131147540983606,\n                        \"hours\": [\n                            0,\n                            5,\n                            7,\n                            8,\n                            12,\n                            15,\n                            16,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday, Friday\",\n                        \"frequency\": 0.22131147540983606,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            0,\n                            5,\n                            7,\n                            8,\n                            12,\n                            15,\n                            16,\n                            23\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Thursday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"icici-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [16, 18, 20]\",\n                        \"frequency\": 0.11475409836065574,\n                        \"hours\": [\n                            16,\n                            18,\n                            20\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            2,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Wednesday, Friday\",\n                        \"frequency\": 0.11475409836065574,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            16,\n                            18,\n                            20\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Wednesday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"iob-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [7, 13, 21]\",\n                        \"frequency\": 0.11475409836065574,\n                        \"hours\": [\n                            7,\n                            13,\n                            21\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Tuesday\",\n                            \"Wednesday\"\n                        ],\n                        \"days\": [\n                            0,\n                            1,\n                            2\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Tuesday, Wednesday\",\n                        \"frequency\": 0.11475409836065574,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            7,\n                            13,\n                            21\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Tuesday\",\n                            \"Wednesday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Tuesday, Wednesday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"kotak-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [6, 7, 14, 22, 23]\",\n                        \"frequency\": 0.18181818181818182,\n                        \"hours\": [\n                            6,\n                            7,\n                            14,\n                            22,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Tuesday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            1,\n                            3,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Tuesday, Thursday, Friday\",\n                        \"frequency\": 0.18181818181818182,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            6,\n                            7,\n                            14,\n                            22,\n                            23\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Tuesday\",\n                            \"Thursday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Tuesday, Thursday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"pnb-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [5, 6, 14, 15, 18, 19]\",\n                        \"frequency\": 0.19672131147540983,\n                        \"hours\": [\n                            5,\n                            6,\n                            14,\n                            15,\n                            18,\n                            19\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            0,\n                            2,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Wednesday, Friday\",\n                        \"frequency\": 0.19672131147540983,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            5,\n                            6,\n                            14,\n                            15,\n                            18,\n                            19\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Wednesday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Wednesday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"sbi-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [14, 19, 20]\",\n                        \"frequency\": 0.125,\n                        \"hours\": [\n                            14,\n                            19,\n                            20\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Tuesday\",\n                            \"Friday\"\n                        ],\n                        \"days\": [\n                            1,\n                            4\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Tuesday, Friday\",\n                        \"frequency\": 0.125,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            14,\n                            19,\n                            20\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Tuesday\",\n                            \"Friday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Tuesday, Friday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            },\n            \"ubi-fip\": {\n                \"historical_patterns\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"description\": \"Recurring maintenance detected during hours: [0, 4, 5, 7, 8, 10, 14, 23]\",\n                        \"frequency\": 0.19672131147540983,\n                        \"hours\": [\n                            0,\n                            4,\n                            5,\n                            7,\n                            8,\n                            10,\n                            14,\n                            23\n                        ],\n                        \"type\": \"recurring_hourly\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"day_names\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"days\": [\n                            0,\n                            3\n                        ],\n                        \"description\": \"Recurring maintenance detected on: Monday, Thursday\",\n                        \"frequency\": 0.19672131147540983,\n                        \"type\": \"recurring_daily\"\n                    }\n                ],\n                \"maintenance_frequency\": 2,\n                \"reliability_score\": 0.8,\n                \"upcoming_predictions\": [\n                    {\n                        \"confidence\": 1.0,\n                        \"hours\": [\n                            0,\n                            4,\n                            5,\n                            7,\n                            8,\n                            10,\n                            14,\n                            23\n                        ],\n                        \"impact_estimate\": \"medium\",\n                        \"predicted_date\": \"This weekend\",\n                        \"type\": \"recurring\"\n                    },\n                    {\n                        \"confidence\": 1.0,\n                        \"days\": [\n                            \"Monday\",\n                            \"Thursday\"\n                        ],\n                        \"impact_estimate\": \"high\",\n                        \"predicted_date\": \"Next Monday, Thursday\",\n                        \"type\": \"scheduled\"\n                    }\n                ]\n            }\n        },\n        \"system_summary\": {\n            \"fips_with_patterns\": 11,\n            \"forecast_period_days\": 1,\n            \"total_fips_analyzed\": 11,\n            \"total_patterns_detected\": 22\n        }\n    },\n    \"metadata\": {\n        \"analysis_type\": \"maintenance_schedule\",\n        \"days_analyzed\": 7,\n        \"forecast_days\": 1\n    },\n    \"success\": true\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": \"<integer>\",\n  \"forecast_days\": \"<integer>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/maintenance-schedule",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"maintenance-schedule"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Generate proactive alerts",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"severity_filter\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"fips\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"include_recommendations\": \"<boolean>\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/proactive-alerts",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"proactive-alerts"
+									]
+								},
+								"description": "Generate alerts based on historical patterns and current state"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"severity_filter\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"fips\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"include_recommendations\": \"<boolean>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/proactive-alerts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"proactive-alerts"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": true,\n  \"data\": {\n    \"alerts\": [\n      {\n        \"severity\": \"critical\",\n        \"fip_name\": \"sbi-fip\",\n        \"alert_type\": \"performance_degradation\",\n        \"message\": \"Consent success rate critically low at 45.5%\",\n        \"recommended_action\": \"Immediately activate manual data collection\",\n        \"confidence\": 0.95,\n        \"generated_at\": \"2024-02-27T10:30:00Z\",\n        \"alert_id\": \"alert_sbi-fip_20240227_103000\",\n        \"business_impact\": {\n          \"estimated_users_affected\": 5000,\n          \"urgency_level\": \"immediate\"\n        },\n        \"detailed_recommendations\": [\n          \"Activate manual data collection\",\n          \"Document incident for pattern analysis\",\n          \"Notify relevant stakeholders\"\n        ]\n      }\n    ],\n    \"summary\": {\n      \"total_alerts\": 5,\n      \"critical_count\": 2,\n      \"warning_count\": 3,\n      \"info_count\": 0,\n      \"fips_with_alerts\": [\n        \"sbi-fip\",\n        \"hdfc-fip\"\n      ]\n    }\n  }\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"severity_filter\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"fips\": [\n    \"<string>\",\n    \"<string>\"\n  ],\n  \"include_recommendations\": \"<boolean>\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/proactive-alerts",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"proactive-alerts"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Monitor prediction accuracy",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/prediction-accuracy?window_hours=<integer>",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"prediction-accuracy"
+									],
+									"query": [
+										{
+											"key": "window_hours",
+											"value": "<integer>",
+											"description": "Number of hours to analyze"
+										}
+									]
+								},
+								"description": "Monitor the accuracy of previous predictions"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/prediction-accuracy?window_hours=<integer>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"prediction-accuracy"
+											],
+											"query": [
+												{
+													"key": "window_hours",
+													"value": "<integer>"
+												}
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"analysis_window_hours\": 24,\n        \"business_impact_accuracy\": {\n            \"cost_estimation\": 0.76,\n            \"timeline_accuracy\": 0.82,\n            \"user_impact_estimation\": 0.89\n        },\n        \"early_warning_effectiveness\": 0.91,\n        \"false_negative_rate\": 0.05,\n        \"false_positive_rate\": 0.08,\n        \"model_improvements_suggested\": [\n            \"Increase weight of recent anomaly patterns\",\n            \"Improve correlation analysis between FIPs\",\n            \"Refine business impact calculation models\",\n            \"Add seasonal adjustment factors\"\n        ],\n        \"next_model_update_recommended\": \"2025-06-16T09:16:47.648637\",\n        \"prediction_accuracy\": {\n            \"high_confidence_accuracy\": 0.94,\n            \"low_confidence_accuracy\": 0.71,\n            \"medium_confidence_accuracy\": 0.83,\n            \"overall_accuracy\": 0.87\n        },\n        \"timestamp\": \"2025-06-09T09:16:47.648528\"\n    },\n    \"metadata\": {\n        \"analysis_type\": \"prediction_accuracy\",\n        \"window_hours\": 24\n    },\n    \"success\": true\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/prediction-accuracy?window_hours=<integer>",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"prediction-accuracy"
+											],
+											"query": [
+												{
+													"key": "window_hours",
+													"value": "<integer>"
+												}
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Generate comprehensive AI-powered analytics",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"days_back\": 7,\n  \"prediction_horizon\": \"24h\",\n  \"include_current_metrics\": true\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/analytics/comprehensive",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"analytics",
+										"comprehensive"
+									]
+								},
+								"description": "Generate comprehensive analysis using historical data, including predictions, alerts, and business insights"
+							},
+							"response": [
+								{
+									"name": "Successful analysis",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": 7,\n  \"prediction_horizon\": \"24h\",\n  \"include_current_metrics\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/comprehensive",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"comprehensive"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": true,\n  \"data\": {\n    \"timestamp\": \"2024-02-27T10:30:00Z\",\n    \"time_range_analyzed\": {\n      \"start_time\": \"2024-02-20T10:30:00Z\",\n      \"end_time\": \"2024-02-27T10:30:00Z\",\n      \"duration_hours\": 168,\n      \"total_data_points\": 4032\n    },\n    \"historical_patterns\": {\n      \"performance_trends\": {\n        \"sbi-fip\": {\n          \"consent_success_trend\": \"improving\",\n          \"response_time_trend\": \"stable\",\n          \"error_rate_trend\": \"decreasing\"\n        }\n      },\n      \"maintenance_windows\": {\n        \"sbi-fip\": [\n          {\n            \"day\": \"Monday\",\n            \"time\": \"02:00-04:00\",\n            \"frequency\": \"weekly\"\n          }\n        ]\n      }\n    },\n    \"predictions\": {\n      \"sbi-fip\": {\n        \"fip_name\": \"sbi-fip\",\n        \"downtime_probability\": 0.75,\n        \"confidence_level\": \"high\",\n        \"time_window\": \"next 12 hours\",\n        \"reasoning\": \"Historical pattern indicates maintenance window approaching\",\n        \"business_impact\": {\n          \"affected_users\": 5000,\n          \"revenue_impact_inr\": 50000\n        },\n        \"recommended_actions\": [\n          \"Schedule maintenance during off-peak hours\",\n          \"Notify users in advance\"\n        ]\n      }\n    },\n    \"proactive_alerts\": [\n      {\n        \"severity\": \"critical\",\n        \"fip_name\": \"sbi-fip\",\n        \"alert_type\": \"maintenance_required\",\n        \"message\": \"Scheduled maintenance window approaching\",\n        \"recommended_action\": \"Prepare for maintenance window\",\n        \"confidence\": 0.95,\n        \"timestamp\": \"2024-02-27T10:30:00Z\"\n      }\n    ],\n    \"business_insights\": {\n      \"executive_summary\": {\n        \"overall_health\": \"System stable with 3 FIPs requiring attention\",\n        \"key_risks\": [\n          \"Potential 5000 users affected in next 24 hours\",\n          \"Estimated ₹50,000 revenue at risk\"\n        ]\n      },\n      \"operational_insights\": {\n        \"resource_optimization\": [\n          \"Implement dynamic load balancing\",\n          \"Optimize manual processing team schedules\"\n        ]\n      }\n    },\n    \"maintenance_windows\": {\n      \"upcoming_maintenance\": [\n        {\n          \"fip_name\": \"sbi-fip\",\n          \"scheduled_time\": \"2024-02-28T02:00:00Z\",\n          \"duration_hours\": 2,\n          \"type\": \"scheduled\"\n        }\n      ]\n    },\n    \"summary\": {\n      \"key_statistics\": {\n        \"total_fips_analyzed\": 11,\n        \"fips_with_alerts\": 3,\n        \"average_system_health\": 85\n      },\n      \"trend_direction\": \"improving\",\n      \"business_impact\": {\n        \"total_users_at_risk\": 5000,\n        \"total_revenue_at_risk\": 50000\n      }\n    }\n  },\n  \"metadata\": {\n    \"analysis_type\": \"comprehensive\",\n    \"days_analyzed\": 7,\n    \"prediction_horizon\": \"24h\",\n    \"fips_analyzed\": 11,\n    \"alerts_generated\": 3\n  }\n}"
+								},
+								{
+									"name": "Server error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"days_back\": 7,\n  \"prediction_horizon\": \"24h\",\n  \"include_current_metrics\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{baseUrl}}/api/analytics/comprehensive",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"analytics",
+												"comprehensive"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": false,\n  \"error\": \"Internal server error occurred while generating comprehensive analysis\",\n  \"error_type\": \"comprehensive_analytics_error\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "fips",
+					"item": [
+						{
+							"name": "Get all FIPs status",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/fips",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"fips"
+									]
+								},
+								"description": "Get current status and metrics for all available FIPs"
+							},
+							"response": [
+								{
+									"name": "Successful retrieval of FIPs status",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/fips",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"fips"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"data\": {\n        \"axis-fip\": {\n            \"avg_response_time\": 4.87,\n            \"bank_name\": \"Axis Bank\",\n            \"consent_success_rate\": 16.9,\n            \"current_status\": \"critical\",\n            \"data_fetch_success_rate\": 16.4,\n            \"error_rate\": 83.1,\n            \"fip_name\": \"axis-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973447\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 1200\n        },\n        \"boi-fip\": {\n            \"avg_response_time\": 3.73,\n            \"bank_name\": \"Bank of India\",\n            \"consent_success_rate\": 60.5,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 59.0,\n            \"error_rate\": 39.5,\n            \"fip_name\": \"boi-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973454\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 600\n        },\n        \"canara-fip\": {\n            \"avg_response_time\": 3.75,\n            \"bank_name\": \"Canara Bank\",\n            \"consent_success_rate\": 70.6,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 68.1,\n            \"error_rate\": 29.4,\n            \"fip_name\": \"canara-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973466\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 500\n        },\n        \"central-fip\": {\n            \"avg_response_time\": 6.08,\n            \"bank_name\": \"Central Bank of India\",\n            \"consent_success_rate\": 50.7,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 44.7,\n            \"error_rate\": 49.3,\n            \"fip_name\": \"central-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973478\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 250\n        },\n        \"hdfc-fip\": {\n            \"avg_response_time\": 1.99,\n            \"bank_name\": \"HDFC Bank\",\n            \"consent_success_rate\": 64.2,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 62.7,\n            \"error_rate\": 35.8,\n            \"fip_name\": \"hdfc-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973438\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 3200\n        },\n        \"icici-fip\": {\n            \"avg_response_time\": 1.74,\n            \"bank_name\": \"ICICI Bank\",\n            \"consent_success_rate\": 78.8,\n            \"current_status\": \"warning\",\n            \"data_fetch_success_rate\": 74.3,\n            \"error_rate\": 21.2,\n            \"fip_name\": \"icici-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973443\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 2800\n        },\n        \"iob-fip\": {\n            \"avg_response_time\": 4.98,\n            \"bank_name\": \"Indian Overseas Bank\",\n            \"consent_success_rate\": 66.5,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 57.2,\n            \"error_rate\": 33.5,\n            \"fip_name\": \"iob-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973475\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 300\n        },\n        \"kotak-fip\": {\n            \"avg_response_time\": 2.59,\n            \"bank_name\": \"Kotak Mahindra Bank\",\n            \"consent_success_rate\": 74.0,\n            \"current_status\": \"warning\",\n            \"data_fetch_success_rate\": 67.2,\n            \"error_rate\": 26.0,\n            \"fip_name\": \"kotak-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973451\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 800\n        },\n        \"pnb-fip\": {\n            \"avg_response_time\": 4.31,\n            \"bank_name\": \"Punjab National Bank\",\n            \"consent_success_rate\": 66.7,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 60.0,\n            \"error_rate\": 33.3,\n            \"fip_name\": \"pnb-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973458\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 700\n        },\n        \"sbi-fip\": {\n            \"avg_response_time\": 2.03,\n            \"bank_name\": \"State Bank of India\",\n            \"consent_success_rate\": 76.2,\n            \"current_status\": \"warning\",\n            \"data_fetch_success_rate\": 73.3,\n            \"error_rate\": 23.8,\n            \"fip_name\": \"sbi-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973427\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 4500\n        },\n        \"ubi-fip\": {\n            \"avg_response_time\": 6.42,\n            \"bank_name\": \"Union Bank of India\",\n            \"consent_success_rate\": 45.8,\n            \"current_status\": \"degraded\",\n            \"data_fetch_success_rate\": 42.5,\n            \"error_rate\": 54.2,\n            \"fip_name\": \"ubi-fip\",\n            \"last_updated\": \"2025-06-09T09:15:38.973471\",\n            \"maintenance_window\": false,\n            \"trend\": \"stable\",\n            \"user_base\": 400\n        }\n    },\n    \"success\": true,\n    \"timestamp\": \"2025-06-09T09:16:21.115118\"\n}"
+								},
+								{
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/fips",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"fips"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Get comprehensive FIP health analysis",
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/fips/health",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"fips",
+										"health"
+									]
+								},
+								"description": "Get detailed health analysis for all FIPs including trends and alerts"
+							},
+							"response": [
+								{
+									"name": "Successful retrieval of FIPs health analysis",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/fips/health",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"fips",
+												"health"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"data\": {\n    \"fips_health\": {\n      \"sed_02b\": {\n        \"fip_name\": \"<string>\",\n        \"health_score\": \"<float>\",\n        \"performance_metrics\": {\n          \"consent_success_trend\": \"<string>\",\n          \"response_time_trend\": \"<string>\",\n          \"error_rate_trend\": \"<string>\"\n        },\n        \"historical_uptime\": \"<float>\",\n        \"maintenance_info\": {\n          \"in_maintenance\": \"<boolean>\",\n          \"next_maintenance\": \"<dateTime>\"\n        },\n        \"alerts\": [\n          {\n            \"severity\": \"<string>\",\n            \"message\": \"<string>\"\n          },\n          {\n            \"severity\": \"<string>\",\n            \"message\": \"<string>\"\n          }\n        ]\n      }\n    },\n    \"system_health\": {\n      \"overall_health_score\": \"<float>\",\n      \"healthy_fips_count\": \"<integer>\",\n      \"degraded_fips_count\": \"<integer>\",\n      \"critical_fips_count\": \"<integer>\"\n    }\n  },\n  \"timestamp\": \"<dateTime>\"\n}"
+								},
+								{
+									"name": "Internal server error",
+									"originalRequest": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Accept",
+												"value": "application/json"
+											}
+										],
+										"url": {
+											"raw": "{{baseUrl}}/api/fips/health",
+											"host": [
+												"{{baseUrl}}"
+											],
+											"path": [
+												"api",
+												"fips",
+												"health"
+											]
+										}
+									},
+									"status": "Internal Server Error",
+									"code": 500,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Type",
+											"value": "application/json"
+										}
+									],
+									"cookie": [],
+									"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "Get API health status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Check the health status of the API service"
+					},
+					"response": [
+						{
+							"name": "Successful health check",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/health",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"services\": {\n        \"bedrock\": \"mock\",\n        \"database\": \"connected\",\n        \"prometheus\": \"active\"\n    },\n    \"status\": \"healthy\",\n    \"timestamp\": \"2025-06-09T09:16:03.037463\"\n}"
+						},
+						{
+							"name": "Internal server error",
+							"originalRequest": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json"
+									}
+								],
+								"url": {
+									"raw": "{{baseUrl}}/api/health",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"health"
+									]
+								}
+							},
+							"status": "Internal Server Error",
+							"code": 500,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"success\": \"<boolean>\",\n  \"error\": \"<string>\",\n  \"error_type\": \"<string>\"\n}"
+						}
+					]
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		}
+	]
+}

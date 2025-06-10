@@ -1,0 +1,739 @@
+openapi: 3.1.0
+info:
+  title: FIP Analytics API
+  description: API for FIP (Financial Information Provider) Analytics and Monitoring
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local development server
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Internal server error"
+        error_type:
+          type: string
+          example: "historical_patterns_error"
+    
+    HistoricalPatternsRequest:
+      type: object
+      properties:
+        days_back:
+          type: integer
+          example: 30
+        pattern_types:
+          type: array
+          items:
+            type: string
+            enum: [maintenance, performance, anomalies]
+          example: ["maintenance", "performance", "anomalies"]
+    
+    BusinessInsightsRequest:
+      type: object
+      properties:
+        insight_categories:
+          type: array
+          items:
+            type: string
+            enum: [executive, operational, strategic]
+          example: ["executive", "operational", "strategic"]
+        time_horizon:
+          type: string
+          enum: [weekly, monthly, quarterly, yearly]
+          example: "monthly"
+    
+    MaintenanceScheduleRequest:
+      type: object
+      properties:
+        days_back:
+          type: integer
+          example: 60
+        forecast_days:
+          type: integer
+          example: 30
+
+    HealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum: [healthy, degraded, critical]
+          example: "healthy"
+        version:
+          type: string
+          example: "1.0.0"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-03-20T10:30:00Z"
+    
+    FIPStatus:
+      type: object
+      properties:
+        fip_name:
+          type: string
+          example: "sbi-fip"
+        status:
+          type: string
+          enum: [healthy, degraded, critical, maintenance]
+          example: "healthy"
+        consent_success_rate:
+          type: number
+          format: float
+          example: 98.5
+        data_fetch_success_rate:
+          type: number
+          format: float
+          example: 97.8
+        avg_response_time:
+          type: number
+          format: float
+          example: 2.3
+        error_rate:
+          type: number
+          format: float
+          example: 1.2
+        last_updated:
+          type: string
+          format: date-time
+          example: "2024-03-20T10:30:00Z"
+    
+    FIPsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FIPStatus'
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-03-20T10:30:00Z"
+    
+    FIPHealthData:
+      type: object
+      properties:
+        fip_name:
+          type: string
+          example: "sbi-fip"
+        health_score:
+          type: number
+          format: float
+          example: 95.5
+        performance_metrics:
+          type: object
+          properties:
+            consent_success_trend:
+              type: string
+              enum: [improving, stable, degrading]
+              example: "stable"
+            response_time_trend:
+              type: string
+              enum: [improving, stable, degrading]
+              example: "improving"
+            error_rate_trend:
+              type: string
+              enum: [improving, stable, degrading]
+              example: "stable"
+        historical_uptime:
+          type: number
+          format: float
+          example: 99.8
+        maintenance_info:
+          type: object
+          properties:
+            in_maintenance:
+              type: boolean
+              example: false
+            next_maintenance:
+              type: string
+              format: date-time
+              example: "2024-03-21T02:00:00Z"
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              severity:
+                type: string
+                enum: [critical, warning, info]
+                example: "warning"
+              message:
+                type: string
+                example: "Response time slightly elevated"
+    
+    FIPsHealthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            fips_health:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/FIPHealthData'
+            system_health:
+              type: object
+              properties:
+                overall_health_score:
+                  type: number
+                  format: float
+                  example: 96.5
+                healthy_fips_count:
+                  type: integer
+                  example: 8
+                degraded_fips_count:
+                  type: integer
+                  example: 2
+                critical_fips_count:
+                  type: integer
+                  example: 0
+        timestamp:
+          type: string
+          format: date-time
+          example: "2024-03-20T10:30:00Z"
+
+    ComprehensiveAnalyticsRequest:
+      type: object
+      properties:
+        days_back:
+          type: integer
+          example: 7
+          description: Number of days of historical data to analyze
+        prediction_horizon:
+          type: string
+          example: "24h"
+          description: Time window for predictions (1h, 6h, 24h, 7d)
+        include_current_metrics:
+          type: boolean
+          example: true
+          description: Whether to include current real-time metrics
+
+    ComprehensiveAnalyticsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            timestamp:
+              type: string
+              format: date-time
+            time_range_analyzed:
+              type: object
+              properties:
+                start_date:
+                  type: string
+                  format: date-time
+                end_date:
+                  type: string
+                  format: date-time
+            historical_patterns:
+              type: object
+              properties:
+                system_wide_patterns:
+                  type: object
+                  properties:
+                    overall_health_trend:
+                      type: string
+                      enum: [improving, stable, degrading]
+                    common_failure_patterns:
+                      type: array
+                      items:
+                        type: string
+            predictions:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  fip_name:
+                    type: string
+                  downtime_probability:
+                    type: number
+                    format: float
+                  confidence_level:
+                    type: string
+                    enum: [high, medium, low]
+                  time_window:
+                    type: string
+                  reasoning:
+                    type: string
+                  business_impact:
+                    type: object
+                  recommended_actions:
+                    type: array
+                    items:
+                      type: string
+            proactive_alerts:
+              type: array
+              items:
+                type: object
+                properties:
+                  severity:
+                    type: string
+                    enum: [critical, warning, info]
+                  message:
+                    type: string
+                  recommended_action:
+                    type: string
+            business_insights:
+              type: object
+            maintenance_windows:
+              type: object
+            summary:
+              type: object
+
+    DowntimePredictionsRequest:
+      type: object
+      properties:
+        fips:
+          type: array
+          items:
+            type: string
+          example: ["sbi-fip", "hdfc-fip"]
+        prediction_horizon:
+          type: string
+          example: "24h"
+        confidence_threshold:
+          type: number
+          format: float
+          example: 0.7
+
+    ProactiveAlertsRequest:
+      type: object
+      properties:
+        severity_filter:
+          type: array
+          items:
+            type: string
+            enum: [critical, warning, info]
+          example: ["critical", "warning"]
+        fips:
+          type: array
+          items:
+            type: string
+          example: ["sbi-fip", "hdfc-fip"]
+        include_recommendations:
+          type: boolean
+paths:
+  /api/analytics/historical-patterns:
+    post:
+      summary: Analyze historical patterns using AI
+      description: Analyze patterns in FIP performance data without full predictions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HistoricalPatternsRequest'
+            example:
+              days_back: 30
+              pattern_types: ["maintenance", "performance", "anomalies"]
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  patterns:
+                    maintenance_windows:
+                      sbi-fip:
+                        - type: "recurring_daily"
+                          day_names: ["Sunday"]
+                          hours: ["02:00", "04:00"]
+                          confidence: 0.95
+                    performance_patterns:
+                      overall_health_trend: "stable"
+                      common_failure_patterns:
+                        - "Peak hour degradation (9-11 AM)"
+                        - "Weekend maintenance impact"
+                      peak_performance_hours: ["6-8 AM", "12-2 PM"]
+                    fip_performance:
+                      sbi-fip:
+                        health_trend: "improving"
+                        key_patterns:
+                          - "Consistent morning peak"
+                          - "Weekend load variations"
+                        stability_score: 0.89
+                  analysis_summary:
+                    time_range:
+                      start_date: "2024-01-27T00:00:00Z"
+                      end_date: "2024-02-27T00:00:00Z"
+                    fips_analyzed: 5
+                    pattern_types: ["maintenance", "performance", "anomalies"]
+                    data_quality:
+                      completeness: 0.98
+                      reliability: 0.95
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/business-insights:
+    post:
+      summary: Generate business-focused insights
+      description: Generate insights and strategic recommendations for business stakeholders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessInsightsRequest'
+            example:
+              insight_categories: ["executive", "operational", "strategic"]
+              time_horizon: "monthly"
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  insights:
+                    executive:
+                      summary:
+                        overall_health: "System stable with 3 FIPs requiring attention"
+                        key_risks:
+                          - "Potential 5000 users affected in next 24 hours"
+                          - "Estimated ₹50,000 revenue at risk"
+                      financial_impact:
+                        potential_revenue_loss: 50000
+                        operational_costs: 20000
+                        prevention_investment: 5000
+                    operational:
+                      resource_optimization:
+                        - "Implement dynamic load balancing"
+                        - "Optimize manual processing team schedules"
+                      automation_opportunities:
+                        - "Automated customer notifications"
+                        - "Auto-scaling of resources"
+                    strategic:
+                      infrastructure_investments:
+                        - recommendation: "Implement redundant connections"
+                          expected_roi: "300% within 6 months"
+                          priority: "high"
+                  performance_summary:
+                    system_health_score: 85
+                    reliability_trend: "improving"
+                    user_impact_projection: 5000
+                    cost_impact_projection: 50000
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/maintenance-schedule:
+    post:
+      summary: Get predicted maintenance schedules
+      description: Get maintenance schedules based on historical patterns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceScheduleRequest'
+            example:
+              days_back: 60
+              forecast_days: 30
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  maintenance_schedule:
+                    sbi-fip:
+                      historical_patterns:
+                        - type: "recurring_daily"
+                          day_names: ["Sunday"]
+                          hours: ["02:00", "04:00"]
+                          confidence: 0.95
+                      upcoming_predictions:
+                        - predicted_date: "This weekend"
+                          hours: ["02:00", "04:00"]
+                          confidence: 0.95
+                          type: "recurring"
+                          impact_estimate: "medium"
+                      maintenance_frequency: 4
+                      reliability_score: 0.6
+                  system_summary:
+                    total_fips_analyzed: 5
+                    fips_with_patterns: 3
+                    total_patterns_detected: 8
+                    forecast_period_days: 30
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/comprehensive:
+    post:
+      summary: Generate comprehensive AI-powered analytics
+      description: Generate comprehensive analytics using historical data and AI predictions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComprehensiveAnalyticsRequest'
+            example:
+              days_back: 7
+              prediction_horizon: "24h"
+              include_current_metrics: true
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/ComprehensiveAnalyticsResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/proactive-alerts:
+    post:
+      summary: Generate proactive alerts
+      description: Generate alerts based on historical patterns and current state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                severity_filter:
+                  type: array
+                  items:
+                    type: string
+                    enum: [critical, warning, info]
+                fips:
+                  type: array
+                  items:
+                    type: string
+                include_recommendations:
+                  type: boolean
+            example:
+              severity_filter: ["critical", "warning"]
+              fips: ["sbi-fip", "hdfc-fip"]
+              include_recommendations: true
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  alerts:
+                    - severity: "critical"
+                      fip_name: "sbi-fip"
+                      alert_type: "performance_degradation"
+                      message: "Consent success rate critically low at 45.5%"
+                      recommended_action: "Immediately activate manual data collection"
+                      confidence: 0.95
+                      generated_at: "2024-02-27T10:30:00Z"
+                      alert_id: "alert_sbi-fip_20240227_103000"
+                      business_impact:
+                        estimated_users_affected: 5000
+                        urgency_level: "immediate"
+                      detailed_recommendations:
+                        - "Activate manual data collection"
+                        - "Document incident for pattern analysis"
+                        - "Notify relevant stakeholders"
+                  summary:
+                    total_alerts: 5
+                    critical_count: 2
+                    warning_count: 3
+                    info_count: 0
+                    fips_with_alerts: ["sbi-fip", "hdfc-fip"]
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/analytics/prediction-accuracy:
+    get:
+      summary: Monitor prediction accuracy
+      description: Monitor the accuracy of previous predictions
+      parameters:
+        - in: query
+          name: window_hours
+          schema:
+            type: integer
+          description: Number of hours to analyze
+          example: 24
+      responses:
+        '200':
+          description: Successful analysis
+          content:
+            application/json:
+              example:
+                success: true
+                data:
+                  timestamp: "2024-02-27T10:30:00Z"
+                  analysis_window_hours: 24
+                  prediction_accuracy:
+                    overall_accuracy: 0.87
+                    high_confidence_accuracy: 0.94
+                    medium_confidence_accuracy: 0.83
+                    low_confidence_accuracy: 0.71
+                  false_positive_rate: 0.08
+                  false_negative_rate: 0.05
+                  early_warning_effectiveness: 0.91
+                  business_impact_accuracy:
+                    user_impact_estimation: 0.89
+                    cost_estimation: 0.76
+                    timeline_accuracy: 0.82
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/health:
+    get:
+      summary: Get API health status
+      description: Check the health status of the API service
+      operationId: getHealth
+      responses:
+        '200':
+          description: Successful health check
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                success: true
+                status: "healthy"
+                version: "1.0.0"
+                timestamp: "2024-03-20T10:30:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/fips:
+    get:
+      summary: Get all FIPs status
+      description: Get current status and metrics for all available FIPs
+      operationId: getFIPs
+      responses:
+        '200':
+          description: Successful retrieval of FIPs status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FIPsResponse'
+              example:
+                success: true
+                data:
+                  "sbi-fip":
+                    fip_name: "sbi-fip"
+                    status: "healthy"
+                    consent_success_rate: 98.5
+                    data_fetch_success_rate: 97.8
+                    avg_response_time: 2.3
+                    error_rate: 1.2
+                    last_updated: "2024-03-20T10:30:00Z"
+                  "hdfc-fip":
+                    fip_name: "hdfc-fip"
+                    status: "degraded"
+                    consent_success_rate: 85.2
+                    data_fetch_success_rate: 82.1
+                    avg_response_time: 4.8
+                    error_rate: 8.5
+                    last_updated: "2024-03-20T10:30:00Z"
+                timestamp: "2024-03-20T10:30:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /api/fips/health:
+    get:
+      summary: Get comprehensive FIP health analysis
+      description: Get detailed health analysis for all FIPs including trends and alerts
+      operationId: getFIPsHealth
+      responses:
+        '200':
+          description: Successful retrieval of FIPs health analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FIPsHealthResponse'
+              example:
+                success: true
+                data:
+                  fips_health:
+                    "sbi-fip":
+                      fip_name: "sbi-fip"
+                      health_score: 95.5
+                      performance_metrics:
+                        consent_success_trend: "stable"
+                        response_time_trend: "improving"
+                        error_rate_trend: "stable"
+                      historical_uptime: 99.8
+                      maintenance_info:
+                        in_maintenance: false
+                        next_maintenance: "2024-03-21T02:00:00Z"
+                      alerts:
+                        - severity: "warning"
+                          message: "Response time slightly elevated"
+                  system_health:
+                    overall_health_score: 96.5
+                    healthy_fips_count: 8
+                    degraded_fips_count: 2
+                    critical_fips_count: 0
+                timestamp: "2024-03-20T10:30:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error' 
