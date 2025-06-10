@@ -103,6 +103,7 @@ class PrometheusHistoricalAnalyzer:
             'end': end_time.isoformat() + 'Z', 
             'step': step
         }
+        # logger.info(f"Prometheus query params: {params}")
         
         try:
             response = requests.get(
@@ -415,7 +416,6 @@ class PrometheusHistoricalAnalyzer:
     def _calculate_stability_features(self, fip_data: Dict[str, pd.DataFrame]) -> Dict:
         """Calculate system stability features"""
         stability_features = {}
-        
         # Status changes analysis
         if 'status' in fip_data:
             status_df = fip_data['status']
@@ -450,7 +450,7 @@ class PrometheusHistoricalAnalyzer:
                 if len(values) > 0:
                     cv = values.std() / values.mean() if values.mean() != 0 else float('inf')
                     all_metrics_stability.append(cv)
-        
+
         if all_metrics_stability:
             stability_features['overall_stability'] = {
                 'average_coefficient_of_variation': float(np.mean(all_metrics_stability)),
@@ -476,7 +476,7 @@ class PrometheusHistoricalAnalyzer:
                 
                 if not fip_status.empty:
                     # Find periods where status was critical (0) or degraded (0.5)
-                    downtime_periods = fip_status[fip_status['value'] < 1.0]
+                    downtime_periods = fip_status[fip_status['value'] < 0.1]
                     
                     if not downtime_periods.empty:
                         # Group by hour and day of week to find patterns

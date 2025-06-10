@@ -1,5 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
+from utils import PredictionType, FIPStatus
 
 db = SQLAlchemy()
 
@@ -7,7 +8,7 @@ class Prediction(db.Model):
     """Store AI predictions for FIPs"""
     id = db.Column(db.Integer, primary_key=True)
     fip_name = db.Column(db.String(50), nullable=False)
-    prediction_type = db.Column(db.String(50), nullable=False)  # downtime, maintenance, degradation
+    prediction_type = db.Column(db.Enum(PredictionType), nullable=False)
     probability = db.Column(db.Float, nullable=False)
     time_window = db.Column(db.String(100), nullable=False)
     confidence = db.Column(db.String(20), nullable=False)  # high, medium, low
@@ -18,7 +19,7 @@ class Prediction(db.Model):
         return {
             'id': self.id,
             'fip_name': self.fip_name,
-            'prediction_type': self.prediction_type,
+            'prediction_type': self.prediction_type.value,
             'probability': self.probability,
             'time_window': self.time_window,
             'confidence': self.confidence,
@@ -33,7 +34,7 @@ class FIPMetrics(db.Model):
     data_fetch_success_rate = db.Column(db.Float, nullable=False)
     avg_response_time = db.Column(db.Float, nullable=False)
     error_rate = db.Column(db.Float, nullable=False)
-    current_status = db.Column(db.String(20), nullable=False)  # healthy, degraded, critical
+    current_status = db.Column(db.Enum(FIPStatus), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
@@ -43,6 +44,6 @@ class FIPMetrics(db.Model):
             'data_fetch_success_rate': self.data_fetch_success_rate,
             'avg_response_time': self.avg_response_time,
             'error_rate': self.error_rate,
-            'current_status': self.current_status,
+            'current_status': self.current_status.value,
             'timestamp': self.timestamp.isoformat()
         }
