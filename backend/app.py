@@ -13,7 +13,8 @@ from utils.helpers import get_fip_status_from_success_rate
 from services.bedrock_service import BedrockService
 from services.metrics_service import MetricsService
 from services.prometheus_service import PrometheusService
-from models.predictions import db, Prediction
+from models import db
+from models.predictions import Prediction
 from utils.logger import logger
 from services.backfill_historical_data import backfill_historical_metrics, GenerateHistoricalData
 from services.predictor import predictor_main
@@ -22,10 +23,13 @@ load_dotenv()
 
 from services.fip_ai_analytics_service import FIPAIAnalyticsService
 from services.enhanced_bedrock_service import PredictionResult, Alert
+from services.alert_service import AlertService, AlertMetrics, AlertContext
 from dataclasses import asdict
 import asyncio
 from functools import wraps
 from utils.enums import PredictionType
+from models.webhook import WebhookSubscription
+import requests
 
 
 app = Flask(__name__)
@@ -52,6 +56,7 @@ db.init_app(app)
 bedrock_service = BedrockService(use_mock=not app.config['USE_REAL_BEDROCK'])
 metrics_service = MetricsService()
 prometheus_service = PrometheusService()
+alert_service = AlertService()
 
 # Initialize the AI Analytics service
 ai_analytics_service = FIPAIAnalyticsService(
@@ -330,15 +335,70 @@ def get_proactive_alerts():
         # Get current metrics
         current_metrics = metrics_service.get_all_fips_status()
         
-        # Generate proactive alerts
-        alerts = bedrock_service.generate_proactive_alerts(current_metrics)
+        # Get historical data for analysis
+        historical_data = ai_analytics_service.historical_analyzer.extract_historical_data(
+            days_back=1,  # Last 24 hours
+            step="1m"     # 1-minute resolution
+        )
+        
+        # Generate alerts using AlertService
+        alerts = alert_service.generate_alerts(historical_data, current_metrics)
+        
+        # Convert dataclass objects to dictionaries for JSON serialization
+        alert_dicts = [
+            {
+                'alert_id': alert.alert_id,
+                'fip_name': alert.fip_name,
+                'severity': alert.severity,
+                'alert_type': alert.alert_type,
+                'message': alert.message,
+                'metrics': {
+                    'current_rate': alert.metrics.current_rate,
+                    'historical_avg': alert.metrics.historical_avg,
+                    'deviation': alert.metrics.deviation,
+                    'threshold': alert.metrics.threshold
+                },
+                'context': {
+                    'affected_users': alert.context.affected_users,
+                    'business_impact': alert.context.business_impact,
+                    'historical_pattern': alert.context.historical_pattern,
+                    'peak_hour': alert.context.peak_hour
+                },
+                'recommended_actions': alert.recommended_actions,
+                'timestamp': alert.timestamp,
+                'confidence': alert.confidence
+            }
+            for alert in alerts
+        ]
+        
+        # If we have alerts and Bedrock is available, enhance recommendations
+        if alert_dicts and not bedrock_service.use_mock:
+            try:
+                enhanced_alerts = bedrock_service.enhance_alert_recommendations({
+                    'alerts': alert_dicts,
+                    'current_metrics': current_metrics,
+                    'historical_context': historical_data
+                })
+                alert_dicts = enhanced_alerts.get('alerts', alert_dicts)
+            except Exception as e:
+                logger.error(f"Error enhancing alerts with Bedrock: {e}")
         
         return jsonify({
             'success': True,
-            'data': alerts,
+            'data': {
+                'alerts': alert_dicts,
+                'summary': {
+                    'total_alerts': len(alert_dicts),
+                    'critical_alerts': len([a for a in alert_dicts if a['severity'] == 'critical']),
+                    'warning_alerts': len([a for a in alert_dicts if a['severity'] == 'warning']),
+                    'info_alerts': len([a for a in alert_dicts if a['severity'] == 'info']),
+                    'affected_fips': len(set(a['fip_name'] for a in alert_dicts))
+                }
+            },
             'timestamp': datetime.utcnow().isoformat()
         })
     except Exception as e:
+        logger.error(f"Error in get_proactive_alerts: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/recommendations', methods=['POST'])
@@ -407,6 +467,206 @@ def push_historical_metrics():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/api/webhooks', methods=['GET'])
+def get_webhook_subscriptions():
+    """Get all webhook subscriptions"""
+    try:
+        subscriptions = WebhookSubscription.query.all()
+        return jsonify({
+            'success': True,
+            'data': [subscription.to_dict() for subscription in subscriptions],
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhooks', methods=['POST'])
+def create_webhook_subscription():
+    """Create a new webhook subscription"""
+    try:
+        data = request.get_json()
+        subscription = WebhookSubscription(
+            name=data['name'],
+            url=data['url'],
+            method=data.get('method', 'POST'),
+            headers=data.get('headers', {}),
+            enabled=data.get('enabled', True),
+            alert_types=data.get('alertTypes', ['critical', 'warning', 'info'])
+        )
+        db.session.add(subscription)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'data': subscription.to_dict(),
+            'message': 'Webhook subscription created successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhooks/<subscription_id>', methods=['PUT'])
+def update_webhook_subscription(subscription_id):
+    """Update a webhook subscription"""
+    try:
+        data = request.get_json()
+        subscription = WebhookSubscription.query.get(subscription_id)
+        if not subscription:
+            return jsonify({'success': False, 'error': 'Subscription not found'}), 404
+            
+        subscription.name = data.get('name', subscription.name)
+        subscription.url = data.get('url', subscription.url)
+        subscription.method = data.get('method', subscription.method)
+        subscription.headers = data.get('headers', subscription.headers)
+        subscription.enabled = data.get('enabled', subscription.enabled)
+        subscription.alert_types = data.get('alertTypes', subscription.alert_types)
+        
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'data': subscription.to_dict(),
+            'message': 'Webhook subscription updated successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhooks/<subscription_id>', methods=['DELETE'])
+def delete_webhook_subscription(subscription_id):
+    """Delete a webhook subscription"""
+    try:
+        subscription = WebhookSubscription.query.get(subscription_id)
+        if not subscription:
+            return jsonify({'success': False, 'error': 'Subscription not found'}), 404
+            
+        db.session.delete(subscription)
+        db.session.commit()
+        return jsonify({
+            'success': True,
+            'message': 'Webhook subscription deleted successfully'
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhooks/test', methods=['POST'])
+def test_webhook():
+    """Test a webhook subscription"""
+    try:
+        data = request.get_json()
+        url = data.get('url')
+        method = data.get('method', 'POST')
+        headers = data.get('headers', {})
+        
+        # Send test notification
+        test_data = {
+            'type': 'test',
+            'message': 'This is a test notification',
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        
+        response = requests.request(
+            method=method,
+            url=url,
+            json=test_data,
+            headers=headers,
+            timeout=5
+        )
+        
+        return jsonify({
+            'success': True,
+            'status_code': response.status_code,
+            'response': response.text,
+            'message': 'Test notification sent successfully'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/webhooks/test-all', methods=['POST'])
+def test_all_webhooks():
+    """Test all enabled webhook subscriptions with a test alert"""
+    try:
+        # Create a test alert
+        test_alert = Alert(
+            alert_id=f"test_alert_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}",
+            fip_name="test-fip",
+            severity="info",
+            alert_type="test_notification",
+            message="This is a test alert notification",
+            metrics=AlertMetrics(
+                current_rate=95.0,
+                historical_avg=90.0,
+                deviation=5.0,
+                threshold=70.0
+            ),
+            context=AlertContext(
+                affected_users=0,
+                business_impact="No impact - test notification",
+                historical_pattern="Test pattern",
+                peak_hour=datetime.utcnow().hour
+            ),
+            recommended_actions=["No action needed - test notification"],
+            timestamp=datetime.utcnow().isoformat(),
+            confidence=1.0
+        )
+        
+        # Send test alert to all enabled webhooks
+        alert_service.notify_webhooks(test_alert)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Test alert sent to all enabled webhooks'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/alerts/<alert_id>/notify', methods=['POST'])
+def notify_alert_to_webhooks(alert_id):
+    """Send a specific alert to all enabled webhooks"""
+    try:
+        # Check if content type is JSON
+        if not request.is_json:
+            return jsonify({
+                'success': False,
+                'error': 'Content-Type must be application/json'
+            }), 415
+
+        # Get alert data from request body
+        alert_data = request.get_json(force=True)  # force=True will handle requests without proper content-type
+        if not alert_data:
+            return jsonify({
+                'success': False,
+                'error': 'Alert data is required'
+            }), 400
+
+        # Get all enabled webhooks
+        subscriptions = WebhookSubscription.query.filter_by(enabled=True).all()
+        
+        # Send alert to each enabled webhook
+        for subscription in subscriptions:
+            if alert_data.get('severity') in subscription.alert_types:
+                try:
+                    # Send webhook notification
+                    response = requests.request(
+                        method=subscription.method,
+                        url=subscription.url,
+                        json=alert_data,
+                        headers=subscription.headers or {},
+                        timeout=5
+                    )
+                    
+                    if response.status_code >= 400:
+                        logger.error(f"Webhook notification failed for {subscription.url}: {response.text}")
+                except Exception as e:
+                    logger.error(f"Error sending webhook notification to {subscription.url}: {e}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Alert {alert_id} sent to all enabled webhooks'
+        })
+    except Exception as e:
+        logger.error(f"Error in notify_alert_to_webhooks: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 # ================================
 # HELPER FUNCTIONS

@@ -1,8 +1,6 @@
 from datetime import datetime
-from flask_sqlalchemy import SQLAlchemy
 from utils import PredictionType, FIPStatus
-
-db = SQLAlchemy()
+from . import db
 
 class Prediction(db.Model):
     """Store AI predictions for FIPs"""

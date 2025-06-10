@@ -56,7 +56,7 @@ class EnhancedBedrockService:
         Analyze historical data patterns using AI to identify trends,
         anomalies, and maintenance windows
         """
-        if not self.use_mock:
+        if self.use_mock:
             return self._mock_analyze_historical_patterns(comprehensive_report)
         else:
             return self._bedrock_analyze_historical_patterns(comprehensive_report)
@@ -66,7 +66,7 @@ class EnhancedBedrockService:
         """
         Generate AI-powered downtime predictions for each FIP
         """
-        if not self.use_mock:
+        if self.use_mock:
             return self._mock_predict_downtime_events(comprehensive_report, prediction_horizon)
         else:
             return self._bedrock_predict_downtime_events(comprehensive_report, prediction_horizon)
@@ -77,7 +77,9 @@ class EnhancedBedrockService:
         Generate intelligent proactive alerts based on historical patterns
         and current system state
         """
-        if not self.use_mock:
+        logger.info(f"Bedrock use mock: {self.use_mock}")
+        if self.use_mock:
+            logger.info(f"Bedrock use mock: {self.use_mock} | _mock_generate_proactive_alerts")
             return self._mock_generate_proactive_alerts(comprehensive_report, current_metrics)
         else:
             return self._bedrock_generate_proactive_alerts(comprehensive_report, current_metrics)
@@ -87,7 +89,7 @@ class EnhancedBedrockService:
         """
         Generate business-focused insights and recommendations
         """
-        if not self.use_mock:
+        if self.use_mock:
             return self._mock_generate_business_insights(comprehensive_report, predictions)
         else:
             return self._bedrock_generate_business_insights(comprehensive_report, predictions)
@@ -572,7 +574,6 @@ Focus on actionable business insights that drive strategic decisions and operati
         for fip_name, features in fip_features.items():
             prediction = self._generate_realistic_prediction(fip_name, features, prediction_horizon)
             predictions[fip_name] = prediction
-        
         return predictions
     
     def _mock_generate_proactive_alerts(self, comprehensive_report: Dict,
@@ -585,7 +586,7 @@ Focus on actionable business insights that drive strategic decisions and operati
         for fip_name, features in fip_features.items():
             fip_alerts = self._generate_fip_alerts(fip_name, features, current_metrics.get(fip_name, {}))
             alerts.extend(fip_alerts)
-        
+        logger.info(f"Alerts: {alerts}")
         # Sort alerts by severity and confidence
         severity_order = {'critical': 0, 'warning': 1, 'info': 2}
         alerts.sort(key=lambda x: (severity_order.get(x.severity, 3), -x.confidence))
