@@ -1,0 +1,810 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Activity, 
+  AlertTriangle, 
+  CheckCircle, 
+  Clock, 
+  Users, 
+  BarChart3, 
+  Brain, 
+  RefreshCw,
+  Zap,
+  TrendingUp,
+  TrendingDown,
+  Menu,
+  X,
+  Home,
+  Settings,
+  History,
+  Bell,
+  FileText,
+  Shield,
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
+  Target,
+  Eye,
+  Database
+} from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+
+const AIAnalyticsDashboard = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [fipsData, setFipsData] = useState({});
+  const [aiAnalytics, setAiAnalytics] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('ai-overview');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [selectedTimeHorizon, setSelectedTimeHorizon] = useState('24h');
+
+  // Mock data (replace with actual API calls)
+  const mockFipsData = {
+    'sbi-fip': { 
+      bank_name: 'State Bank of India', 
+      current_status: 'healthy', 
+      consent_success_rate: 89.2, 
+      data_fetch_success_rate: 87.1,
+      avg_response_time: 1.2, 
+      error_rate: 10.8,
+      user_base: 4500,
+      trend: 'stable'
+    },
+    'hdfc-fip': { 
+      bank_name: 'HDFC Bank', 
+      current_status: 'degraded', 
+      consent_success_rate: 61.3, 
+      data_fetch_success_rate: 59.8,
+      avg_response_time: 3.1, 
+      error_rate: 38.7,
+      user_base: 3200,
+      trend: 'declining'
+    },
+    'icici-fip': { 
+      bank_name: 'ICICI Bank', 
+      current_status: 'healthy', 
+      consent_success_rate: 87.4, 
+      data_fetch_success_rate: 85.2,
+      avg_response_time: 1.8, 
+      error_rate: 12.6,
+      user_base: 2800,
+      trend: 'stable'
+    },
+    'axis-fip': { 
+      bank_name: 'Axis Bank', 
+      current_status: 'critical', 
+      consent_success_rate: 12.1, 
+      data_fetch_success_rate: 9.8,
+      avg_response_time: 8.2, 
+      error_rate: 87.9,
+      user_base: 1200,
+      trend: 'critical'
+    }
+  };
+
+  const mockAiAnalytics = {
+    comprehensive_analysis: {
+      system_health_score: 6.7,
+      overall_risk: 'high',
+      total_fips_analyzed: 11,
+      high_risk_fips: 2,
+      users_at_risk: 4400,
+      revenue_at_risk: 487000
+    },
+    predictions: {
+      'axis-fip': {
+        downtime_probability: 0.95,
+        confidence_level: 'high',
+        time_window: 'next 30 minutes',
+        reasoning: 'Critical failure state with cascading errors detected. Immediate intervention required.',
+        business_impact: {
+          affected_users: 1200,
+          revenue_impact_inr: 180000,
+          user_satisfaction_impact: 'severe'
+        },
+        recommended_actions: [
+          'Immediately activate manual data collection',
+          'Send proactive notifications to all users',
+          'Escalate to vendor technical team'
+        ]
+      },
+      'hdfc-fip': {
+        downtime_probability: 0.76,
+        confidence_level: 'high',
+        time_window: 'next 2-4 hours',
+        reasoning: 'Degraded performance patterns indicate elevated maintenance window risk.',
+        business_impact: {
+          affected_users: 2400,
+          revenue_impact_inr: 240000,
+          user_satisfaction_impact: 'moderate'
+        },
+        recommended_actions: [
+          'Prepare fallback procedures',
+          'Monitor performance trends closely',
+          'Send advance notice to users'
+        ]
+      }
+    },
+    patterns_detected: [
+      'Peak hour degradation pattern detected across 3 FIPs',
+      'Maintenance window correlation found between HDFC and BOI',
+      'Cascading failure risk identified in Axis-HDFC dependency'
+    ],
+    proactive_alerts: [
+      {
+        severity: 'critical',
+        fip_name: 'axis-fip',
+        message: 'AXIS-FIP Complete Outage - Immediate action required',
+        recommended_action: 'Activate all emergency procedures',
+        confidence: 0.95,
+        timestamp: new Date().toISOString()
+      },
+      {
+        severity: 'warning', 
+        fip_name: 'hdfc-fip',
+        message: 'HDFC-FIP Degradation Detected - 75% probability of outage',
+        recommended_action: 'Prepare fallback procedures and monitor closely',
+        confidence: 0.87,
+        timestamp: new Date().toISOString()
+      }
+    ]
+  };
+
+  useEffect(() => {
+    fetchAIAnalytics();
+    setFipsData(mockFipsData);
+  }, []);
+
+  const fetchAIAnalytics = async () => {
+    setLoading(true);
+    try {
+      // Simulate API call to comprehensive analytics
+      setTimeout(() => {
+        setAiAnalytics(mockAiAnalytics);
+        setLoading(false);
+        setLastUpdated(new Date());
+      }, 1500);
+    } catch (err) {
+      setError('Failed to fetch AI analytics');
+      setLoading(false);
+    }
+  };
+
+  const generateComprehensiveAnalysis = async () => {
+    setLoading(true);
+    try {
+      // Simulate comprehensive AI analysis API call
+      setTimeout(() => {
+        setAiAnalytics({
+          ...mockAiAnalytics,
+          comprehensive_analysis: {
+            ...mockAiAnalytics.comprehensive_analysis,
+            system_health_score: Math.random() * 10,
+            last_updated: new Date().toISOString()
+          }
+        });
+        setLoading(false);
+        setLastUpdated(new Date());
+        
+        // Show success notification
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+        notification.innerHTML = '🧠 Comprehensive AI analysis completed successfully';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+      }, 3000);
+    } catch (err) {
+      setError('Failed to generate analysis');
+      setLoading(false);
+    }
+  };
+
+  const generateQuickInsights = async () => {
+    setLoading(true);
+    try {
+      // Simulate quick insights API call
+      setTimeout(() => {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in';
+        notification.innerHTML = '⚡ Quick insights generated successfully';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+        setLoading(false);
+      }, 1500);
+    } catch (err) {
+      setError('Failed to generate insights');
+      setLoading(false);
+    }
+  };
+
+  const StatusBadge = ({ status }) => {
+    const statusConfig = {
+      healthy: { color: 'status-healthy', text: 'Healthy' },
+      degraded: { color: 'status-degraded', text: 'Degraded' },
+      critical: { color: 'status-critical', text: 'Critical' },
+      warning: { color: 'status-degraded', text: 'Warning' }
+    };
+    
+    const config = statusConfig[status] || statusConfig.healthy;
+    
+    return (
+      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.color}`}>
+        {config.text}
+      </span>
+    );
+  };
+
+  const formatPercentage = (num) => `${parseFloat(num).toFixed(1)}%`;
+
+  // Chart data preparation
+  const chartData = Object.entries(fipsData).map(([fipId, fip]) => ({
+    name: fip.bank_name.split(' ')[0],
+    consent: parseFloat(fip.consent_success_rate),
+    dataFetch: parseFloat(fip.data_fetch_success_rate),
+    responseTime: parseFloat(fip.avg_response_time),
+    errorRate: parseFloat(fip.error_rate),
+    fullName: fip.bank_name
+  }));
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-slate-800 border border-slate-600 rounded-lg p-3 shadow-lg">
+          <p className="font-semibold text-white mb-2">{payload[0]?.payload?.fullName || label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {typeof entry.value === 'number' ? entry.value.toFixed(1) : entry.value}
+              {entry.name.includes('Rate') || entry.name.includes('consent') || entry.name.includes('dataFetch') ? '%' : 
+               entry.name.includes('Time') ? 's' : ''}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // 24-hour prediction timeline data
+  const timelineData = [
+    { time: '00:00', predicted_health: 8.2, actual_health: 8.1, risk_score: 0.15 },
+    { time: '04:00', predicted_health: 7.9, actual_health: 7.6, risk_score: 0.25 },
+    { time: '08:00', predicted_health: 6.8, actual_health: 6.7, risk_score: 0.45 },
+    { time: '12:00', predicted_health: 6.2, actual_health: 6.1, risk_score: 0.58 },
+    { time: '16:00', predicted_health: 5.8, actual_health: 5.7, risk_score: 0.72 },
+    { time: '20:00', predicted_health: 6.4, actual_health: 6.5, risk_score: 0.55 },
+    { time: '24:00', predicted_health: 7.1, actual_health: 0, risk_score: 0.35 }
+  ];
+
+  const tabs = [
+    { id: 'ai-overview', name: 'AI Overview', icon: Brain },
+    { id: 'ai-predictions', name: 'AI Predictions', icon: Target },
+    { id: 'ai-patterns', name: 'Pattern Analysis', icon: BarChart3 },
+    { id: 'ai-insights', name: 'Business Insights', icon: FileText },
+    { id: 'ai-alerts', name: 'Smart Alerts', icon: Bell },
+    { id: 'ai-capacity', name: 'Capacity Planning', icon: TrendingUp },
+    { id: 'ai-anomalies', name: 'Anomaly Detection', icon: Eye }
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-900" style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)'}}>
+      {/* Collapsible Sidebar */}
+      <div className={`fixed left-0 top-0 h-full z-50 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
+        <div className="h-full glass-header border-r border-slate-700/50 p-4">
+          {/* Sidebar Header */}
+          <div className="flex items-center justify-between mb-8">
+            {sidebarOpen ? (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-white">AI Analytics</h1>
+                  <p className="text-xs text-slate-400">Predictive Intelligence</p>
+                </div>
+              </div>
+            ) : (
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl flex items-center justify-center">
+                <Brain className="w-6 h-6 text-white" />
+              </div>
+            )}
+            <button 
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+            >
+              {sidebarOpen ? <ChevronLeft className="w-5 h-5 text-slate-400" /> : <ChevronRight className="w-5 h-5 text-slate-400" />}
+            </button>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="space-y-2">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+                    activeTab === tab.id 
+                      ? 'bg-purple-500/20 text-purple-400 font-medium' 
+                      : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                  }`}
+                >
+                  <Icon className="w-5 h-5" />
+                  {sidebarOpen && (
+                    <span className="flex-1 text-left">{tab.name}</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* AI Status Indicator */}
+          {sidebarOpen && (
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="text-green-400 text-sm font-medium">AI Systems Online</span>
+                </div>
+                <p className="text-xs text-slate-400">Last analysis: {lastUpdated.toLocaleTimeString()}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className={`transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+        {/* Header */}
+        <header className="glass-header sticky top-0 z-50 border-b border-slate-700/50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-700 rounded-xl flex items-center justify-center shadow-lg">
+                  <Brain className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-white">AI-Powered FIP Analytics</h1>
+                  <p className="text-sm text-slate-400">Advanced predictive insights and pattern analysis</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 text-sm text-slate-400">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>AI Live</span>
+                  <span>•</span>
+                  <span>{lastUpdated.toLocaleTimeString()}</span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={generateQuickInsights}
+                    className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-slate-500 text-white rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
+                    disabled={loading}
+                  >
+                    <Zap className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Quick Insights</span>
+                  </button>
+                  <button
+                    onClick={generateComprehensiveAnalysis}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                    disabled={loading}
+                  >
+                    <Brain className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">{loading ? 'Analyzing...' : 'Deep AI Analysis'}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'ai-overview' && (
+            <div className="animate-slide-up space-y-8">
+              {/* AI System Overview Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in">
+                <div className="metric-card">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <Brain className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-slate-400 text-sm">AI Health Score</p>
+                      <p className="text-3xl font-bold text-white">
+                        {aiAnalytics?.comprehensive_analysis?.system_health_score?.toFixed(1) || '...'}<span className="text-lg text-slate-500">/10</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">AI-powered assessment</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs text-purple-400">
+                    <Brain className="w-3 h-3 mr-1" />
+                    Machine Learning
+                  </div>
+                </div>
+
+                <div className="metric-card">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <AlertTriangle className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-slate-400 text-sm">High Risk FIPs</p>
+                      <p className="text-3xl font-bold text-white">{aiAnalytics?.comprehensive_analysis?.high_risk_fips || '...'}</p>
+                      <p className="text-xs text-slate-500 mt-1">Critical attention needed</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs text-red-400">
+                    <AlertTriangle className="w-3 h-3 mr-1" />
+                    Immediate action required
+                  </div>
+                </div>
+
+                <div className="metric-card">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-slate-400 text-sm">Users at Risk</p>
+                      <p className="text-3xl font-bold text-white">
+                        {aiAnalytics?.comprehensive_analysis?.users_at_risk?.toLocaleString() || '...'}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">Next 24 hours</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs text-orange-400">
+                    <Target className="w-3 h-3 mr-1" />
+                    AI prediction
+                  </div>
+                </div>
+
+                <div className="metric-card">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center shadow-lg">
+                      <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-slate-400 text-sm">Revenue at Risk</p>
+                      <p className="text-3xl font-bold text-white">
+                        ₹{((aiAnalytics?.comprehensive_analysis?.revenue_at_risk || 0) / 1000).toFixed(0)}K
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">Potential impact</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs text-yellow-400">
+                    <Clock className="w-3 h-3 mr-1" />
+                    24h forecast
+                  </div>
+                </div>
+              </div>
+
+              {/* Main Dashboard Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                {/* AI Predictions Panel - Takes 3 columns */}
+                <div className="lg:col-span-3">
+                  <div className="glass-card rounded-xl p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-3">
+                        <Target className="w-6 h-6 text-purple-500" />
+                        <h2 className="text-xl font-semibold text-white">AI Downtime Predictions</h2>
+                        <div className="px-3 py-1 bg-purple-500/20 text-purple-400 text-sm rounded-full">
+                          Real-time Analysis
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <select 
+                          value={selectedTimeHorizon}
+                          onChange={(e) => setSelectedTimeHorizon(e.target.value)}
+                          className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
+                        >
+                          <option value="6h">Next 6 Hours</option>
+                          <option value="24h">Next 24 Hours</option>
+                          <option value="7d">Next 7 Days</option>
+                        </select>
+                        <button 
+                          className="btn-refresh"
+                          onClick={generateComprehensiveAnalysis}
+                          disabled={loading}
+                        >
+                          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                          <span>Refresh</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 24-Hour Prediction Timeline */}
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-white mb-4">24-Hour Prediction Timeline</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={timelineData}>
+                            <defs>
+                              <linearGradient id="healthGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
+                              </linearGradient>
+                              <linearGradient id="predictionGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05}/>
+                              </linearGradient>
+                              <linearGradient id="riskGradient" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#ef4444" stopOpacity={0.05}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                            <XAxis dataKey="time" stroke="#94a3b8" />
+                            <YAxis stroke="#94a3b8" domain={[0, 10]} />
+                            <Tooltip content={<CustomTooltip />} />
+                            <Area type="monotone" dataKey="predicted_health" stroke="#8b5cf6" fillOpacity={1} fill="url(#predictionGradient)" strokeWidth={2} strokeDasharray="5 5" name="AI Prediction" />
+                            <Area type="monotone" dataKey="actual_health" stroke="#10b981" fillOpacity={1} fill="url(#healthGradient)" strokeWidth={2} name="Actual Health" />
+                            <Line type="monotone" dataKey="risk_score" stroke="#ef4444" strokeWidth={2} name="Risk Score" dot={{ r: 4 }} />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+
+                    {/* Individual FIP Predictions */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {Object.entries(aiAnalytics?.predictions || {}).map(([fipId, prediction]) => {
+                        const fip = fipsData[fipId];
+                        if (!fip) return null;
+                        
+                        return (
+                          <div key={fipId} className="glass-light rounded-xl p-6 hover:border-purple-500/40 transition-all duration-300">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h3 className="text-lg font-semibold text-white">{fip.bank_name}</h3>
+                                <p className="text-sm text-slate-400">{fipId}</p>
+                              </div>
+                              <StatusBadge status={fip.current_status} />
+                            </div>
+                            
+                            <div className="mb-4">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="text-sm text-slate-400">Downtime Probability</span>
+                                <span className="font-semibold text-white">
+                                  {(prediction.downtime_probability * 100).toFixed(0)}%
+                                </span>
+                              </div>
+                              <div className="w-full bg-slate-700 rounded-full h-3">
+                                <div 
+                                  className={`h-3 rounded-full transition-all duration-1000 ${
+                                    prediction.downtime_probability > 0.8 ? 'bg-gradient-to-r from-red-500 to-red-600' :
+                                    prediction.downtime_probability > 0.5 ? 'bg-gradient-to-r from-yellow-500 to-yellow-600' :
+                                    'bg-gradient-to-r from-green-500 to-green-600'
+                                  }`}
+                                  style={{ width: `${Math.min(prediction.downtime_probability * 100, 100)}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2 mb-4 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Time Window:</span>
+                                <span className="text-white">{prediction.time_window}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Confidence:</span>
+                                <span className="text-white">{prediction.confidence_level}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-slate-400">Affected Users:</span>
+                                <span className="text-white">{prediction.business_impact?.affected_users?.toLocaleString()}</span>
+                              </div>
+                            </div>
+                            
+                            <div className="bg-slate-800/50 rounded-lg p-3 mb-4">
+                              <p className="text-xs text-slate-400 mb-1">AI Reasoning:</p>
+                              <p className="text-sm text-slate-300">{prediction.reasoning}</p>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <p className="text-xs text-slate-400 mb-2">Recommended Actions:</p>
+                              {prediction.recommended_actions?.slice(0, 2).map((action, index) => (
+                                <div key={index} className="flex items-start gap-2 text-sm">
+                                  <div className="w-1.5 h-1.5 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
+                                  <span className="text-slate-300">{action}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Alerts & Insights Sidebar - Takes 1 column */}
+                <div className="lg:col-span-1 space-y-6">
+                  {/* Critical Alerts */}
+                  <div className="glass-card rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Critical AI Alerts</h3>
+                    <div className="space-y-4">
+                      {aiAnalytics?.proactive_alerts?.map((alert, index) => (
+                        <div key={index} className={`rounded-lg p-4 ${
+                          alert.severity === 'critical' ? 'bg-red-500/10 border border-red-500/30' :
+                          alert.severity === 'warning' ? 'bg-yellow-500/10 border border-yellow-500/30' :
+                          'bg-blue-500/10 border border-blue-500/30'
+                        }`}>
+                          <div className="flex items-center gap-2 mb-2">
+                            <AlertTriangle className={`w-4 h-4 ${
+                              alert.severity === 'critical' ? 'text-red-400' :
+                              alert.severity === 'warning' ? 'text-yellow-400' :
+                              'text-blue-400'
+                            }`} />
+                            <span className="text-sm font-medium text-white">{alert.fip_name.toUpperCase()}</span>
+                          </div>
+                          <p className="text-sm text-slate-300 mb-2">{alert.message}</p>
+                          <p className="text-xs text-slate-400">{alert.recommended_action}</p>
+                        </div>
+                      )) || <div className="text-slate-400 text-sm">No critical alerts</div>}
+                    </div>
+                  </div>
+
+                  {/* AI Pattern Detection */}
+                  <div className="glass-card rounded-xl p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">AI Pattern Detection</h3>
+                    <div className="space-y-3">
+                      {aiAnalytics?.patterns_detected?.map((pattern, index) => (
+                        <div key={index} className="flex items-start gap-3">
+                          <div className="w-6 h-6 rounded-full bg-purple-500/20 border border-purple-500/50 flex items-center justify-center flex-shrink-0">
+                            <BarChart3 className="w-4 h-4 text-purple-400" />
+                          </div>
+                          <p className="text-sm text-slate-300">{pattern}</p>
+                        </div>
+                      )) || <div className="text-slate-400 text-sm">Detecting patterns...</div>}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Performance Comparison Chart */}
+              <div className="glass-card rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <BarChart3 className="w-6 h-6 text-green-500" />
+                  <h3 className="text-xl font-semibold text-white">Performance Comparison</h3>
+                </div>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis dataKey="name" stroke="#94a3b8" />
+                      <YAxis stroke="#94a3b8" domain={[0, 100]} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="consent" fill="#3b82f6" name="Consent Success (%)" />
+                      <Bar dataKey="dataFetch" fill="#10b981" name="Data Fetch Success (%)" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Other tabs would render different AI analytics content */}
+          {activeTab !== 'ai-overview' && (
+            <div className="glass-card rounded-xl p-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Brain className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  {tabs.find(t => t.id === activeTab)?.name}
+                </h3>
+                <p className="text-slate-400 mb-6">Advanced AI analytics for this section</p>
+                <button 
+                  className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg font-medium hover:from-purple-600 hover:to-purple-700 transition-all duration-200"
+                  onClick={generateComprehensiveAnalysis}
+                >
+                  Generate AI Analysis
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+
+      {/* Add CSS for existing styles */}
+      <style>{`
+        .glass-header {
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(20px);
+        }
+        
+        .glass-card {
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .glass-light {
+          background: rgba(15, 23, 42, 0.4);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .metric-card {
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(148, 163, 184, 0.1);
+          border-radius: 16px;
+          padding: 1.5rem;
+          transition: all 0.3s ease;
+        }
+        
+        .metric-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(139, 92, 246, 0.3);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-refresh {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          background: rgba(71, 85, 105, 0.5);
+          color: #f8fafc;
+          border: 1px solid rgba(148, 163, 184, 0.2);
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        
+        .btn-refresh:hover {
+          background: rgba(71, 85, 105, 0.7);
+        }
+        
+        .status-healthy {
+          background: rgba(16, 185, 129, 0.2);
+          color: #10b981;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .status-degraded {
+          background: rgba(245, 158, 11, 0.2);
+          color: #f59e0b;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .status-critical {
+          background: rgba(239, 68, 68, 0.2);
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .animate-slide-up {
+          animation: slideUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default AIAnalyticsDashboard;
