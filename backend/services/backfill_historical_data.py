@@ -300,14 +300,52 @@ class GenerateHistoricalData:
         
         # Add some randomness and bank-specific variations
         bank_modifier = hash(bank_name) % 10 / 100  # -0.05 to +0.05 range
+
+        # Define downtime windows for each FIP
+        forced_downtime = False
         
+        if fip_name == 'axis-fip' and 20 <= hour < 22:  # 8pm-10pm
+            forced_downtime = True
+        elif fip_name == 'hdfc-fip' and 13 <= hour < 14:  # 1-2pm
+            forced_downtime = True
+        elif fip_name == 'icici-fip' and 2 <= hour < 3:  # 2-3am
+            forced_downtime = True
+        elif fip_name == 'sbi-fip' and (13 <= hour < 14 or 20 <= hour < 21):  # 1-2pm AND 8-9pm
+            forced_downtime = True
+        elif fip_name == 'kotak-fip' and 12 <= hour < 16:  # 12-4pm
+            forced_downtime = True
+        elif fip_name == 'pnb-fip' and (20 <= hour < 21 or 22 <= hour < 24):  # 8-9pm AND 10-12pm
+            forced_downtime = True
+        elif fip_name == 'canara-fip' and 13 <= hour < 14:  # 1-2pm
+            forced_downtime = True
+        elif fip_name == 'ubi-fip' and 3 <= hour < 4:  # 3-4am
+            forced_downtime = True
+        elif fip_name == 'iob-fip' and 22 <= hour < 24:  # 10-12pm
+            forced_downtime = True
+        elif fip_name == 'central-fip' and 14 <= hour < 16:  # 2-4pm
+            forced_downtime = True
+
+        if forced_downtime:
+            # Severe downtime - near complete failure
+            consent_success = random.uniform(0.05, 0.15)  # 5-15% success rate
+            data_success = random.uniform(0.05, 0.15)     # 5-15% success rate
+            avg_resp = random.uniform(8.0, 15.0)          # Very slow response times
+            error_rate = 1 - consent_success
+            status_val = 0.0  # critical status
+        else:
+            consent_success = max(0.7, min(1.0, base_consent_success + random.uniform(-0.1, 0.05) + bank_modifier))
+            data_success = max(0.7, min(1.0, base_data_fetch_success + random.uniform(-0.08, 0.05) + bank_modifier))
+            avg_resp = max(0.1, 2.5 + random.uniform(-1.0, 3.0) + (2.0 if is_peak_hour else 0))
+            error_rate = 1 - consent_success
+            status_val = random.choices([1.0, 0.5, 0.0], weights=[85, 12, 3])[0]
+
         metrics = {
-            'consent_success_rate': max(0.7, min(1.0, base_consent_success + random.uniform(-0.1, 0.05) + bank_modifier)),
-            'data_fetch_success_rate': max(0.7, min(1.0, base_data_fetch_success + random.uniform(-0.08, 0.05) + bank_modifier)),
-            'avg_response_time': max(0.1, 2.5 + random.uniform(-1.0, 3.0) + (2.0 if is_peak_hour else 0)),
-            'error_rate': max(0.0, min(0.3, 0.05 + random.uniform(-0.02, 0.15) + (0.1 if is_peak_hour else 0))),
+            'consent_success_rate': round(consent_success, 3),
+            'data_fetch_success_rate': round(data_success, 3),
+            'avg_response_time': round(avg_resp, 2),
+            'error_rate': round(error_rate, 3),
             'total_requests': random.randint(50 if is_weekend else 100, 200 if is_weekend else 500),
-            'status': random.choices([1.0, 0.5, 0.0], weights=[85, 12, 3])[0]  # Mostly healthy
+            'status': status_val
         }
         
         return metrics

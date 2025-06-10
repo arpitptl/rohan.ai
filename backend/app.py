@@ -244,7 +244,7 @@ def push_historical_metrics():
     try:
         logger.info("Pushing historical metrics to VictoriaMetrics")
 
-        # backfill_historical_metrics()
+        backfill_historical_metrics()
         # g = GenerateHistoricalData()
         # g.generate_historical_data()
         predictor_main()
