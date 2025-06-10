@@ -143,6 +143,8 @@ function App() {
       };
       generatePredictionsForAll();
     }
+
+    setSelectedFipsForPrediction([]) // Reset for new tab
   }, [activeTab, fipsData]);
 
   if (loading && Object.keys(fipsData).length === 0) {
@@ -951,6 +953,56 @@ function App() {
           {/* Analytics Tab - WITH WORKING CHARTS */}
           {activeTab === 'analytics' && (
             <div className="animate-slide-up space-y-8">
+            {/* Performance Summary */}
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="text-xl font-semibold text-white mb-6">Performance Metrics Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-center">
+                    <div className="text-3xl font-bold text-blue-400">
+                      {Object.values(fipsData).length > 0 ? 
+                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.consent_success_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
+                        : '67.2%'
+                      }
+                    </div>
+                    <div className="text-blue-300 font-medium">Avg Consent Success</div>
+                    <div className="text-blue-400/70 text-sm">Across all FIPs</div>
+                  </div>
+                  
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
+                    <div className="text-3xl font-bold text-green-400">
+                      {Object.values(fipsData).length > 0 ? 
+                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.data_fetch_success_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
+                        : '61.7%'
+                      }
+                    </div>
+                    <div className="text-green-300 font-medium">Avg Data Fetch Success</div>
+                    <div className="text-green-400/70 text-sm">Across all FIPs</div>
+                  </div>
+                  
+                  <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 text-center">
+                    <div className="text-3xl font-bold text-purple-400">
+                      {Object.values(fipsData).length > 0 ? 
+                        (Object.values(fipsData).reduce((sum, fip) => sum + parseFloat(fip.avg_response_time), 0) / Object.values(fipsData).length).toFixed(1) + 's'
+                        : '3.6s'
+                      }
+                    </div>
+                    <div className="text-purple-300 font-medium">Avg Response Time</div>
+                    <div className="text-purple-400/70 text-sm">System-wide average</div>
+                  </div>
+                  
+                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-center">
+                    <div className="text-3xl font-bold text-red-400">
+                      {Object.values(fipsData).length > 0 ? 
+                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.error_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
+                        : '32.8%'
+                      }
+                    </div>
+                    <div className="text-red-300 font-medium">Avg Error Rate</div>
+                    <div className="text-red-400/70 text-sm">System-wide average</div>
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Performance Chart */}
                 <div className="glass-card rounded-xl p-6">
@@ -1045,155 +1097,6 @@ function App() {
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                </div>
-              </div>
-
-              {/* Add FIP Downtime Patterns Section */}
-              <div className="glass-card rounded-xl p-6 mb-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold text-white">FIP Downtime Patterns</h3>
-                    <p className="text-sm text-slate-400 mt-1">AI-predicted maintenance windows and patterns</p>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(fipsData)
-                    .filter(([fipId]) => selectedFipsForPrediction.length === 0 || selectedFipsForPrediction.includes(fipId))
-                    .map(([fipId, fip]) => {
-                      const prediction = patternsData[fipId] || {};
-                      const patterns = prediction?.patterns_detected || [];
-                      const probability = prediction?.downtime_prediction?.probability || 0;
-                      const timeWindow = prediction?.downtime_prediction?.time_window || '';
-                      const confidence = prediction?.downtime_prediction?.confidence || '';
-
-                      return (
-                        <div key={fipId} className="bg-slate-800/50 border border-slate-700/30 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold text-white">{fip.bank_name}</h4>
-                              <p className="text-xs text-slate-400">Confidence: {confidence}</p>
-                            </div>
-                            <div className="text-right">
-                              <StatusBadge status={fip.current_status} />
-                              <p className="text-xs text-slate-400 mt-1">{timeWindow}</p>
-                            </div>
-                          </div>
-
-                          {/* Downtime Probability Indicator */}
-                          <div className="mb-4">
-                            <div className="flex items-center justify-between text-xs mb-1">
-                              <span className="text-slate-400">Downtime Probability</span>
-                              <span className={`font-medium ${
-                                probability > 0.7 ? 'text-red-400' :
-                                probability > 0.4 ? 'text-yellow-400' : 'text-green-400'
-                              }`}>{(probability * 100).toFixed(1)}%</span>
-                            </div>
-                            <div className="w-full h-2 bg-slate-700 rounded-full">
-                              <div 
-                                className={`h-2 rounded-full ${
-                                  probability > 0.7 ? 'bg-red-500' :
-                                  probability > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
-                                }`}
-                                style={{ width: `${probability * 100}%` }}
-                              ></div>
-                            </div>
-                          </div>
-
-                          {/* Patterns List */}
-                          <div className="space-y-2">
-                            {patterns.length > 0 ? (
-                              patterns.map((pattern, index) => (
-                                <div key={index} className="flex items-start gap-2 text-sm">
-                                  <div className="mt-1">
-                                    {pattern.toLowerCase().includes('maintenance') ? '🔧' :
-                                     pattern.toLowerCase().includes('backup') ? '💾' :
-                                     pattern.toLowerCase().includes('peak') ? '📈' :
-                                     pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
-                                  </div>
-                                  <p className="text-slate-300">{pattern}</p>
-                                </div>
-                              ))
-                            ) : (
-                              <p className="text-sm text-slate-400 italic">Generating patterns...</p>
-                            )}
-                          </div>
-
-                          {/* Impact Information */}
-                          {prediction.user_impact && (
-                            <div className="mt-3 pt-3 border-t border-slate-700/30">
-                              <div className="grid grid-cols-2 gap-2 text-xs">
-                                <div>
-                                  <span className="text-slate-400">Affected Users:</span>
-                                  <span className="text-white ml-1">
-                                    {prediction.user_impact.estimated_affected_users?.toLocaleString()}
-                                  </span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400">Failure Rate:</span>
-                                  <span className="text-white ml-1">
-                                    {prediction.user_impact.consent_failure_rate}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                </div>
-              </div>
-
-              {/* Performance Summary */}
-              <div className="glass-card rounded-xl p-6">
-                <h3 className="text-xl font-semibold text-white mb-6">Performance Metrics Summary</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-bold text-blue-400">
-                      {Object.values(fipsData).length > 0 ? 
-                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.consent_success_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
-                        : '67.2%'
-                      }
-                    </div>
-                    <div className="text-blue-300 font-medium">Avg Consent Success</div>
-                    <div className="text-blue-400/70 text-sm">Across all FIPs</div>
-                  </div>
-                  
-                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-bold text-green-400">
-                      {Object.values(fipsData).length > 0 ? 
-                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.data_fetch_success_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
-                        : '61.7%'
-                      }
-                    </div>
-                    <div className="text-green-300 font-medium">Avg Data Fetch Success</div>
-                    <div className="text-green-400/70 text-sm">Across all FIPs</div>
-                  </div>
-                  
-                  <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-bold text-purple-400">
-                      {Object.values(fipsData).length > 0 ? 
-                        (Object.values(fipsData).reduce((sum, fip) => sum + parseFloat(fip.avg_response_time), 0) / Object.values(fipsData).length).toFixed(1) + 's'
-                        : '3.6s'
-                      }
-                    </div>
-                    <div className="text-purple-300 font-medium">Avg Response Time</div>
-                    <div className="text-purple-400/70 text-sm">System-wide average</div>
-                  </div>
-                  
-                  <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4 text-center">
-                    <div className="text-3xl font-bold text-red-400">
-                      {Object.values(fipsData).length > 0 ? 
-                        (Object.values(fipsData).reduce((sum, fip) => sum + fip.error_rate, 0) / Object.values(fipsData).length).toFixed(1) + '%'
-                        : '32.8%'
-                      }
-                    </div>
-                    <div className="text-red-300 font-medium">Avg Error Rate</div>
-                    <div className="text-red-400/70 text-sm">System-wide average</div>
-                  </div>
                 </div>
               </div>
             </div>
