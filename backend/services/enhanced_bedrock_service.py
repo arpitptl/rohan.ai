@@ -77,7 +77,7 @@ class EnhancedBedrockService:
         Generate intelligent proactive alerts based on historical patterns
         and current system state
         """
-        if self.use_mock:
+        if not self.use_mock:
             return self._mock_generate_proactive_alerts(comprehensive_report, current_metrics)
         else:
             return self._bedrock_generate_proactive_alerts(comprehensive_report, current_metrics)
@@ -87,7 +87,7 @@ class EnhancedBedrockService:
         """
         Generate business-focused insights and recommendations
         """
-        if self.use_mock:
+        if not self.use_mock:
             return self._mock_generate_business_insights(comprehensive_report, predictions)
         else:
             return self._bedrock_generate_business_insights(comprehensive_report, predictions)
@@ -99,7 +99,7 @@ class EnhancedBedrockService:
     def _bedrock_analyze_historical_patterns(self, comprehensive_report: Dict) -> Dict[str, Any]:
         """Use Bedrock to analyze historical patterns"""
         prompt = self._build_pattern_analysis_prompt(comprehensive_report)
-        logger.info(f"Bedrock pattern analysis prompt: {prompt}")
+        # logger.info(f"Bedrock pattern analysis prompt: {prompt}")
         
         try:
             response = self._call_bedrock(prompt, max_tokens=6000)
@@ -112,7 +112,7 @@ class EnhancedBedrockService:
                                        prediction_horizon: str) -> Dict[str, PredictionResult]:
         """Use Bedrock for downtime predictions"""
         prompt = self._build_prediction_prompt(comprehensive_report, prediction_horizon)
-        logger.info(f"Bedrock downtimeprediction prompt: {prompt}")
+        # logger.info(f"Bedrock downtimeprediction prompt: {prompt}")
         
         try:
             response = self._call_bedrock(prompt, max_tokens=8000)

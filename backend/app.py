@@ -41,7 +41,7 @@ CORS(app, resources={
 # Configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///aa_gateway.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['USE_REAL_BEDROCK'] = os.getenv('USE_REAL_BEDROCK', 'false').lower() == 'true'
+app.config['USE_REAL_BEDROCK'] = os.getenv('USE_REAL_BEDROCK', 'false').lower() == 'True'
 
 # Initialize SQLAlchemy with app
 db.init_app(app)
@@ -114,93 +114,99 @@ def get_fips_health():
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
-# @app.route('/api/fips/predict', methods=['POST'])
-# def predict_fip_issues():
-#     """Generate AI predictions for FIP downtime"""
-#     try:
-#         request_data = request.get_json() or {}
-#         selected_fips = request_data.get('fips', [])
-#         time_horizon = request_data.get('time_horizon', '24h')
-        
-#         # Get current metrics for selected FIPs
-#         metrics_data = metrics_service.get_fips_metrics(selected_fips)
-        
-#         # Generate AI predictions using Bedrock service
-#         predictions = bedrock_service.predict_downtime(metrics_data, time_horizon)
-        
-#         # Store predictions in database
-#         for fip_name, prediction in predictions.items():
-#             prediction_record = Prediction(
-#                 fip_name=fip_name,
-#                 prediction_type='downtime',
-#                 probability=prediction.get('downtime_prediction', {}).get('probability', 0),
-#                 time_window=prediction.get('downtime_prediction', {}).get('time_window', ''),
-#                 confidence=prediction.get('downtime_prediction', {}).get('confidence', 'medium'),
-#                 raw_prediction=json.dumps(prediction)
-#             )
-#             db.session.add(prediction_record)
-        
-#         db.session.commit()
-        
-#         return jsonify({
-#             'success': True,
-#             'data': predictions,
-#             'timestamp': datetime.utcnow().isoformat()
-#         })
-#     except Exception as e:
-#         return jsonify({'success': False, 'error': str(e)}), 500
+@app.route('/api/fips/predict', methods=['POST'])
+def predict_fip_issues():
+    """Generate AI predictions for FIP downtime"""
+    try:
+        request_data = request.get_json() or {}
+        selected_fips = request_data.get('fips', [])
+        time_horizon = request_data.get('time_horizon', '24h')
 
-# @app.route('/api/operations/impact', methods=['POST'])
-# def get_business_impact():
-#     """Calculate business impact of predicted outages"""
-#     try:
-#         request_data = request.get_json() or {}
-#         predictions = request_data.get('predictions', {})
-        
-#         impact_analysis = bedrock_service.analyze_business_impact(predictions)
-        
-#         return jsonify({
-#             'success': True,
-#             'data': impact_analysis,
-#             'timestamp': datetime.utcnow().isoformat()
-#         })
-#     except Exception as e:
-#         return jsonify({'success': False, 'error': str(e)}), 500
+        # # Get current metrics
+        # current_metrics = metrics_service.get_all_fips_status()
+        historical_data = ai_analytics_service.get_historical_data(days_back=30, step="15m")
+        fip_features = ai_analytics_service.get_fip_features(historical_data)
 
-# @app.route('/api/alerts/proactive', methods=['GET'])
-# def get_proactive_alerts():
-#     """Get proactive alerts and recommendations"""
-#     try:
-#         # Get current metrics
-#         current_metrics = metrics_service.get_all_fips_status()
-        
-#         # Generate proactive alerts
-#         alerts = bedrock_service.generate_proactive_alerts(current_metrics)
-        
-#         return jsonify({
-#             'success': True,
-#             'data': alerts,
-#             'timestamp': datetime.utcnow().isoformat()
-#         })
-#     except Exception as e:
-#         return jsonify({'success': False, 'error': str(e)}), 500
+        logger.info(f"Predicting downtime for {selected_fips} for {time_horizon}")
 
-# @app.route('/api/recommendations', methods=['POST'])
-# def get_recommendations():
-    # """Get AI-powered operational recommendations"""
-    # try:
-    #     request_data = request.get_json() or {}
-    #     current_situation = request_data.get('situation', {})
         
-    #     recommendations = bedrock_service.generate_recommendations(current_situation)
+        # Generate AI predictions using Bedrock service
+        predictions = bedrock_service.predict_downtime(fip_features, time_horizon)
+
         
-    #     return jsonify({
-    #         'success': True,
-    #         'data': recommendations,
-    #         'timestamp': datetime.utcnow().isoformat()
-    #     })
-    # except Exception as e:
-    #     return jsonify({'success': False, 'error': str(e)}), 500
+        # Store predictions in database
+        for fip_name, prediction in predictions.items():
+            prediction_record = Prediction(
+                fip_name=fip_name,
+                prediction_type='downtime',
+                probability=prediction.get('downtime_prediction', {}).get('probability', 0),
+                time_window=prediction.get('downtime_prediction', {}).get('time_window', ''),
+                confidence=prediction.get('downtime_prediction', {}).get('confidence', 'medium'),
+                raw_prediction=json.dumps(prediction)
+            )
+            db.session.add(prediction_record)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'data': predictions,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/operations/impact', methods=['POST'])
+def get_business_impact():
+    """Calculate business impact of predicted outages"""
+    try:
+        request_data = request.get_json() or {}
+        predictions = request_data.get('predictions', {})
+        
+        impact_analysis = bedrock_service.analyze_business_impact(predictions)
+        
+        return jsonify({
+            'success': True,
+            'data': impact_analysis,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/alerts/proactive', methods=['GET'])
+def get_proactive_alerts():
+    """Get proactive alerts and recommendations"""
+    try:
+        # Get current metrics
+        current_metrics = metrics_service.get_all_fips_status()
+        
+        # Generate proactive alerts
+        alerts = bedrock_service.generate_proactive_alerts(current_metrics)
+        
+        return jsonify({
+            'success': True,
+            'data': alerts,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/recommendations', methods=['POST'])
+def get_recommendations():
+    """Get AI-powered operational recommendations"""
+    try:
+        request_data = request.get_json() or {}
+        current_situation = request_data.get('situation', {})
+        
+        recommendations = bedrock_service.generate_recommendations(current_situation)
+        
+        return jsonify({
+            'success': True,
+            'data': recommendations,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/metrics/push', methods=['POST'])
 def push_metrics_to_prometheus():
@@ -266,7 +272,7 @@ async def get_comprehensive_analytics():
     {
         "days_back": 7,
         "prediction_horizon": "24h",
-        "include_current_metrics": true
+        "include_current_metrics": True
     }
     """
     try:
@@ -551,7 +557,7 @@ async def generate_proactive_alerts():
     {
         "severity_filter": ["critical", "warning"],
         "fips": ["sbi-fip", "hdfc-fip"],
-        "include_recommendations": true
+        "include_recommendations": True
     }
     """
     try:
@@ -762,7 +768,7 @@ async def generate_scheduled_report():
     {
         "report_type": "weekly",
         "recipients": ["executives", "operations"],
-        "include_appendix": true
+        "include_appendix": True
     }
     """
     try:

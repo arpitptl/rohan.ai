@@ -1304,3 +1304,75 @@ class FIPAIAnalyticsService:
             )
         
         return recommendations
+    
+########################################################
+########################################################
+
+    def get_historical_data(self,days_back:int = 30, step:str = "15m") -> Dict:
+        """
+        Get historical data for a list of FIPs
+        """
+        self.logger.info(f"🔍Getting historical data for {days_back} days")
+        try:
+            historical_data = self.historical_analyzer.extract_historical_data(days_back, step)
+
+            if not any(not df.empty for df in historical_data.values()):
+                raise Exception("No historical data available for analysis")
+            
+            return historical_data
+        except Exception as e:
+            self.logger.error(f"❌ Error getting historical data: {e}")
+            raise
+
+    def get_fip_features(self,historical_data:Dict) -> Dict:
+        """
+        Get FIP features from historical data
+        """
+        self.logger.info("🔍Getting FIP features from historical data")
+        try:
+            fip_features = self.historical_analyzer.calculate_features(historical_data)
+            return fip_features
+        except Exception as e:
+            self.logger.error(f"❌ Error getting FIP features: {e}")
+            raise
+
+    async def predict_downtime_events(self,fips:List[str], prediction_horizon: str = "24h") -> Dict:
+        """
+        Predict downtime events for a list of FIPs
+        """
+        self.logger.info(f"🔍Predicting downtime events for {fips} for {prediction_horizon}")
+        
+        try:
+            # Step 1: Extract historical data
+            self.logger.info("📊 Extracting historical metrics...")
+            historical_data = self.historical_analyzer.extract_historical_data(
+                days_back=30,
+                step="15m"  # 15-minute resolution for detailed analysis
+            )
+            
+            if not any(not df.empty for df in historical_data.values()):
+                raise Exception("No historical data available for analysis")
+            
+            # Step 2: Calculate features and patterns
+            self.logger.info("🧮 Calculating ML features...")
+            fip_features = self.historical_analyzer.calculate_features(historical_data)
+            
+            # Step 3: Detect maintenance windows
+            self.logger.info("🔧 Detecting maintenance patterns...")
+            maintenance_windows = self.historical_analyzer.detect_maintenance_windows(historical_data)
+            
+            # Step 4: AI Pattern Analysis using Bedrock
+            self.logger.info("🔮 Generating AI predictions...")
+            predictions = self.enhanced_bedrock_service.predict_downtime_events(
+                historical_data, prediction_horizon
+            )
+            
+        except Exception as e:
+            self.logger.error(f"❌ Error in comprehensive analysis: {e}")
+            raise
+
+    async def generate_proactive_alerts(self,fips:List[str], prediction_horizon: str = "24h") -> Dict:
+        """
+        Generate proactive alerts for a list of FIPs
+        """
+        pass
