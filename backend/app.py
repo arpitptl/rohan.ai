@@ -218,6 +218,93 @@ def predict_fip_issues():
     except Exception as e:
         print(f"Error in predict_fip_issues: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+    
+
+@app.route('/api/fips/predictions/hourly', methods=['POST'])
+def get_fip_predictions_hourly():
+    """Get hourly predictions for all FIPs"""
+    try:
+        # Get hours parameter, default to 24 if not provided
+        request_data = request.get_json() or {}
+        hours = request_data.get('hours', 24)
+        
+        # Get all predictions
+        predictions = Prediction.query.filter_by(
+            prediction_type=PredictionType.DOWNTIME
+        ).order_by(Prediction.created_at.desc()).all()
+        
+        # Initialize hourly predictions structure
+        hourly_predictions = {}
+        
+        # Process each prediction
+        for prediction in predictions:
+            try:                
+                pred_data = json.loads(prediction.raw_prediction)
+                downtime_pred = pred_data.get('downtime_prediction', {})
+                time_window = downtime_pred.get('time_window', '')
+                                
+                # Extract hours from time window (e.g., "next 6-8 hours" -> [6,7,8])
+                if 'next' in time_window.lower() and 'hours' in time_window.lower():
+                    # Extract numbers from the time window, handling hyphenated ranges
+                    try:
+                        # First split by spaces and find the part with numbers
+                        parts = time_window.lower().split()
+                        number_part = next((part for part in parts if any(c.isdigit() for c in part)), '')
+                        
+                        if '-' in number_part:
+                            # Handle hyphenated range (e.g., "6-8")
+                            start, end = map(int, number_part.split('-'))
+                            numbers = [start, end]
+                        else:
+                            # Handle single number
+                            numbers = [int(n) for n in number_part if n.isdigit()]
+                                                
+                        if len(numbers) >= 2:
+                            start_hour, end_hour = numbers[0], numbers[1]
+                            # Generate list of hours
+                            hours_list = list(range(start_hour, end_hour + 1))
+                            
+                            # Add prediction to each hour
+                            for hour in hours_list:
+                                if hour <= hours:  # Only include hours within requested range
+                                    if hour not in hourly_predictions:
+                                        hourly_predictions[hour] = {}
+                                    
+                                    hourly_predictions[hour][prediction.fip_name] = {
+                                        'probability': downtime_pred.get('probability', 0),
+                                        'confidence': downtime_pred.get('confidence', 'medium'),
+                                        'reasoning': downtime_pred.get('reasoning', ''),
+                                    }
+                                    logger.info(f"Added prediction for hour {hour}, FIP {prediction.fip_name}")
+                        else:
+                            logger.warning(f"Could not extract valid hour range from time window: {time_window}")
+                    except Exception as e:
+                        logger.error(f"Error parsing time window '{time_window}': {str(e)}")
+                else:
+                    logger.warning(f"Invalid time window format: {time_window}")
+            except Exception as e:
+                logger.error(f"Error processing prediction {prediction.id} for {prediction.fip_name}: {str(e)}")
+                continue
+        
+        # Convert to list format and sort by hour
+        response_data = [
+            {
+                'hour': hour,
+                'predictions': predictions
+            }
+            for hour, predictions in sorted(hourly_predictions.items())
+        ]
+        
+        logger.info(f"Generated response with {len(response_data)} hours of predictions")
+        
+        return jsonify({
+            'success': True,
+            'data': response_data,
+            'timestamp': datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        logger.error(f"Error in get_fip_predictions_hourly: {str(e)}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/operations/impact', methods=['POST'])
 def get_business_impact():
