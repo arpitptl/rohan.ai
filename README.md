@@ -95,10 +95,10 @@ Financial Information Providers (FIPs) in the Account Aggregator ecosystem face 
 ### Backend Setup
 ```bash
 cd backend
-python -m venv venv
+python3.11 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python run.py
+python run.py docker
 ```
 
 ### Frontend Setup

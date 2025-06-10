@@ -14,7 +14,7 @@ def setup_logger(name='aa_gateway'):
     console_handler = colorlog.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.DEBUG)
     
-    # Create formatter
+     # Create formatter
     formatter = colorlog.ColoredFormatter(
         "%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(blue)s%(name)s%(reset)s %(purple)s%(filename)s:%(lineno)d%(reset)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",

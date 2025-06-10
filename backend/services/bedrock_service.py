@@ -84,7 +84,7 @@ class BedrockService:
         """
         return {
                 "sbi-fip": {
-                    "downtime_prediction": {
+                "downtime_prediction": {
                         "probability": 0.25,
                         "time_window": "next 6-8 hours",
                         "confidence": "medium",
@@ -98,18 +98,18 @@ class BedrockService:
                     "anomalies": [
                         "6.5% gap between consent and data fetch success rates indicates post-consent failures"
                     ],
-                    "user_impact": {
+                "user_impact": {
                         "consent_failure_rate": "12.3%",
                         "data_fetch_failure_rate": "18.8%",
                         "estimated_affected_users": 553,
                         "recommended_fallback": "PDF upload for failed data fetches, manual verification for consent failures"
-                    },
-                    "fiu_recommendations": {
+                },
+                "fiu_recommendations": {
                         "should_activate_manual": False,
                         "retry_after": "15 minutes",
                         "communication_template": "Temporary delays in SBI data access. Please retry in 15 minutes or upload bank statements manually."
-                    },
-                    "business_impact": {
+                },
+                "business_impact": {
                         "processing_delay": "2-4 hours",
                         "manual_processing_cost": "₹27,650",
                         "user_satisfaction_impact": "Minor delays, manageable with retries"
