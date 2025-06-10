@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
-
+from utils.logger import logger
 def format_currency(amount: float, currency: str = '₹') -> str:
     """
     Format currency amounts for display
@@ -143,3 +143,14 @@ def export_metrics_to_csv(metrics_data: Dict, filename: Optional[str] = None) ->
     return output.getvalue()
 
 print("✅ All services and utilities loaded successfully!")
+
+def get_fip_status_from_success_rate(data_fetch_success_rate: float, consent_success_rate: float) -> str:
+    """
+    Get FIP status from success rates
+    """
+    if data_fetch_success_rate >= 80 and consent_success_rate >= 80:
+        return 'excellent'
+    elif data_fetch_success_rate >= 50 or consent_success_rate >= 50:
+        return 'fair'
+    else:
+        return 'poor'

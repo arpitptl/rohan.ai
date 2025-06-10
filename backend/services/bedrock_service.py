@@ -33,7 +33,7 @@ class BedrockService:
         """
         Predict FIP downtime using AI analysis
         """
-        if not self.use_mock:
+        if self.use_mock:
             return self._generate_mock_downtime_predictions(metrics_data, time_horizon)
         else:
             return self._call_real_bedrock_prediction(metrics_data, time_horizon)
@@ -804,8 +804,8 @@ class BedrockService:
         """
         try:
             prompt = self._build_prediction_prompt(metrics_data, time_horizon)
-            logger.info(f"Bedrock prediction prompt: {prompt}")
-            return {}
+            # logger.info(f"Bedrock prediction prompt: {prompt}")
+            # return {}
             
             response = self.bedrock_client.invoke_model(
                 modelId=self.model_id,

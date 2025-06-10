@@ -16,7 +16,7 @@ def setup_logger(name='aa_gateway'):
     
     # Create formatter
     formatter = colorlog.ColoredFormatter(
-        "%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(blue)s%(name)s%(reset)s %(message)s",
+        "%(asctime)s %(log_color)s%(levelname)-8s%(reset)s %(blue)s%(name)s%(reset)s %(purple)s%(filename)s:%(lineno)d%(reset)s %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
         reset=True,
         log_colors={
