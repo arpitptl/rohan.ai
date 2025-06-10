@@ -1,0 +1,1 @@
+export const PER_USER_COST = 5;

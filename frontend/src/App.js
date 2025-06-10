@@ -29,14 +29,16 @@ import Loading from './components/common/Loading';
 import StatusBadge from './components/common/StatusBadge';
 import { apiService } from './services/api';
 import { formatPercentage } from './utils/helpers';
+import { PER_USER_COST } from './constant';
 
 function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [fipsData, setFipsData] = useState({});
+  const [impactSummary, setImpactSummary] = useState({usersAtRisk: 0, highRiskFips: 0, potentialCostImpact: 0});
   const [systemOverview, setSystemOverview] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('predictions');
   const [selectedFipsForPrediction, setSelectedFipsForPrediction] = useState([]);
   const [predictionsData, setPredictionsData] = useState({});
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -103,6 +105,27 @@ function App() {
       setTimeout(() => notification.remove(), 3000);
     }
   };
+  useEffect(() => {
+    async function fetchData() {
+      const response = await apiService.predictFipIssues({});
+      const prediction = response.data.data;
+
+      const summary = Object.keys(prediction)
+      .reduce((acc, fip) => {
+        const prediction_fip = prediction[fip];
+        const affectedUsers = prediction_fip.user_impact.estimated_affected_users || 0;
+        const isHighRisk = prediction_fip.downtime_prediction.probability > 0.7;
+        
+        acc.usersAtRisk += affectedUsers;
+        acc.highRiskFips += isHighRisk ? 1 : 0;
+        acc.potentialCostImpact += affectedUsers * PER_USER_COST;
+        return acc;
+      }, {usersAtRisk: 0, highRiskFips: 0, potentialCostImpact: 0});
+      
+      setImpactSummary(summary);
+    }
+    fetchData();
+  }, []);
 
   useEffect(() => {
     if (activeTab === 'analytics') {
@@ -151,12 +174,6 @@ function App() {
   const criticalFips = Object.values(fipsData).filter(fip => fip.current_status === 'critical').length;
   const totalFips = Object.keys(fipsData).length;
 
-  const tabs = [
-    { id: 'overview', name: 'Overview', icon: Activity },
-    { id: 'history', name: 'History', icon: History },
-    { id: 'analytics', name: 'Analytics', icon: BarChart3 },
-    { id: 'predictions', name: 'AI Predictions', icon: Brain },
-  ];
 
   // Prepare chart data
   const chartData = Object.entries(fipsData).map(([fipId, fip]) => ({
@@ -225,14 +242,14 @@ function App() {
           {/* Navigation Links */}
           <div className="space-y-2">
             {[
-              { icon: Home, label: 'Overview', id: 'overview' },
-              { icon: BarChart3, label: 'Analytics', id: 'analytics' },
               { icon: Brain, label: 'AI Predictions', id: 'predictions' },
+              { icon: Home, label: 'AI Overview', id: 'overview' },
+              { icon: BarChart3, label: 'Analytics', id: 'analytics' },
               { icon: Bell, label: 'Alerts', id: 'alerts', count: criticalFips + degradedFips },
               { icon: History, label: 'History', id: 'history' },
-              { icon: FileText, label: 'Reports', id: 'reports' },
-              { icon: Shield, label: 'Security', id: 'security' },
-              { icon: Settings, label: 'Settings', id: 'settings' },
+              // { icon: FileText, label: 'Reports', id: 'reports' },
+              // { icon: Shield, label: 'Security', id: 'security' },
+              // { icon: Settings, label: 'Settings', id: 'settings' },
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -260,14 +277,14 @@ function App() {
           </div>
 
           {/* Help & Support */}
-          {sidebarOpen && (
+          {/* {sidebarOpen && (
             <div className="absolute bottom-4 left-4 right-4">
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800/50 hover:text-white transition-all duration-200">
                 <HelpCircle className="w-5 h-5" />
                 <span>Help & Support</span>
               </button>
             </div>
-          )}
+          )} */}
         </div>
       </div>
 
@@ -391,101 +408,100 @@ function App() {
 
         {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* System Overview Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in">
-            {/* System Health */}
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">System Health</p>
-                  <p className="text-3xl font-bold text-white">
-                    {systemOverview?.system_health_score || '7.2'}<span className="text-lg text-slate-500">/10</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {systemOverview?.overall_status?.replace('_', ' ') || 'operational_with_issues'}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center text-xs text-green-400">
-                <TrendingUp className="w-3 h-3 mr-1" />
-                +0.3 from yesterday
-              </div>
-            </div>
-
-            {/* Total FIPs */}
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <Activity className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">Total FIPs</p>
-                  <p className="text-3xl font-bold text-white">{totalFips}</p>
-                  <div className="flex items-center gap-2 text-xs mt-1">
-                    <span className="text-green-400">{healthyFips}✓</span>
-                    <span className="text-yellow-400">{degradedFips}⚠</span>
-                    <span className="text-red-400">{criticalFips}✗</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center text-xs text-yellow-400">
-                <AlertTriangle className="w-3 h-3 mr-1" />
-                {degradedFips + criticalFips} need attention
-              </div>
-            </div>
-
-            {/* Success Rate */}
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <Users className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">Avg Success Rate</p>
-                  <p className="text-3xl font-bold text-white">
-                    {systemOverview?.performance_metrics?.average_consent_success 
-                      ? formatPercentage(systemOverview.performance_metrics.average_consent_success)
-                      : '78.4%'
-                    }
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">Consent approvals</p>
-                </div>
-              </div>
-              <div className="flex items-center text-xs text-red-400">
-                <TrendingDown className="w-3 h-3 mr-1" />
-                -2.1% this hour
-              </div>
-            </div>
-
-            {/* System Availability */}
-            <div className="metric-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
-                  <Clock className="w-6 h-6 text-white" />
-                </div>
-                <div className="text-right">
-                  <p className="text-slate-400 text-sm">System Availability</p>
-                  <p className="text-3xl font-bold text-white">
-                    {systemOverview?.performance_metrics?.system_availability 
-                      ? formatPercentage(systemOverview.performance_metrics.system_availability)
-                      : '86.7%'
-                    }
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">Overall uptime</p>
-                </div>
-              </div>
-              <div className="flex items-center text-xs text-blue-400">
-                <Zap className="w-3 h-3 mr-1" />
-                Real-time monitoring
-              </div>
-            </div>
-          </div>
-
           {activeTab === 'overview' && (
             <div className="animate-slide-up space-y-8">
+                {/* System Overview Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in">
+                  {/* System Health */}
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <CheckCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-400 text-sm">System Health</p>
+                        <p className="text-3xl font-bold text-white">
+                          {systemOverview?.system_health_score || '7.2'}<span className="text-lg text-slate-500">/10</span>
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {systemOverview?.overall_status?.replace('_', ' ') || 'operational_with_issues'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-xs text-green-400">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      +0.3 from yesterday
+                    </div>
+                  </div>
+
+                  {/* Total FIPs */}
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Activity className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-400 text-sm">Total FIPs</p>
+                        <p className="text-3xl font-bold text-white">{totalFips}</p>
+                        <div className="flex items-center gap-2 text-xs mt-1">
+                          <span className="text-green-400">{healthyFips}✓</span>
+                          <span className="text-yellow-400">{degradedFips}⚠</span>
+                          <span className="text-red-400">{criticalFips}✗</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-xs text-yellow-400">
+                      <AlertTriangle className="w-3 h-3 mr-1" />
+                      {degradedFips + criticalFips} need attention
+                    </div>
+                  </div>
+
+                  {/* Success Rate */}
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Users className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-400 text-sm">Avg Success Rate</p>
+                        <p className="text-3xl font-bold text-white">
+                          {systemOverview?.performance_metrics?.average_consent_success 
+                            ? formatPercentage(systemOverview.performance_metrics.average_consent_success)
+                            : '78.4%'
+                          }
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">Consent approvals</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-xs text-red-400">
+                      <TrendingDown className="w-3 h-3 mr-1" />
+                      -2.1% this hour
+                    </div>
+                  </div>
+
+                  {/* System Availability */}
+                  <div className="metric-card">
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg flex items-center justify-center shadow-lg">
+                        <Clock className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-400 text-sm">System Availability</p>
+                        <p className="text-3xl font-bold text-white">
+                          {systemOverview?.performance_metrics?.system_availability 
+                            ? formatPercentage(systemOverview.performance_metrics.system_availability)
+                            : '86.7%'
+                          }
+                        </p>
+                        <p className="text-xs text-slate-500 mt-1">Overall uptime</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center text-xs text-blue-400">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Real-time monitoring
+                    </div>
+                  </div>
+                </div>
               {/* Two Column Layout */}
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                 {/* FIP Status Overview - Takes 3 columns */}
@@ -503,73 +519,75 @@ function App() {
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {/* Existing FIP Status Cards */}
-                      {Object.entries(fipsData).map(([fipId, fip]) => (
-                        <div key={fipId} className="glass-light rounded-xl p-6 hover:border-blue-500/40 transition-all duration-300">
-                          <div className="flex items-center justify-between mb-4">
-                            <div>
-                              <h3 className="text-lg font-semibold text-white">{fip.bank_name}</h3>
-                              <p className="text-sm text-slate-400">{fip.fip_name}</p>
+                      {Object.entries(fipsData)
+                        .filter(([fipId]) => selectedFipsForPrediction.length === 0 || selectedFipsForPrediction.includes(fipId))
+                        .map(([fipId, fip]) => (
+                          <div key={fipId} className="glass-light rounded-xl p-6 hover:border-blue-500/40 transition-all duration-300">
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <h3 className="text-lg font-semibold text-white">{fip.bank_name}</h3>
+                                <p className="text-sm text-slate-400">{fip.fip_name}</p>
+                              </div>
+                              <StatusBadge status={fip.current_status} />
                             </div>
-                            <StatusBadge status={fip.current_status} />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <p className="text-sm text-slate-400">Consent Success</p>
-                              <p className="text-xl font-bold text-white">
-                                {formatPercentage(fip.consent_success_rate)}
-                              </p>
-                              <div className="w-full bg-slate-700 rounded-full h-2 mt-1">
-                                <div 
-                                  className="bg-blue-600 h-2 rounded-full" 
-                                  style={{ width: `${Math.min(fip.consent_success_rate, 100)}%` }}
-                                ></div>
+                            
+                            <div className="grid grid-cols-2 gap-4 mb-4">
+                              <div>
+                                <p className="text-sm text-slate-400">Consent Success</p>
+                                <p className="text-xl font-bold text-white">
+                                  {formatPercentage(fip.consent_success_rate)}
+                                </p>
+                                <div className="w-full bg-slate-700 rounded-full h-2 mt-1">
+                                  <div 
+                                    className="bg-blue-600 h-2 rounded-full" 
+                                    style={{ width: `${Math.min(fip.consent_success_rate, 100)}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-400">Data Fetch Success</p>
+                                <p className="text-xl font-bold text-white">
+                                  {formatPercentage(fip.data_fetch_success_rate)}
+                                </p>
+                                <div className="w-full bg-slate-700 rounded-full h-2 mt-1">
+                                  <div 
+                                    className="bg-green-600 h-2 rounded-full" 
+                                    style={{ width: `${Math.min(fip.data_fetch_success_rate, 100)}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-400">Response Time</p>
+                                <p className="text-xl font-bold text-white">
+                                  {fip.avg_response_time}s
+                                </p>
+                              </div>
+                              <div>
+                                <p className="text-sm text-slate-400">Error Rate</p>
+                                <p className="text-xl font-bold text-white">
+                                  {formatPercentage(fip.error_rate)}
+                                </p>
                               </div>
                             </div>
-                            <div>
-                              <p className="text-sm text-slate-400">Data Fetch Success</p>
-                              <p className="text-xl font-bold text-white">
-                                {formatPercentage(fip.data_fetch_success_rate)}
-                              </p>
-                              <div className="w-full bg-slate-700 rounded-full h-2 mt-1">
-                                <div 
-                                  className="bg-green-600 h-2 rounded-full" 
-                                  style={{ width: `${Math.min(fip.data_fetch_success_rate, 100)}%` }}
-                                ></div>
+                            
+                            <div className="pt-4 border-t border-slate-700/50">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-slate-400">
+                                  👥 {fip.user_base?.toLocaleString()} users
+                                </span>
+                                <span className={`font-medium ${
+                                  fip.trend === 'stable' ? 'text-green-400' :
+                                  fip.trend === 'declining' ? 'text-red-400' : 'text-slate-400'
+                                }`}>
+                                  {fip.trend === 'stable' ? '📈 Stable' :
+                                   fip.trend === 'declining' ? '📉 Declining' :
+                                   fip.trend === 'critical' ? '🚨 Critical' : '➡️ Stable'
+                                  }
+                                </span>
                               </div>
                             </div>
-                            <div>
-                              <p className="text-sm text-slate-400">Response Time</p>
-                              <p className="text-xl font-bold text-white">
-                                {fip.avg_response_time}s
-                              </p>
-                            </div>
-                            <div>
-                              <p className="text-sm text-slate-400">Error Rate</p>
-                              <p className="text-xl font-bold text-white">
-                                {formatPercentage(fip.error_rate)}
-                              </p>
-                            </div>
                           </div>
-                          
-                          <div className="pt-4 border-t border-slate-700/50">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-slate-400">
-                                👥 {fip.user_base?.toLocaleString()} users
-                              </span>
-                              <span className={`font-medium ${
-                                fip.trend === 'stable' ? 'text-green-400' :
-                                fip.trend === 'declining' ? 'text-red-400' : 'text-slate-400'
-                              }`}>
-                                {fip.trend === 'stable' ? '📈 Stable' :
-                                 fip.trend === 'declining' ? '📉 Declining' :
-                                 fip.trend === 'critical' ? '🚨 Critical' : '➡️ Stable'
-                                }
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                 </div>
@@ -691,142 +709,144 @@ function App() {
 
                 {/* Pattern Analysis */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                  {Object.entries(fipsData).map(([fipId, fip]) => {
-                    const prediction = patternsData[fipId] || {};
-                    const patterns = prediction?.patterns_detected || [];
-                    const anomalies = prediction?.anomalies || [];
-                    
-                    return (
-                      <div key={fipId} className="glass-card rounded-xl p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div>
-                            <h4 className="font-semibold text-white text-lg">{fip.bank_name}</h4>
-                            <p className="text-sm text-slate-400">Pattern Analysis</p>
-                          </div>
-                          <StatusBadge status={fip.current_status} />
-                        </div>
-
-                        {/* Pattern Categories */}
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          <div className="bg-slate-800/50 rounded-lg p-4">
-                            <h5 className="text-sm font-medium text-slate-300 mb-2">Maintenance Patterns</h5>
-                            <div className="text-2xl font-bold text-white">
-                              {patterns.filter(p => p.toLowerCase().includes('maintenance')).length}
-                            </div>
-                            <p className="text-xs text-slate-400">Detected this month</p>
-                          </div>
-                          <div className="bg-slate-800/50 rounded-lg p-4">
-                            <h5 className="text-sm font-medium text-slate-300 mb-2">Performance Issues</h5>
-                            <div className="text-2xl font-bold text-white">
-                              {patterns.filter(p => p.toLowerCase().includes('degradation')).length}
-                            </div>
-                            <p className="text-xs text-slate-400">Detected this month</p>
-                          </div>
-                        </div>
-
-                        {/* Pattern Details */}
-                        <div className="space-y-4">
-                          <div>
-                            <h5 className="text-sm font-medium text-slate-300 mb-3">Recurring Patterns</h5>
-                            <div className="space-y-2">
-                              {patterns.map((pattern, index) => (
-                                <div 
-                                  key={index} 
-                                  className="bg-slate-700/30 rounded-lg p-3 hover:bg-slate-700/50 transition-colors cursor-pointer"
-                                  onClick={() => {/* Add pattern details handler */}}
-                                >
-                                  <div className="flex items-start gap-2">
-                                    <div className="mt-1">
-                                      {pattern.toLowerCase().includes('maintenance') ? '🔧' :
-                                       pattern.toLowerCase().includes('backup') ? '💾' :
-                                       pattern.toLowerCase().includes('peak') ? '📈' :
-                                       pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-sm text-slate-300">{pattern}</p>
-                                      <div className="flex items-center gap-4 mt-2">
-                                        <span className="text-xs text-slate-500">Last occurred: 2 days ago</span>
-                                        <span className="text-xs text-slate-500">Frequency: Weekly</span>
-                                        <span className="text-xs text-slate-500">Avg Duration: 45 min</span>
-                                      </div>
-                                    </div>
-                                    <ChevronRight className="w-4 h-4 text-slate-500" />
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          {/* Anomalies with Severity */}
-                          {anomalies.length > 0 && (
+                  {Object.entries(fipsData)
+                    .filter(([fipId]) => selectedFipsForPrediction.length === 0 || selectedFipsForPrediction.includes(fipId))
+                    .map(([fipId, fip]) => {
+                      const prediction = patternsData[fipId] || {};
+                      const patterns = prediction?.patterns_detected || [];
+                      const anomalies = prediction?.anomalies || [];
+                      
+                      return (
+                        <div key={fipId} className="glass-card rounded-xl p-6">
+                          <div className="flex items-center justify-between mb-4">
                             <div>
-                              <h5 className="text-sm font-medium text-red-400 mb-3">Recent Anomalies</h5>
+                              <h4 className="font-semibold text-white text-lg">{fip.bank_name}</h4>
+                              <p className="text-sm text-slate-400">Pattern Analysis</p>
+                            </div>
+                            <StatusBadge status={fip.current_status} />
+                          </div>
+
+                          {/* Pattern Categories */}
+                          <div className="grid grid-cols-2 gap-4 mb-6">
+                            <div className="bg-slate-800/50 rounded-lg p-4">
+                              <h5 className="text-sm font-medium text-slate-300 mb-2">Maintenance Patterns</h5>
+                              <div className="text-2xl font-bold text-white">
+                                {patterns.filter(p => p.toLowerCase().includes('maintenance')).length}
+                              </div>
+                              <p className="text-xs text-slate-400">Detected this month</p>
+                            </div>
+                            <div className="bg-slate-800/50 rounded-lg p-4">
+                              <h5 className="text-sm font-medium text-slate-300 mb-2">Performance Issues</h5>
+                              <div className="text-2xl font-bold text-white">
+                                {patterns.filter(p => p.toLowerCase().includes('degradation')).length}
+                              </div>
+                              <p className="text-xs text-slate-400">Detected this month</p>
+                            </div>
+                          </div>
+
+                          {/* Pattern Details */}
+                          <div className="space-y-4">
+                            <div>
+                              <h5 className="text-sm font-medium text-slate-300 mb-3">Recurring Patterns</h5>
                               <div className="space-y-2">
-                                {anomalies.map((anomaly, index) => (
+                                {patterns.map((pattern, index) => (
                                   <div 
                                     key={index} 
-                                    className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 hover:bg-red-500/20 transition-colors cursor-pointer"
-                                    onClick={() => {/* Add anomaly details handler */}}
+                                    className="bg-slate-700/30 rounded-lg p-3 hover:bg-slate-700/50 transition-colors cursor-pointer"
+                                    onClick={() => {/* Add pattern details handler */}}
                                   >
                                     <div className="flex items-start gap-2">
-                                      <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5" />
+                                      <div className="mt-1">
+                                        {pattern.toLowerCase().includes('maintenance') ? '🔧' :
+                                         pattern.toLowerCase().includes('backup') ? '💾' :
+                                         pattern.toLowerCase().includes('peak') ? '📈' :
+                                         pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
+                                      </div>
                                       <div className="flex-1">
-                                        <p className="text-sm text-red-300">{anomaly}</p>
-                                        <div className="flex items-center gap-2 mt-2">
-                                          <span className="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">High Severity</span>
-                                          <span className="text-xs text-slate-400">Detected 3 hours ago</span>
-                                          <span className="text-xs text-slate-400">Impact: 1,200+ users</span>
+                                        <p className="text-sm text-slate-300">{pattern}</p>
+                                        <div className="flex items-center gap-4 mt-2">
+                                          <span className="text-xs text-slate-500">Last occurred: 2 days ago</span>
+                                          <span className="text-xs text-slate-500">Frequency: Weekly</span>
+                                          <span className="text-xs text-slate-500">Avg Duration: 45 min</span>
                                         </div>
                                       </div>
-                                      <ChevronRight className="w-4 h-4 text-red-400" />
+                                      <ChevronRight className="w-4 h-4 text-slate-500" />
                                     </div>
                                   </div>
                                 ))}
                               </div>
                             </div>
-                          )}
 
-                          {/* Impact Metrics */}
-                          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-700/30">
-                            <div className="bg-slate-700/30 rounded-lg p-3">
-                              <p className="text-xs text-slate-400 mb-1">Mean Time Between Failures</p>
-                              <p className="text-lg font-semibold text-white">
-                                {fip.current_status === 'critical' ? '8.5' :
-                                 fip.current_status === 'degraded' ? '24.3' : '72.1'}
-                                <span className="text-sm text-slate-400 ml-1">hours</span>
-                              </p>
-                              <div className="w-full bg-slate-800 rounded-full h-1 mt-2">
-                                <div 
-                                  className="bg-blue-500 h-1 rounded-full" 
-                                  style={{ 
-                                    width: `${fip.current_status === 'critical' ? 30 :
-                                            fip.current_status === 'degraded' ? 60 : 90}%` 
-                                  }}
-                                ></div>
+                            {/* Anomalies with Severity */}
+                            {anomalies.length > 0 && (
+                              <div>
+                                <h5 className="text-sm font-medium text-red-400 mb-3">Recent Anomalies</h5>
+                                <div className="space-y-2">
+                                  {anomalies.map((anomaly, index) => (
+                                    <div 
+                                      key={index} 
+                                      className="bg-red-500/10 border border-red-500/30 rounded-lg p-3 hover:bg-red-500/20 transition-colors cursor-pointer"
+                                      onClick={() => {/* Add anomaly details handler */}}
+                                    >
+                                      <div className="flex items-start gap-2">
+                                        <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5" />
+                                        <div className="flex-1">
+                                          <p className="text-sm text-red-300">{anomaly}</p>
+                                          <div className="flex items-center gap-2 mt-2">
+                                            <span className="px-2 py-1 rounded-full bg-red-500/20 text-red-400 text-xs">High Severity</span>
+                                            <span className="text-xs text-slate-400">Detected 3 hours ago</span>
+                                            <span className="text-xs text-slate-400">Impact: 1,200+ users</span>
+                                          </div>
+                                        </div>
+                                        <ChevronRight className="w-4 h-4 text-red-400" />
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
                               </div>
-                            </div>
-                            <div className="bg-slate-700/30 rounded-lg p-3">
-                              <p className="text-xs text-slate-400 mb-1">Mean Time To Recovery</p>
-                              <p className="text-lg font-semibold text-white">
-                                {fip.current_status === 'critical' ? '45-60' :
-                                 fip.current_status === 'degraded' ? '20-30' : '5-10'}
-                                <span className="text-sm text-slate-400 ml-1">min</span>
-                              </p>
-                              <div className="w-full bg-slate-800 rounded-full h-1 mt-2">
-                                <div 
-                                  className="bg-green-500 h-1 rounded-full" 
-                                  style={{ 
-                                    width: `${fip.current_status === 'critical' ? 40 :
-                                            fip.current_status === 'degraded' ? 70 : 95}%` 
-                                  }}
-                                ></div>
+                            )}
+
+                            {/* Impact Metrics */}
+                            <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-700/30">
+                              <div className="bg-slate-700/30 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Mean Time Between Failures</p>
+                                <p className="text-lg font-semibold text-white">
+                                  {fip.current_status === 'critical' ? '8.5' :
+                                   fip.current_status === 'degraded' ? '24.3' : '72.1'}
+                                  <span className="text-sm text-slate-400 ml-1">hours</span>
+                                </p>
+                                <div className="w-full bg-slate-800 rounded-full h-1 mt-2">
+                                  <div 
+                                    className="bg-blue-500 h-1 rounded-full" 
+                                    style={{ 
+                                      width: `${fip.current_status === 'critical' ? 30 :
+                                              fip.current_status === 'degraded' ? 60 : 90}%` 
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                              <div className="bg-slate-700/30 rounded-lg p-3">
+                                <p className="text-xs text-slate-400 mb-1">Mean Time To Recovery</p>
+                                <p className="text-lg font-semibold text-white">
+                                  {fip.current_status === 'critical' ? '45-60' :
+                                   fip.current_status === 'degraded' ? '20-30' : '5-10'}
+                                  <span className="text-sm text-slate-400 ml-1">min</span>
+                                </p>
+                                <div className="w-full bg-slate-800 rounded-full h-1 mt-2">
+                                  <div 
+                                    className="bg-green-500 h-1 rounded-full" 
+                                    style={{ 
+                                      width: `${fip.current_status === 'critical' ? 40 :
+                                              fip.current_status === 'degraded' ? 70 : 95}%` 
+                                    }}
+                                  ></div>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                 </div>
               </div>
 
@@ -1041,87 +1061,89 @@ function App() {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Object.entries(fipsData).map(([fipId, fip]) => {
-                    const prediction = patternsData[fipId] || {};
-                    const patterns = prediction?.patterns_detected || [];
-                    const probability = prediction?.downtime_prediction?.probability || 0;
-                    const timeWindow = prediction?.downtime_prediction?.time_window || '';
-                    const confidence = prediction?.downtime_prediction?.confidence || '';
+                  {Object.entries(fipsData)
+                    .filter(([fipId]) => selectedFipsForPrediction.length === 0 || selectedFipsForPrediction.includes(fipId))
+                    .map(([fipId, fip]) => {
+                      const prediction = patternsData[fipId] || {};
+                      const patterns = prediction?.patterns_detected || [];
+                      const probability = prediction?.downtime_prediction?.probability || 0;
+                      const timeWindow = prediction?.downtime_prediction?.time_window || '';
+                      const confidence = prediction?.downtime_prediction?.confidence || '';
 
-                    return (
-                      <div key={fipId} className="bg-slate-800/50 border border-slate-700/30 rounded-lg p-4">
-                        <div className="flex items-center justify-between mb-3">
-                          <div>
-                            <h4 className="font-semibold text-white">{fip.bank_name}</h4>
-                            <p className="text-xs text-slate-400">Confidence: {confidence}</p>
-                          </div>
-                          <div className="text-right">
-                            <StatusBadge status={fip.current_status} />
-                            <p className="text-xs text-slate-400 mt-1">{timeWindow}</p>
-                          </div>
-                        </div>
-
-                        {/* Downtime Probability Indicator */}
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-slate-400">Downtime Probability</span>
-                            <span className={`font-medium ${
-                              probability > 0.7 ? 'text-red-400' :
-                              probability > 0.4 ? 'text-yellow-400' : 'text-green-400'
-                            }`}>{(probability * 100).toFixed(1)}%</span>
-                          </div>
-                          <div className="w-full h-2 bg-slate-700 rounded-full">
-                            <div 
-                              className={`h-2 rounded-full ${
-                                probability > 0.7 ? 'bg-red-500' :
-                                probability > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
-                              }`}
-                              style={{ width: `${probability * 100}%` }}
-                            ></div>
-                          </div>
-                        </div>
-
-                        {/* Patterns List */}
-                        <div className="space-y-2">
-                          {patterns.length > 0 ? (
-                            patterns.map((pattern, index) => (
-                              <div key={index} className="flex items-start gap-2 text-sm">
-                                <div className="mt-1">
-                                  {pattern.toLowerCase().includes('maintenance') ? '🔧' :
-                                   pattern.toLowerCase().includes('backup') ? '💾' :
-                                   pattern.toLowerCase().includes('peak') ? '📈' :
-                                   pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
-                                </div>
-                                <p className="text-slate-300">{pattern}</p>
-                              </div>
-                            ))
-                          ) : (
-                            <p className="text-sm text-slate-400 italic">Generating patterns...</p>
-                          )}
-                        </div>
-
-                        {/* Impact Information */}
-                        {prediction.user_impact && (
-                          <div className="mt-3 pt-3 border-t border-slate-700/30">
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              <div>
-                                <span className="text-slate-400">Affected Users:</span>
-                                <span className="text-white ml-1">
-                                  {prediction.user_impact.estimated_affected_users?.toLocaleString()}
-                                </span>
-                              </div>
-                              <div>
-                                <span className="text-slate-400">Failure Rate:</span>
-                                <span className="text-white ml-1">
-                                  {prediction.user_impact.consent_failure_rate}
-                                </span>
-                              </div>
+                      return (
+                        <div key={fipId} className="bg-slate-800/50 border border-slate-700/30 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <h4 className="font-semibold text-white">{fip.bank_name}</h4>
+                              <p className="text-xs text-slate-400">Confidence: {confidence}</p>
+                            </div>
+                            <div className="text-right">
+                              <StatusBadge status={fip.current_status} />
+                              <p className="text-xs text-slate-400 mt-1">{timeWindow}</p>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    );
-                  })}
+
+                          {/* Downtime Probability Indicator */}
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="text-slate-400">Downtime Probability</span>
+                              <span className={`font-medium ${
+                                probability > 0.7 ? 'text-red-400' :
+                                probability > 0.4 ? 'text-yellow-400' : 'text-green-400'
+                              }`}>{(probability * 100).toFixed(1)}%</span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-700 rounded-full">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  probability > 0.7 ? 'bg-red-500' :
+                                  probability > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
+                                }`}
+                                style={{ width: `${probability * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
+
+                          {/* Patterns List */}
+                          <div className="space-y-2">
+                            {patterns.length > 0 ? (
+                              patterns.map((pattern, index) => (
+                                <div key={index} className="flex items-start gap-2 text-sm">
+                                  <div className="mt-1">
+                                    {pattern.toLowerCase().includes('maintenance') ? '🔧' :
+                                     pattern.toLowerCase().includes('backup') ? '💾' :
+                                     pattern.toLowerCase().includes('peak') ? '📈' :
+                                     pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
+                                  </div>
+                                  <p className="text-slate-300">{pattern}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-slate-400 italic">Generating patterns...</p>
+                            )}
+                          </div>
+
+                          {/* Impact Information */}
+                          {prediction.user_impact && (
+                            <div className="mt-3 pt-3 border-t border-slate-700/30">
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
+                                  <span className="text-slate-400">Affected Users:</span>
+                                  <span className="text-white ml-1">
+                                    {prediction.user_impact.estimated_affected_users?.toLocaleString()}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400">Failure Rate:</span>
+                                  <span className="text-white ml-1">
+                                    {prediction.user_impact.consent_failure_rate}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
@@ -1180,6 +1202,35 @@ function App() {
           {/* AI Predictions Tab */}
           {activeTab === 'predictions' && (
             <div className="animate-slide-up space-y-8">
+              <div className="grid gap-6 glass-card rounded-xl p-6">
+              <h3 className="font-semibold text-white">📊 Overall System Impact Summary</h3>
+                {/* Overall Impact Summary */}
+                <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-white">
+                        {impactSummary.usersAtRisk}
+                      </div>
+                      <div className="text-sm text-slate-400">Total Users at Risk</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-white">
+                        {impactSummary.highRiskFips}
+                      </div>
+                      <div className="text-sm text-slate-400">High Risk FIPs</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-white">
+                        ₹{Math.round(
+                          impactSummary.potentialCostImpact
+                        ).toLocaleString()}
+                      </div>
+                      <div className="text-sm text-slate-400">Potential Cost Impact</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* 24-Hour Prediction Timeline */}
               <div id="prediction-timeline" className="glass-card rounded-xl p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -1291,7 +1342,7 @@ function App() {
                   <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                     <Brain className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">AI Predictions & Risk Analysis</h3>
+                  <h3 className="text-xl font-semibold text-white">AI Analysis for FIP Downtime</h3>
                 </div>
                 
                 {/* FIP Selection */}
@@ -1365,121 +1416,91 @@ function App() {
                   </p>
                 </div>
 
-                {/* Prediction Results */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Add FIP Downtime Patterns Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {Object.entries(fipsData)
                     .filter(([fipId]) => selectedFipsForPrediction.length === 0 || selectedFipsForPrediction.includes(fipId))
                     .map(([fipId, fip]) => {
-                      const riskLevel = fip.current_status === 'critical' ? 'critical' : 
-                                       fip.current_status === 'degraded' ? 'medium' : 'low';
-                      const probability = fip.current_status === 'critical' ? 95 : 
-                                         fip.current_status === 'degraded' ? 75 : 15;
-                      
+                      const prediction = patternsData[fipId] || {};
+                      const patterns = prediction?.patterns_detected || [];
+                      const probability = prediction?.downtime_prediction?.probability || 0;
+                      const timeWindow = prediction?.downtime_prediction?.time_window || '';
+                      const confidence = prediction?.downtime_prediction?.confidence || '';
+
                       return (
-                        <div key={fipId} className="bg-slate-800/50 border border-slate-700/30 rounded-lg p-6">
-                          <div className="flex items-center justify-between mb-4">
+                        <div key={fipId} className="bg-slate-800/50 border border-slate-700/30 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
                             <div>
                               <h4 className="font-semibold text-white">{fip.bank_name}</h4>
-                              <p className="text-sm text-slate-400">{fip.fip_name}</p>
+                              <p className="text-xs text-slate-400">Confidence: {confidence}</p>
                             </div>
-                            <div className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              riskLevel === 'critical' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                              riskLevel === 'medium' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
-                              'bg-green-500/20 text-green-400 border border-green-500/30'
-                            }`}>
-                              {riskLevel === 'critical' ? '🔴 CRITICAL' :
-                               riskLevel === 'medium' ? '🟡 MEDIUM' : '🟢 LOW'} RISK
+                            <div className="text-right">
+                              <StatusBadge status={fip.current_status} />
+                              <p className="text-xs text-slate-400 mt-1">{timeWindow}</p>
                             </div>
                           </div>
 
-                          {/* Prediction Details */}
-                          <div className="space-y-4">
-                            <div className="bg-slate-900/50 rounded-lg p-4">
-                              <h5 className="font-medium text-white mb-2">🔮 Downtime Prediction</h5>
-                              <div className="grid grid-cols-2 gap-4 text-sm">
-                                <div>
-                                  <span className="text-slate-400">Probability:</span>
-                                  <span className="font-semibold text-white ml-2">{probability}%</span>
-                                </div>
-                                <div>
-                                  <span className="text-slate-400">Time Window:</span>
-                                  <span className="font-semibold text-white ml-2">
-                                    {riskLevel === 'critical' ? 'Next 30 min' :
-                                     riskLevel === 'medium' ? 'Next 2 hours' : 'Next 8 hours'}
-                                  </span>
-                                </div>
-                              </div>
+                          {/* Downtime Probability Indicator */}
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between text-xs mb-1">
+                              <span className="text-slate-400">Downtime Probability</span>
+                              <span className={`font-medium ${
+                                probability > 0.7 ? 'text-red-400' :
+                                probability > 0.4 ? 'text-yellow-400' : 'text-green-400'
+                              }`}>{(probability * 100).toFixed(1)}%</span>
                             </div>
+                            <div className="w-full h-2 bg-slate-700 rounded-full">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  probability > 0.7 ? 'bg-red-500' :
+                                  probability > 0.4 ? 'bg-yellow-500' : 'bg-green-500'
+                                }`}
+                                style={{ width: `${probability * 100}%` }}
+                              ></div>
+                            </div>
+                          </div>
 
-                            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-                              <h5 className="font-medium text-white mb-2">👥 User Impact</h5>
-                              <div className="text-sm">
-                                <div className="flex justify-between">
+                          {/* Patterns List */}
+                          <div className="space-y-2">
+                            {patterns.length > 0 ? (
+                              patterns.map((pattern, index) => (
+                                <div key={index} className="flex items-start gap-2 text-sm">
+                                  <div className="mt-1">
+                                    {pattern.toLowerCase().includes('maintenance') ? '🔧' :
+                                     pattern.toLowerCase().includes('backup') ? '💾' :
+                                     pattern.toLowerCase().includes('peak') ? '📈' :
+                                     pattern.toLowerCase().includes('degradation') ? '📉' : '⚡'}
+                                  </div>
+                                  <p className="text-slate-300">{pattern}</p>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-sm text-slate-400 italic">Generating patterns...</p>
+                            )}
+                          </div>
+
+                          {/* Impact Information */}
+                          {prediction.user_impact && (
+                            <div className="mt-3 pt-3 border-t border-slate-700/30">
+                              <div className="grid grid-cols-2 gap-2 text-xs">
+                                <div>
                                   <span className="text-slate-400">Affected Users:</span>
-                                  <span className="font-semibold text-white">
-                                    {Math.round(fip.user_base * probability / 100).toLocaleString()}
+                                  <span className="text-white ml-1">
+                                    {prediction.user_impact.estimated_affected_users?.toLocaleString()}
                                   </span>
                                 </div>
-                                <div className="flex justify-between mt-2">
-                                  <span className="text-slate-400">Estimated Cost:</span>
-                                  <span className="font-semibold text-white">
-                                    ₹{Math.round(probability * 1000).toLocaleString()}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                              <div className="flex items-start gap-2">
-                                <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5" />
                                 <div>
-                                  <h6 className="font-medium text-yellow-300 text-sm">Recommended Actions</h6>
-                                  <p className="text-yellow-200/80 text-sm">
-                                    {riskLevel === 'critical' ? 
-                                      'Immediate action required. Activate manual fallback procedures.' :
-                                      riskLevel === 'medium' ?
-                                      'Prepare fallback procedures and monitor closely.' :
-                                      'Continue normal monitoring. System appears stable.'
-                                    }
-                                  </p>
+                                  <span className="text-slate-400">Failure Rate:</span>
+                                  <span className="text-white ml-1">
+                                    {prediction.user_impact.consent_failure_rate}
+                                  </span>
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       );
                     })}
-                </div>
-
-                {/* Overall Impact Summary */}
-                <div className="bg-slate-800/30 border border-slate-700/50 rounded-lg p-6 mt-8">
-                  <h3 className="font-semibold text-white mb-4">📊 Overall System Impact Summary</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">
-                        {Object.values(fipsData).reduce((sum, fip) => sum + fip.user_base, 0).toLocaleString()}
-                      </div>
-                      <div className="text-sm text-slate-400">Total Users at Risk</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">
-                        {Object.values(fipsData).filter(fip => fip.current_status === 'critical' || fip.current_status === 'degraded').length}
-                      </div>
-                      <div className="text-sm text-slate-400">High Risk FIPs</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">
-                        ₹{Math.round(
-                          Object.values(fipsData).reduce((sum, fip) => {
-                            const risk = fip.current_status === 'critical' ? 95 : 
-                                        fip.current_status === 'degraded' ? 75 : 15;
-                            return sum + (risk * 1000);
-                          }, 0)
-                        ).toLocaleString()}
-                      </div>
-                      <div className="text-sm text-slate-400">Potential Cost Impact</div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
