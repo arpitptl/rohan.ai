@@ -97,16 +97,17 @@ class BedrockService:
         return {
             "icici-fip": {
                 "downtime_prediction": {
-                    "probability": 0.25,
-                    "time_window": "next 6-8 hours",
-                    "confidence": "medium",
-                    "reasoning": "Consent success rate declining (-0.94%), response time increasing (+3.22%), but overall stability grade is 'good'. Low anomaly severity with 92.5% average consent success rate indicates stable performance with minor degradation trends."
+                    "probability": 0.75,
+                    "time_window": "next 5-7 hours",
+                    "confidence": "high",
+                    "reasoning": "Consent success rate declining (-0.94%), response time increasing (+3.22%), but overall stability grade is 'good'. Low anomaly severity with 82.2% average consent success rate indicates stable performance with minor degradation trends."
                 },
                 "patterns_detected": [
-                    "Peak error rates at hour 21 (9 PM)",
+                    "Maintenance window detected at 02:00 AM to 03:00 AM",
+                    "Peak error rates at hour 15 (3 PM)",
                     "Response time volatility during evening hours",
                     "Negative correlation between consent success and response time (-0.61)",
-                    "Weekend performance slightly better than weekdays"
+                    "Weekend performance slightly better than weekdays",
                 ],
                 "anomalies": [
                     "35 consent/data fetch anomalies (1.37% rate)",
@@ -117,7 +118,7 @@ class BedrockService:
                     "consent_failure_rate": "7.5%",
                     "data_fetch_failure_rate": "9.0%",
                     "estimated_affected_users": 1500,
-                    "recommended_fallback": "PDF upload during evening peak hours (21:00-22:00)"
+                    "recommended_fallback": "PDF upload during evening peak hours (15:00-16:00)"
                 },
                 "fiu_recommendations": {
                     "should_activate_manual": False,
@@ -134,46 +135,47 @@ class BedrockService:
             },
             "sbi-fip": {
                 "downtime_prediction": {
-                    "probability": 0.35,
-                    "time_window": "next 4-6 hours",
-                    "confidence": "medium",
-                    "reasoning": "Higher volatility than ICICI with 92% consent success rate. Response time increasing (+1.59%), error rates decreasing but status anomalies at medium severity. Stability grade 'good' but showing more stress indicators."
+                    "probability": 0.95,
+                    "time_window": "next 1-3 hours",
+                    "confidence": "high",
+                    "reasoning": "Higher volatility than ICICI with 24.5% consent success rate. Response time increasing (+64.59%), status anomalies at warning severity. Stability grade 'good' but showing more stress indicators."
                 },
                 "patterns_detected": [
-                    "Peak error rates at hour 15 (3 PM)",
+                    "Peak error rates at hour 13 (1 PM)",
                     "Clear daily patterns in response time and error rate",
                     "Higher coefficient of variation (16%) indicates less stability",
-                    "Weekend vs weekday performance variance"
+                    "Weekend vs weekday performance variance",
+                    "Maintenance window detected at 01:00 AM to 02:00 AM"
                 ],
                 "anomalies": [
-                    "70 consent/data fetch anomalies (2.75% rate)",
-                    "150 status anomalies (5.89% rate) - medium severity"
+                    "450 consent/data fetch anomalies (27.5% rate)",
+                    "2300 status anomalies (25.89% rate) - high severity"
                 ],
                 "user_impact": {
-                    "consent_failure_rate": "8.0%",
-                    "data_fetch_failure_rate": "9.6%",
+                    "consent_failure_rate": "38.0%",
+                    "data_fetch_failure_rate": "29.6%",
                     "estimated_affected_users": 2200,
-                    "recommended_fallback": "Phone verification during afternoon peak (15:00-16:00)"
+                    "recommended_fallback": "Route the users to the alternate data fetch methods"
                 },
                 "fiu_recommendations": {
-                    "should_activate_manual": False,
-                    "retry_after": "20 minutes during afternoon peak",
-                    "communication_template": "Service may be slower during afternoon hours. Please try again or use phone verification."
+                    "should_activate_manual": True,
+                    "retry_after": "60 minutes during evening peak",
+                    "communication_template": "Service may be slower during evening hours. Please try again or use different data collection method."
                 },
                 "business_impact": {
-                    "processing_delay": "3-4 minutes average",
+                    "processing_delay": "30-40 minutes average",
                     "manual_processing_cost": "INR 75-100 per transaction",
                     "user_satisfaction_impact": "Moderate - noticeable delays during peak hours"
                 },
-                "health_score": 78,
-                "risk_level": "medium"
+                "health_score": 28,
+                "risk_level": "high"
             },
             "boi-fip": {
                 "downtime_prediction": {
                     "probability": 0.15,
                     "time_window": "next 12+ hours",
                     "confidence": "high",
-                    "reasoning": "Excellent performance with 95.9% consent success rate and 'excellent' stability grade. Lowest coefficient of variation (5.3%) indicates very stable performance. All trends improving or stable."
+                    "reasoning": "Excellent performance with 86.3% consent success rate and 'excellent' stability grade. Lowest coefficient of variation (5.3%) indicates very stable performance. All trends improving or stable."
                 },
                 "patterns_detected": [
                     "Most stable FIP with minimal hourly variation",
@@ -207,33 +209,33 @@ class BedrockService:
             },
             "central-fip": {
                 "downtime_prediction": {
-                    "probability": 0.40,
-                    "time_window": "next 3-4 hours",
+                    "probability": 0.60,
+                    "time_window": "next 8-10 hours",
                     "confidence": "medium",
-                    "reasoning": "Declining consent (-1.81%) and data fetch (-2.19%) rates with increasing response times (+4.95%). Status showing downward trend. Good stability grade but concerning degradation patterns."
+                    "reasoning": "Declining consent (-5.81%) and data fetch (-8.19%) rates with increasing response times (+4.95%). Status showing downward trend. Good stability grade but concerning degradation patterns."
                 },
                 "patterns_detected": [
-                    "Peak issues at hour 9 (9 AM) for both errors and response time",
-                    "Clear daily patterns with morning stress",
+                    "Peak issues at hour 13 (1 PM) for both errors and response time",
+                    "Clear daily patterns with afternoon stress",
                     "Negative performance trends across key metrics"
                 ],
                 "anomalies": [
-                    "54 consent/data fetch anomalies (2.16% rate)",
+                    "154 consent/data fetch anomalies (2.16% rate)",
                     "130 status anomalies (5.20% rate) - medium severity"
                 ],
                 "user_impact": {
-                    "consent_failure_rate": "5.3%",
-                    "data_fetch_failure_rate": "6.4%",
+                    "consent_failure_rate": "15.3%",
+                    "data_fetch_failure_rate": "16.4%",
                     "estimated_affected_users": 1800,
-                    "recommended_fallback": "PDF upload during morning hours (9:00-10:00)"
+                    "recommended_fallback": "PDF upload during afternoon hours (13:00-14:00)"
                 },
                 "fiu_recommendations": {
                     "should_activate_manual": False,
-                    "retry_after": "25 minutes during morning peak",
-                    "communication_template": "Experiencing higher than normal processing times. Alternative verification available."
+                    "retry_after": "60 minutes during morning peak",
+                    "communication_template": "Experiencing higher than normal processing times. Alternative verification available. Route the users to the alternate data fetch methods."
                 },
                 "business_impact": {
-                    "processing_delay": "4-5 minutes average",
+                    "processing_delay": "40-50 minutes average",
                     "manual_processing_cost": "INR 80-120 per transaction",
                     "user_satisfaction_impact": "Moderate - users notice morning delays"
                 },
@@ -242,50 +244,51 @@ class BedrockService:
             },
             "axis-fip": {
                 "downtime_prediction": {
-                    "probability": 0.42,
-                    "time_window": "next 3-4 hours",
-                    "confidence": "medium",
-                    "reasoning": "Similar pattern to Central FIP with 94.3% consent success rate but declining trends. Peak issues at hour 15 (3 PM). Good stability grade but multiple concerning indicators."
+                    "probability": 0.92,
+                    "time_window": "next 0-4 hours",
+                    "confidence": "high",
+                    "reasoning": "Current consent success rate is 8.3% which is below the threshold and it's consistently declining. It's also showing high response time and status anomalies. It suggests that the system is under stress and needs immediate attention."
                 },
                 "patterns_detected": [
-                    "Peak errors and response times at hour 15 (3 PM)",
-                    "Strong daily patterns with afternoon stress",
+                    "Peak errors and response times at hour 19 (7 PM)",
+                    "Strong daily patterns with evening stress",
                     "Clear correlation between errors and response times"
                 ],
                 "anomalies": [
-                    "64 consent/data fetch anomalies (2.51% rate)",
-                    "138 status anomalies (5.42% rate) - medium severity"
+                    "640 consent/data fetch anomalies (25.1% rate)",
+                    "838 status anomalies (54.2% rate) - high severity"
                 ],
                 "user_impact": {
-                    "consent_failure_rate": "5.7%",
-                    "data_fetch_failure_rate": "6.8%",
+                    "consent_failure_rate": "25.7%",
+                    "data_fetch_failure_rate": "36.8%",
                     "estimated_affected_users": 1900,
-                    "recommended_fallback": "Manual verification during afternoon peak (15:00-16:00)"
+                    "recommended_fallback": "Route the users to the alternate data fetch methods"
                 },
                 "fiu_recommendations": {
-                    "should_activate_manual": False,
-                    "retry_after": "20 minutes during afternoon peak",
-                    "communication_template": "Service may be slower during afternoon. Please try again or contact support for assistance."
+                    "should_activate_manual": True,
+                    "retry_after": "3 hours during evening peak",
+                    "communication_template": "Service may be slower during evening. Please try again or contact support for assistance."
                 },
                 "business_impact": {
-                    "processing_delay": "4-5 minutes average",
+                    "processing_delay": "10-15 minutes average",
                     "manual_processing_cost": "INR 85-125 per transaction",
-                    "user_satisfaction_impact": "Moderate - afternoon performance issues noticeable"
+                    "user_satisfaction_impact": "Moderate - evening performance issues noticeable"
                 },
-                "health_score": 74,
-                "risk_level": "medium"
+                "health_score": 24,
+                "risk_level": "high"
             },
             "iob-fip": {
                 "downtime_prediction": {
-                    "probability": 0.30,
-                    "time_window": "next 5-6 hours",
+                    "probability": 0.60,
+                    "time_window": "next 2-4 hours",
                     "confidence": "medium",
-                    "reasoning": "Good performance with 94.8% consent success rate. Peak issues at hour 17 (5 PM). Stability grade 'good' with manageable anomaly levels. Less concerning than Axis/Central."
+                    "reasoning": "Good performance with 89.8% consent success rate. Peak issues at hour 22 (10 PM). Stability grade 'good' with manageable anomaly levels. Less concerning than Axis/Central."
                 },
                 "patterns_detected": [
-                    "Peak errors at hour 17 (5 PM) - evening rush",
+                    "Peak errors at hour 20 (10 PM) - Maintenance window",
                     "Clear daily patterns with evening stress",
                     "Good weekend vs weekday performance ratio"
+                    "Maintenance window detected at 12:00 AM to 02:00 AM"
                 ],
                 "anomalies": [
                     "57 consent/data fetch anomalies (2.25% rate)",
@@ -295,7 +298,7 @@ class BedrockService:
                     "consent_failure_rate": "5.2%",
                     "data_fetch_failure_rate": "6.1%",
                     "estimated_affected_users": 1600,
-                    "recommended_fallback": "PDF upload during evening peak (17:00-18:00)"
+                    "recommended_fallback": "PDF upload during maintenance window"
                 },
                 "fiu_recommendations": {
                     "should_activate_manual": False,
@@ -313,26 +316,26 @@ class BedrockService:
             "kotak-fip": {
                 "downtime_prediction": {
                     "probability": 0.65,
-                    "time_window": "next 2-3 hours",
+                    "time_window": "next 12-15 hours",
                     "confidence": "high",
-                    "reasoning": "Highest risk FIP with declining consent (-2.23%) and data fetch (-2.09%) rates. 'Fair' stability grade with highest coefficient of variation (21.8%). Multiple medium-severity anomalies and peak issues at hour 9."
+                    "reasoning": "Highest risk FIP with declining consent (-2.23%) and data fetch (-2.09%) rates. 'Fair' stability grade with highest coefficient of variation (21.8%). Multiple medium-severity anomalies and peak issues at hour 12."
                 },
                 "patterns_detected": [
-                    "Peak errors at hour 9 (9 AM) - morning stress",
+                    "Peak errors at hour 12 (12 PM) - afternoon stress",
                     "Highest volatility among all FIPs",
                     "Strong negative correlation between consent and response time (-0.80)",
-                    "Clear daily patterns with morning vulnerability"
+                    "Clear daily patterns with afternoon vulnerability"
                 ],
                 "anomalies": [
-                    "140 consent/data fetch anomalies (5.49% rate) - medium severity",
-                    "212 status anomalies (8.31% rate) - medium severity",
+                    "640 consent/data fetch anomalies (15.49% rate) - medium severity",
+                    "312 status anomalies (11.31% rate) - medium severity",
                     "Highest anomaly rates across all metrics"
                 ],
                 "user_impact": {
-                    "consent_failure_rate": "7.4%",
-                    "data_fetch_failure_rate": "8.3%",
+                    "consent_failure_rate": "27.4%",
+                    "data_fetch_failure_rate": "38.3%",
                     "estimated_affected_users": 2800,
-                    "recommended_fallback": "Immediate manual processing activation during morning hours"
+                    "recommended_fallback": "Immediate manual processing activation during afternoon hours"
                 },
                 "fiu_recommendations": {
                     "should_activate_manual": True,
@@ -340,57 +343,58 @@ class BedrockService:
                     "communication_template": "Service experiencing high load. We've activated manual verification to ensure faster processing."
                 },
                 "business_impact": {
-                    "processing_delay": "6-8 minutes average",
+                    "processing_delay": "40-60 minutes average",
                     "manual_processing_cost": "INR 150-200 per transaction",
                     "user_satisfaction_impact": "High - significant delays and failures expected"
                 },
-                "health_score": 65,
+                "health_score": 45,
                 "risk_level": "high"
             },
             "pnb-fip": {
                 "downtime_prediction": {
                     "probability": 0.45,
-                    "time_window": "next 3-4 hours",
-                    "confidence": "medium",
-                    "reasoning": "Moderate performance with 91.6% consent success rate. Declining trends with increasing response times (+7.66%). Good stability grade but concerning degradation patterns, especially during hour 17."
+                    "time_window": "next 0-3 hours",
+                    "confidence": "high",
+                    "reasoning": "Bad performance with 17.3% consent success rate. Declining trends with increasing response times (+7.66%). Data fetch success rate is also declining. It's also showing high response time and status anomalies. It suggests that the system is under stress and needs immediate attention."
                 },
                 "patterns_detected": [
-                    "Peak errors at hour 17 (5 PM) - evening stress",
+                    "Peak errors at hour 21 (9 PM)", 
+                    "2 Maintenance window detected at 21:00 PM to 00:00 AM",
                     "Strong daily patterns with evening vulnerability",
                     "Significant response time increases trending"
                 ],
                 "anomalies": [
-                    "105 consent/data fetch anomalies (4.09% rate)",
-                    "172 status anomalies (6.71% rate) - medium severity"
+                    "805 consent/data fetch anomalies (34.09% rate)",
+                    "772 status anomalies (36.71% rate) - high severity"
                 ],
                 "user_impact": {
-                    "consent_failure_rate": "8.4%",
-                    "data_fetch_failure_rate": "9.8%",
+                    "consent_failure_rate": "38.4%",
+                    "data_fetch_failure_rate": "34.8%",
                     "estimated_affected_users": 2400,
-                    "recommended_fallback": "Phone verification during evening peak (17:00-18:00)"
+                    "recommended_fallback": "Route the users to the alternate data fetch methods"
                 },
                 "fiu_recommendations": {
-                    "should_activate_manual": False,
-                    "retry_after": "30 minutes during evening peak",
+                    "should_activate_manual": True,
+                    "retry_after": "3 hours during maintenance window",
                     "communication_template": "Higher processing times during evening hours. Phone verification available as alternative."
                 },
                 "business_impact": {
-                    "processing_delay": "5-6 minutes average",
+                    "processing_delay": "2-3 hours average",
                     "manual_processing_cost": "INR 100-140 per transaction",
                     "user_satisfaction_impact": "Moderate-high - noticeable evening performance issues"
                 },
-                "health_score": 72,
-                "risk_level": "medium"
+                "health_score": 22,
+                "risk_level": "high"
             },
             "ubi-fip": {
                 "downtime_prediction": {
                     "probability": 0.20,
-                    "time_window": "next 8-10 hours",
+                    "time_window": "next 6-8 hours",
                     "confidence": "medium",
-                    "reasoning": "Strong performance with 95.8% consent success rate and good stability grade. Low anomaly rates and minimal hourly variation. Peak issues only at hour 22 (10 PM) which is off-peak."
+                    "reasoning": "Strong performance with 89.7% consent success rate and good stability grade. Low anomaly rates and minimal hourly variation. Peak issues only at hour 3 (3 AM) which is off-peak."
                 },
                 "patterns_detected": [
-                    "Peak errors at hour 22 (10 PM) - off-peak timing",
+                    "Maintenance window detected at 03:00 AM to 04:00 AM",
                     "Minimal hourly variation - very stable",
                     "Good weekend performance",
                     "Low overall volatility"
@@ -420,13 +424,13 @@ class BedrockService:
             },
             "hdfc-fip": {
                 "downtime_prediction": {
-                    "probability": 0.18,
-                    "time_window": "next 10-12 hours",
+                    "probability": 0.88,
+                    "time_window": "next 3-5 hours",
                     "confidence": "medium",
-                    "reasoning": "Excellent performance with 96.8% consent success rate - highest among all FIPs. Good stability grade with low anomaly rates. Peak issues only at hour 8 (8 AM) but manageable."
+                    "reasoning": "Excellent performance with 89.2% consent success rate - highest among all FIPs. Good stability grade with low anomaly rates. Peak issues only at hour 23 (11 PM). Should be maintenance window."
                 },
                 "patterns_detected": [
-                    "Peak errors at hour 8 (8 AM) - morning rush",
+                    "Peak errors at hour 23 (11 PM) - maintenance window",
                     "Highest consent success rate among all FIPs",
                     "Stable performance with minimal variation",
                     "Good weekend vs weekday performance"
@@ -451,13 +455,13 @@ class BedrockService:
                     "manual_processing_cost": "INR 30-45 per transaction",
                     "user_satisfaction_impact": "Minimal - excellent user experience"
                 },
-                "health_score": 94,
-                "risk_level": "low"
+                "health_score": 90,
+                "risk_level": "medium"
             },
             "canara-fip": {
                 "downtime_prediction": {
                     "probability": 0.22,
-                    "time_window": "next 8-10 hours",
+                    "time_window": "next 12-14 hours",
                     "confidence": "medium",
                     "reasoning": "Good performance with 95.3% consent success rate and good stability grade. Low anomaly rates and stable trends. Peak issues at hour 8 (8 AM) but well-managed overall."
                 },

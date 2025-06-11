@@ -10,7 +10,7 @@ import threading
 import time
 import random
 # Import services
-from utils.helpers import get_fip_status_from_success_rate
+from utils.helpers import get_fip_status_from_success_rate, get_fip_response
 from services.bedrock_service import BedrockService
 from services.metrics_service import MetricsService
 from services.prometheus_service import PrometheusService
@@ -113,64 +113,8 @@ def get_fips():
         
         # Calculate features from historical data
         fip_features = ai_analytics_service.historical_analyzer.calculate_features(historical_data)
-        
-        # Initialize real metrics
-        fips_data = {}
-        
-        # Process each FIP
-        for fip_name, base_info in base_fips.items():
-            try:
-                features = fip_features.get(fip_name, {})
-                # logger.info(f"Features: {features}")
-                
-                # Get latest metrics from statistical features
-                stats = features.get('statistical_features', {})
-                consent_stats = stats.get('consent_success_rate', {})
-                data_fetch_stats = stats.get('data_fetch_success_rate', {})
-                response_stats = stats.get('response_time', {})
-                
-                # Get trend information
-                trend_features = features.get('trend_features', {})
-                consent_trend = trend_features.get('consent_success_rate', {})
-                
-                # Get stability information
-                stability = features.get('stability_features', {})
-                # logger.info(f"Stability: {stability}")
-                status_analysis = stability.get('status_analysis', {})
-                
-                stability['overall_stability']['stability_grade'] = get_fip_status_from_success_rate(data_fetch_stats.get('mean', base_info['data_fetch_success_rate']), consent_stats.get('mean', base_info['consent_success_rate']))
-                # Determine current status based on health score
-                health_score = stability.get('overall_stability', {}).get('stability_grade', 'fair')
-                current_status = 'healthy' if health_score == 'excellent' else \
-                               'degraded' if health_score == 'fair' else \
-                               'critical' if health_score == 'poor' else 'warning'
-                
-                
-                # Create FIP data structure with real metrics
-                fips_data[fip_name] = {
-                    'fip_name': fip_name,
-                    'bank_name': base_info['bank_name'],
-                    'consent_success_rate': round(consent_stats.get('mean', base_info['consent_success_rate']), 1),
-                    'data_fetch_success_rate': round(data_fetch_stats.get('mean', base_info['data_fetch_success_rate']), 1),
-                    'avg_response_time': round(response_stats.get('mean', base_info['avg_response_time']), 2),
-                    'error_rate': round(100 - consent_stats.get('mean', 100 - base_info['error_rate']), 1),
-                    'current_status': current_status,
-                    'user_base': base_info['user_base'],
-                    'last_updated': datetime.utcnow().isoformat(),
-                    'trend': consent_trend.get('trend_direction', 'stable'),
-                    'maintenance_window': base_info.get('maintenance_window', False),
-                    'health_metrics': {
-                        'health_score': round(status_analysis.get('stability_score', 0.5) * 10, 1),
-                        'reliability': round(status_analysis.get('healthy_time_pct', 50), 1),
-                        'volatility': round(status_analysis.get('status_volatility', 0.5), 2),
-                        'performance_grade': stability.get('overall_stability', {}).get('stability_grade', 'fair')
-                    }
-                }
-                
-            except Exception as e:
-                logger.warning(f"Error processing historical data for {fip_name}: {e}")
-                # Fallback to base metrics if processing fails
-                fips_data[fip_name] = base_info
+
+        fips_data = get_fip_response(base_fips, fip_features)
 
         return jsonify({
             'success': True,
