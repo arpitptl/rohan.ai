@@ -249,8 +249,23 @@ class PrometheusHistoricalAnalyzer:
         for metric_name, df in fip_data.items():
             values = df['value'].dropna()
             if len(values) > 0:
-                stats_features[metric_name] = {
-                    'mean': float(values.mean())*100.0,
+                if metric_name == 'response_time':
+                    stats_features[metric_name] = {
+                    'mean': float(values.mean()),
+                    'median': float(values.median()),
+                    'std': float(values.std()),
+                    'min': float(values.min()),
+                    'max': float(values.max()),
+                    'p25': float(values.quantile(0.25)),
+                    'p75': float(values.quantile(0.75)),
+                    'p95': float(values.quantile(0.95)),
+                    'skewness': float(values.skew()),
+                    'kurtosis': float(values.kurtosis()),
+                    'coefficient_of_variation': float(values.std() / values.mean()) if values.mean() != 0 else 0
+                    }
+                else:
+                    stats_features[metric_name] = {
+                    'mean': float(values.mean())*100,
                     'median': float(values.median())*100.0,
                     'std': float(values.std())*100.0,
                     'min': float(values.min())*100.0,
@@ -261,7 +276,7 @@ class PrometheusHistoricalAnalyzer:
                     'skewness': float(values.skew()),
                     'kurtosis': float(values.kurtosis()),
                     'coefficient_of_variation': float(values.std() / values.mean()) if values.mean() != 0 else 0
-                }
+                    }
         
         return stats_features
     
