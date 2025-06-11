@@ -59,10 +59,30 @@ function App() {
   // Fetch data on component mount
   useEffect(() => {
     fetchDashboardData();
+
+    async function fetchImpactSummaryData() {
+      const response = await apiService.predictFipIssues({});
+      const prediction = response.data.data;
+
+      const summary = Object.keys(prediction)
+      .reduce((acc, fip) => {
+        const prediction_fip = prediction[fip];
+        const affectedUsers = prediction_fip.user_impact.estimated_affected_users || 0;
+        const isHighRisk = prediction_fip.downtime_prediction.probability > 0.50;
+        
+        acc.usersAtRisk += affectedUsers;
+        acc.highRiskFips += isHighRisk ? 1 : 0;
+        acc.potentialCostImpact += affectedUsers * PER_USER_COST;
+        return acc;
+      }, {usersAtRisk: 0, highRiskFips: 0, potentialCostImpact: 0});
+      
+      setImpactSummary(summary);
+    }
+    fetchImpactSummaryData();
     
     // Refresh data every 30 seconds
-    const interval = setInterval(fetchDashboardData, 30000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchDashboardData, 30000);
+    // return () => clearInterval(interval);
   }, []);
 
   const fetchDashboardData = async () => {
@@ -96,8 +116,6 @@ function App() {
 
   const generatePredictions = async (selectedFips) => {
     try {
-      const response = await apiService.predictFipIssues({ fips: selectedFips });
-      
       // Create success notification
       const notification = document.createElement('div');
       notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-slide-up';
@@ -117,27 +135,27 @@ function App() {
       setTimeout(() => notification.remove(), 3000);
     }
   };
-  useEffect(() => {
-    async function fetchData() {
-      const response = await apiService.predictFipIssues({});
-      const prediction = response.data.data;
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const response = await apiService.predictFipIssues({});
+  //     const prediction = response.data.data;
 
-      const summary = Object.keys(prediction)
-      .reduce((acc, fip) => {
-        const prediction_fip = prediction[fip];
-        const affectedUsers = prediction_fip.user_impact.estimated_affected_users || 0;
-        const isHighRisk = prediction_fip.downtime_prediction.probability > 0.7;
+  //     const summary = Object.keys(prediction)
+  //     .reduce((acc, fip) => {
+  //       const prediction_fip = prediction[fip];
+  //       const affectedUsers = prediction_fip.user_impact.estimated_affected_users || 0;
+  //       const isHighRisk = prediction_fip.downtime_prediction.probability > 0.7;
         
-        acc.usersAtRisk += affectedUsers;
-        acc.highRiskFips += isHighRisk ? 1 : 0;
-        acc.potentialCostImpact += affectedUsers * PER_USER_COST;
-        return acc;
-      }, {usersAtRisk: 0, highRiskFips: 0, potentialCostImpact: 0});
+  //       acc.usersAtRisk += affectedUsers;
+  //       acc.highRiskFips += isHighRisk ? 1 : 0;
+  //       acc.potentialCostImpact += affectedUsers * PER_USER_COST;
+  //       return acc;
+  //     }, {usersAtRisk: 0, highRiskFips: 0, potentialCostImpact: 0});
       
-      setImpactSummary(summary);
-    }
-    fetchData();
-  }, []);
+  //     setImpactSummary(summary);
+  //   }
+  //   fetchData();
+  // }, []);
 
   useEffect(() => {
     if (activeTab === 'analytics') {
@@ -945,23 +963,6 @@ function App() {
       }
     };
   
-    const testAllWebhooks = async () => {
-      setLoading(true);
-      try {
-        const response = await apiService.webhooks.testAllWebhooks();
-        if (response.success) {
-          showNotification('✅ Test alerts sent to all enabled webhooks');
-        } else {
-          throw new Error(response.error);
-        }
-      } catch (error) {
-        console.error('Error testing all webhooks:', error);
-        showNotification('❌ Failed to test all webhooks', 'error');
-      } finally {
-        setLoading(false);
-      }
-    };
-  
     const copyToClipboard = (text, id) => {
       navigator.clipboard.writeText(text);
       setCopiedId(id);
@@ -1041,14 +1042,14 @@ function App() {
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-white">Webhook Endpoints</h3>
             <div className="flex gap-3">
-              <button
+              {/* <button
                 onClick={testAllWebhooks}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 text-white rounded-lg transition-colors"
                 disabled={loading || webhooks.length === 0}
               >
                 <TestTube className="w-4 h-4" />
                 Test All
-              </button>
+              </button> */}
               <button
                 onClick={openCreateModal}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
@@ -1466,52 +1467,7 @@ function App() {
               </div>
 
               {/* Status & Actions */}
-              <div className="flex items-center gap-6">
-                {/* Live Indicator */}
-                <div className="flex items-center gap-2 text-sm text-slate-400">
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>Live</span>
-                  <span>•</span>
-                  <span>{lastUpdated.toLocaleTimeString()}</span>
-                </div>
-
-                {/* Action Buttons - FIXED STYLING */}
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleRefresh}
-                    className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 hover:border-slate-500 text-white rounded-lg text-sm font-medium transition-all duration-200 backdrop-blur-sm"
-                    disabled={loading}
-                  >
-                    <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                    <span className="hidden sm:inline">{loading ? 'Refreshing...' : 'Refresh'}</span>
-                  </button>
-                  <button
-                    onClick={async () => {
-                      setActiveTab('predictions');
-                      const allFips = Object.keys(fipsData);
-                      try {
-                        await generatePredictions(allFips);
-                        const notification = document.createElement('div');
-                        notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                        notification.innerHTML = '✅ Generated predictions for all FIPs';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 3000);
-                      } catch (error) {
-                        const notification = document.createElement('div');
-                        notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
-                        notification.innerHTML = '❌ Failed to generate predictions';
-                        document.body.appendChild(notification);
-                        setTimeout(() => notification.remove(), 3000);
-                      }
-                    }}
-                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
-                  >
-                    <Brain className="w-4 h-4" />
-                    <span className="hidden sm:inline">Generate AI Predictions</span>
-                    <span className="sm:hidden">AI Predict</span>
-                  </button>
-                </div>
-              </div>
+              
             </div>
           </div>
         </header>
@@ -1646,14 +1602,14 @@ function App() {
                         <Clock className="w-6 h-6 text-white" />
                       </div>
                       <div className="text-right">
-                        <p className="text-slate-400 text-sm">System Availability</p>
+                        <p className="text-slate-400 text-sm">Avg Fetch Rate</p>
                         <p className="text-3xl font-bold text-white">
-                          {systemOverview?.performance_metrics?.system_availability 
-                            ? formatPercentage(systemOverview.performance_metrics.system_availability)
+                          {systemOverview?.performance_metrics?.average_data_fetch_success 
+                            ? formatPercentage(systemOverview.performance_metrics.average_data_fetch_success)
                             : '86.7%'
                           }
                         </p>
-                        <p className="text-xs text-slate-500 mt-1">Overall uptime</p>
+                        <p className="text-xs text-slate-500 mt-1">Data Fetch</p>
                       </div>
                     </div>
                     <div className="flex items-center text-xs text-blue-400">
@@ -1851,10 +1807,10 @@ function App() {
                       <p className="text-sm text-slate-400">AI-analyzed patterns and recurring issues</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <select 
                       className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
-                      onChange={(e) => {/* Add time range filter handler */}}
+                      onChange={(e) => {}}
                     >
                       <option value="7d">Last 7 days</option>
                       <option value="30d">Last 30 days</option>
@@ -1864,7 +1820,7 @@ function App() {
                       <RefreshCw className="w-4 h-4" />
                       <span>Refresh</span>
                     </button>
-                  </div>
+                  </div> */}
                 </div>
 
                 {/* Pattern Analysis */}
@@ -2334,7 +2290,7 @@ function App() {
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-700 ml-3"></div>
                   {
                     hourlyMaintenence.map((hourlyData, idx) => {
-                      const color = idx == 0 ? "yellow" : "blue"
+                      const color = idx === 0 ? "yellow" : "blue"
                       const now = new Date();
                       const maintenanceTimeHour = (now.getHours() + hourlyData['hour'])%24
                       const maintenanceTime = `~ ${prependZero(maintenanceTimeHour)}:00`;
