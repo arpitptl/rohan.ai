@@ -176,6 +176,150 @@ class AlertService:
         
         return alerts
 
+    def generate_mock_alerts(self) -> List[Alert]:
+        """Generate mock alerts for testing and development"""
+        from datetime import datetime
+        import time
+        
+        mock_alerts = [
+            Alert(
+                alert_id=f"alert_{int(time.time())}",
+                alert_type="consent_rate_violation",
+                confidence=0.98,
+                context=AlertContext(
+                    affected_users=15420,
+                    business_impact="High impact during peak hours",
+                    historical_pattern="Significant deviation from normal pattern",
+                    peak_hour=True
+                ),
+                fip_name="sbi-fip",
+                message="CRITICAL: Sudden drop in consent success rate to 45.2% (normally 95%+) affecting 15,000+ users.",
+                metrics=AlertMetrics(
+                    current_rate=45.2,
+                    deviation=-51.1,
+                    historical_avg=97.3,
+                    threshold=80
+                ),
+                recommended_actions=[
+                    "Immediate investigation of consent flow",
+                    "Check recent deployments or changes",
+                    "Notify Sahamati team"
+                ],
+                severity="critical",
+                timestamp=datetime.utcnow().isoformat()
+            ),
+            Alert(
+                alert_id=f"alert_{int(time.time()) + 1}",
+                alert_type="data_fetch_violation",
+                confidence=0.95,
+                context=AlertContext(
+                    affected_users=8750,
+                    business_impact="High impact on user experience",
+                    historical_pattern="Unusual pattern during non-peak hours",
+                    peak_hour=False
+                ),
+                fip_name="hdfc-fip",
+                message="Data fetch success rate is 40.8% which is below the threshold of 70%",
+                metrics=AlertMetrics(
+                    current_rate=40.8,
+                    deviation=-35.6,
+                    historical_avg=76.0,
+                    threshold=70
+                ),
+                recommended_actions=[
+                    "Analyze the data fetch range",
+                    "Check the purpose code of consents",
+                    "Route the users to the alternate data fetch endpoint"
+                ],
+                severity="critical",
+                timestamp=datetime.utcnow().isoformat()
+            ),
+            Alert(
+                alert_id=f"alert_{int(time.time()) + 2}",
+                alert_type="data_fetch_violation",
+                confidence=0.60,
+                context=AlertContext(
+                    affected_users=1000,
+                    business_impact="High impact on user experience",
+                    historical_pattern="Unusual pattern during non-peak hours",
+                    peak_hour=False
+                ),
+                fip_name="icici-fip",
+                message="Data fetch success rate is 62.8% which is below the threshold of 70%",
+                metrics=AlertMetrics(
+                    current_rate=62.8,
+                    deviation=-11.2,
+                    historical_avg=74.0,
+                    threshold=70
+                ),
+                recommended_actions=[
+                    "Analyze the data fetch range",
+                    "Check the purpose code of consents",
+                    "Route the users to the alternate data fetch endpoint"
+                ],
+                severity="warning",
+                timestamp=datetime.utcnow().isoformat()
+            ),
+            Alert(
+                alert_id=f"alert_{int(time.time()) + 3}",
+                alert_type="data_quality_issue",
+                confidence=0.92,
+                context=AlertContext(
+                    affected_users=3200,
+                    business_impact="Data inconsistency risk",
+                    historical_pattern="New pattern emerged",
+                    peak_hour=False
+                ),
+                fip_name="axis-fip",
+                message="Data Quality Alert: 18% increase in partial/incomplete account data responses in last hour.",
+                metrics=AlertMetrics(
+                    current_rate=18.5,
+                    deviation=18.3,
+                    historical_avg=0.02,
+                    threshold=0.05
+                ),
+                recommended_actions=[
+                    "Validate data transformation logic",
+                    "Check API response formats",
+                    "Review recent schema changes",
+                    "Monitor data completeness",
+                    "Coordinate with bank's data team"
+                ],
+                severity="warning",
+                timestamp=datetime.utcnow().isoformat()
+            ),
+            Alert(
+                alert_id=f"alert_{int(time.time()) + 4}",
+                alert_type="maintenance_impact",
+                confidence=0.97,
+                context=AlertContext(
+                    affected_users=12000,
+                    business_impact="Scheduled maintenance impact larger than expected",
+                    historical_pattern="Deviating from planned maintenance window",
+                    peak_hour=False
+                ),
+                fip_name="kotak-fip",
+                message="Maintenance Impact: Post-maintenance success rates at 78.5% (expected >90%). Recovery taking longer than planned.",
+                metrics=AlertMetrics(
+                    current_rate=11.5,
+                    deviation=-83.7,
+                    historical_avg=95.2,
+                    threshold=90
+                ),
+                recommended_actions=[
+                    "Check the maintenance window",
+                    "Check the system health metrics",
+                    "Validate all service dependencies",
+                    "Prepare incident report",
+                    "Notify the team"
+                ],
+                severity="critical",
+                timestamp=datetime.utcnow().isoformat()
+            )
+        ]
+        
+        return mock_alerts
+
     def _get_time_sliced_data(self, historical_data: Dict, fip_name: str, minutes: int) -> Dict[str, pd.DataFrame]:
         """Get data for specified time window"""
         sliced_data = {}
