@@ -7,7 +7,7 @@ FIP AI Monitor is an intelligent system designed to predict and optimize Financi
 - Reduce failed transactions by 40%
 - Improve end-user experience through intelligent routing
 - Enable data-driven operational decisions
-- Provide 15-60 minutes advance warning of potential issues
+- Provide 24 hours advance warning of potential issues
 
 ## Problem Statement
 

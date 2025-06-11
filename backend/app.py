@@ -281,9 +281,6 @@ def get_business_impact():
 def get_proactive_alerts():
     """Get proactive alerts and recommendations"""
     try:
-        use_mock = True  # Toggle for mock data
-        
-
         # Get current metrics
         current_metrics = metrics_service.get_all_fips_status()
         
@@ -746,7 +743,6 @@ def init_app():
         predictions_thread.start()
         
         logger.info("AA Gateway AI Operations API started successfully!")
-        logger.info(f"Using {'Real' if app.config['USE_REAL_BEDROCK'] else 'Mock'} Bedrock service")
 
 if __name__ == '__main__':
     init_app()
