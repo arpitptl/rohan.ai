@@ -332,6 +332,9 @@ def get_business_impact():
 def get_proactive_alerts():
     """Get proactive alerts and recommendations"""
     try:
+        use_mock = True  # Toggle for mock data
+        
+
         # Get current metrics
         current_metrics = metrics_service.get_all_fips_status()
         
@@ -343,8 +346,11 @@ def get_proactive_alerts():
         
         # Generate alerts using AlertService
         alerts = alert_service.generate_alerts(historical_data, current_metrics)
+        if not app.config['USE_REAL_BEDROCK']:
+            # Use mock alerts from AlertService
+            alerts = alert_service.generate_mock_alerts()
         
-        # Convert dataclass objects to dictionaries for JSON serialization
+        # Convert alerts to dictionary format for JSON response
         alert_dicts = [
             {
                 'alert_id': alert.alert_id,
@@ -370,18 +376,6 @@ def get_proactive_alerts():
             }
             for alert in alerts
         ]
-        
-        # If we have alerts and Bedrock is available, enhance recommendations
-        if alert_dicts and not bedrock_service.use_mock:
-            try:
-                enhanced_alerts = bedrock_service.enhance_alert_recommendations({
-                    'alerts': alert_dicts,
-                    'current_metrics': current_metrics,
-                    'historical_context': historical_data
-                })
-                alert_dicts = enhanced_alerts.get('alerts', alert_dicts)
-            except Exception as e:
-                logger.error(f"Error enhancing alerts with Bedrock: {e}")
         
         return jsonify({
             'success': True,

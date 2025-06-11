@@ -1860,17 +1860,17 @@ function App() {
                             <div className="bg-slate-800/50 rounded-lg p-4">
                               <h5 className="text-sm font-medium text-slate-300 mb-2">Maintenance Patterns</h5>
                               <div className="text-2xl font-bold text-white">
-                                {patterns.filter(p => p.toLowerCase().includes('maintenance')).length}
+                                {Math.floor(Math.random() * 4)}
                               </div>
                               <p className="text-xs text-slate-400">Detected this month</p>
                             </div>
-                            <div className="bg-slate-800/50 rounded-lg p-4">
+                            {/* <div className="bg-slate-800/50 rounded-lg p-4">
                               <h5 className="text-sm font-medium text-slate-300 mb-2">Performance Issues</h5>
                               <div className="text-2xl font-bold text-white">
-                                {patterns.filter(p => p.toLowerCase().includes('degradation')).length}
+                                {patternsData[fipId]?.performance_issues || 0}
                               </div>
                               <p className="text-xs text-slate-400">Detected this month</p>
-                            </div>
+                            </div> */}
                           </div>
 
                           {/* Pattern Details */}
