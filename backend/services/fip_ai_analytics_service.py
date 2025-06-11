@@ -1111,7 +1111,7 @@ class FIPAIAnalyticsService:
             'category': 'infrastructure',
             'recommendation': 'Implement auto-scaling capabilities for high-load FIPs',
             'priority': 'high',
-            'estimated_cost': '₹5-8 lakhs',
+            'estimated_cost': 'INR 5-8 lakhs',
             'timeline': '2-3 months',
             'expected_benefit': 'Automatic capacity adjustment based on demand'
         })
@@ -1121,7 +1121,7 @@ class FIPAIAnalyticsService:
             'category': 'monitoring',
             'recommendation': 'Deploy predictive capacity monitoring system',
             'priority': 'medium',
-            'estimated_cost': '₹3-5 lakhs',
+            'estimated_cost': 'INR 3-5 lakhs',
             'timeline': '1-2 months',
             'expected_benefit': 'Early warning for capacity constraints'
         })

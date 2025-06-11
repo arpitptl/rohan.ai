@@ -2251,7 +2251,7 @@ function App() {
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-white">
-                        ₹{Math.round(
+                        INR {Math.round(
                           impactSummary.potentialCostImpact
                         ).toLocaleString()}
                       </div>

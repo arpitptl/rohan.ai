@@ -470,7 +470,7 @@ const AIAnalyticsDashboard = () => {
                     <div className="text-right">
                       <p className="text-slate-400 text-sm">Revenue at Risk</p>
                       <p className="text-3xl font-bold text-white">
-                        ₹{((aiAnalytics?.comprehensive_analysis?.revenue_at_risk || 0) / 1000).toFixed(0)}K
+                        INR {((aiAnalytics?.comprehensive_analysis?.revenue_at_risk || 0) / 1000).toFixed(0)}K
                       </p>
                       <p className="text-xs text-slate-500 mt-1">Potential impact</p>
                     </div>

@@ -611,7 +611,7 @@ Focus on actionable business insights that drive strategic decisions and operati
                 "overall_system_health": f"System at moderate risk with {len(high_risk_fips)} FIPs requiring immediate attention",
                 "key_business_risks": [
                     f"Potential {total_affected_users:,} users affected in next 24 hours",
-                    f"Estimated ₹{total_revenue_risk:,.0f} revenue at risk",
+                    f"Estimated INR {total_revenue_risk:,.0f} revenue at risk",
                     "Manual processing costs could increase by 300% during outages",
                     "Customer satisfaction scores likely to drop 15-25% during peak failures"
                 ],
@@ -907,8 +907,8 @@ Focus on actionable business insights that drive strategic decisions and operati
         
         estimated_users = user_base_estimates.get(fip_name, 1000)
         affected_users = int(estimated_users * final_probability)
-        revenue_impact = affected_users * 150  # ₹150 average revenue per affected user
-        operational_cost = affected_users * 50   # ₹50 manual processing cost per user
+        revenue_impact = affected_users * 150  # INR 150 average revenue per affected user
+        operational_cost = affected_users * 50   # INR 50 manual processing cost per user
         
         # Generate recommendations
         recommendations = []

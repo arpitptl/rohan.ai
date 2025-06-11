@@ -126,7 +126,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "2-3 minutes average",
-                    "manual_processing_cost": "₹50-75 per transaction during fallback",
+                    "manual_processing_cost": "INR 50-75 per transaction during fallback",
                     "user_satisfaction_impact": "Minimal - good overall performance maintained"
                 },
                 "health_score": 82,
@@ -162,7 +162,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "3-4 minutes average",
-                    "manual_processing_cost": "₹75-100 per transaction",
+                    "manual_processing_cost": "INR 75-100 per transaction",
                     "user_satisfaction_impact": "Moderate - noticeable delays during peak hours"
                 },
                 "health_score": 78,
@@ -199,7 +199,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "1-2 minutes average",
-                    "manual_processing_cost": "₹25-40 per transaction",
+                    "manual_processing_cost": "INR 25-40 per transaction",
                     "user_satisfaction_impact": "Minimal - excellent user experience"
                 },
                 "health_score": 92,
@@ -234,7 +234,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "4-5 minutes average",
-                    "manual_processing_cost": "₹80-120 per transaction",
+                    "manual_processing_cost": "INR 80-120 per transaction",
                     "user_satisfaction_impact": "Moderate - users notice morning delays"
                 },
                 "health_score": 75,
@@ -269,7 +269,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "4-5 minutes average",
-                    "manual_processing_cost": "₹85-125 per transaction",
+                    "manual_processing_cost": "INR 85-125 per transaction",
                     "user_satisfaction_impact": "Moderate - afternoon performance issues noticeable"
                 },
                 "health_score": 74,
@@ -304,7 +304,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "3-4 minutes average",
-                    "manual_processing_cost": "₹70-95 per transaction",
+                    "manual_processing_cost": "INR 70-95 per transaction",
                     "user_satisfaction_impact": "Low-moderate - evening delays manageable"
                 },
                 "health_score": 79,
@@ -341,7 +341,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "6-8 minutes average",
-                    "manual_processing_cost": "₹150-200 per transaction",
+                    "manual_processing_cost": "INR 150-200 per transaction",
                     "user_satisfaction_impact": "High - significant delays and failures expected"
                 },
                 "health_score": 65,
@@ -376,7 +376,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "5-6 minutes average",
-                    "manual_processing_cost": "₹100-140 per transaction",
+                    "manual_processing_cost": "INR 100-140 per transaction",
                     "user_satisfaction_impact": "Moderate-high - noticeable evening performance issues"
                 },
                 "health_score": 72,
@@ -412,7 +412,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "2-3 minutes average",
-                    "manual_processing_cost": "₹40-60 per transaction",
+                    "manual_processing_cost": "INR 40-60 per transaction",
                     "user_satisfaction_impact": "Low - good user experience maintained"
                 },
                 "health_score": 88,
@@ -448,7 +448,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "1-2 minutes average",
-                    "manual_processing_cost": "₹30-45 per transaction",
+                    "manual_processing_cost": "INR 30-45 per transaction",
                     "user_satisfaction_impact": "Minimal - excellent user experience"
                 },
                 "health_score": 94,
@@ -484,7 +484,7 @@ class BedrockService:
                 },
                 "business_impact": {
                     "processing_delay": "2-3 minutes average",
-                    "manual_processing_cost": "₹45-65 per transaction",
+                    "manual_processing_cost": "INR 45-65 per transaction",
                     "user_satisfaction_impact": "Low - good user experience with minor morning delays"
                 },
                 "health_score": 86,
@@ -695,7 +695,7 @@ class BedrockService:
         return {
             "overall_impact": {
                 "total_affected_users": total_affected_users,
-                "estimated_processing_cost": f"₹{total_cost:.0f}",
+                "estimated_processing_cost": f"INR {total_cost:.0f}",
                 "high_risk_fips": high_risk_fips,
                 "overall_system_health": max(1, 10 - (high_risk_fips * 2))
             },
@@ -717,9 +717,9 @@ class BedrockService:
                 ]
             },
             "cost_benefit": {
-                "proactive_cost": f"₹{total_cost * 0.3:.0f}",
-                "reactive_cost": f"₹{total_cost:.0f}",
-                "savings_potential": f"₹{total_cost * 0.7:.0f}"
+                "proactive_cost": f"INR {total_cost * 0.3:.0f}",
+                "reactive_cost": f"INR {total_cost:.0f}",
+                "savings_potential": f"INR {total_cost * 0.7:.0f}"
             }
         }
     
@@ -813,7 +813,7 @@ class BedrockService:
             },
             "business_impact": {
                 "users_potentially_affected": 3240,
-                "estimated_processing_cost": "₹2.8L",
+                "estimated_processing_cost": "INR 2.8L",
                 "manual_capacity_required": "40% increase"
             }
         }
@@ -932,7 +932,7 @@ Provide impact analysis in JSON format:
     "overall_impact": {{
         "severity": "high|medium|low",
         "affected_users": number,
-        "business_cost": "₹amount",
+        "business_cost": "INR amount",
         "operational_impact": "description"
     }},
     "fip_specific_impacts": [
@@ -1084,7 +1084,7 @@ Provide in JSON format:
     },
     "business_impact": {
         "users_potentially_affected": number,
-        "estimated_processing_cost": "₹amount",
+        "estimated_processing_cost": "INR amount",
         "manual_capacity_required": "percentage"
     }
 }

@@ -2,16 +2,16 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Any, Optional
 from utils.logger import logger
-def format_currency(amount: float, currency: str = '₹') -> str:
-    """
-    Format currency amounts for display
-    """
-    if amount >= 100000:  # 1 lakh or more
-        return f"{currency}{amount/100000:.1f}L"
-    elif amount >= 1000:  # 1 thousand or more
-        return f"{currency}{amount/1000:.1f}K"
-    else:
-        return f"{currency}{amount:.0f}"
+# def format_currency(amount: float, currency: str = '₹') -> str:
+#     """
+#     Format currency amounts for display
+#     """
+#     if amount >= 100000:  # 1 lakh or more
+#         return f"{currency}{amount/100000:.1f}L"
+#     elif amount >= 1000:  # 1 thousand or more
+#         return f"{currency}{amount/1000:.1f}K"
+#     else:
+#         return f"{currency}{amount:.0f}"
 
 def calculate_time_ago(timestamp: str) -> str:
     """
