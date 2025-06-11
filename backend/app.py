@@ -295,9 +295,6 @@ def get_proactive_alerts():
         
         # Generate alerts using AlertService
         alerts = alert_service.generate_alerts(historical_data, current_metrics)
-        if not app.config['USE_REAL_BEDROCK']:
-            # Use mock alerts from AlertService
-            alerts = alert_service.generate_mock_alerts()
         
         # Convert alerts to dictionary format for JSON response
         alert_dicts = [

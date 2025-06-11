@@ -9,6 +9,7 @@ from models.webhook import WebhookSubscription
 from models.alert import Alert as AlertModel
 from models import db
 import json
+from config import Config
 
 @dataclass
 class AlertMetrics:
@@ -152,6 +153,8 @@ class AlertService:
     def generate_alerts(self, historical_data: Dict, current_metrics: Dict) -> List[Alert]:
         """Generate alerts based on metrics analysis with focus on last 3 hours"""
         alerts = []
+        if not Config.USE_REAL_BEDROCK:
+            return self.generate_mock_alerts()
         
         try:
             # Process each FIP
@@ -193,15 +196,16 @@ class AlertService:
                     peak_hour=True
                 ),
                 fip_name="sbi-fip",
-                message="CRITICAL: Sudden drop in consent success rate to 45.2% (normally 95%+) affecting 15,000+ users.",
+                message="CRITICAL: Sudden drop in consent success rate to 24.3% (normally 90%+) affecting 15,000+ users.",
                 metrics=AlertMetrics(
-                    current_rate=45.2,
+                    current_rate=24.3,
                     deviation=-51.1,
-                    historical_avg=97.3,
+                    historical_avg=90.3,
                     threshold=80
                 ),
                 recommended_actions=[
                     "Immediate investigation of consent flow",
+                    "Check the purpose code of consents"
                     "Check recent deployments or changes",
                     "Notify Sahamati team"
                 ],
@@ -218,12 +222,12 @@ class AlertService:
                     historical_pattern="Unusual pattern during non-peak hours",
                     peak_hour=False
                 ),
-                fip_name="hdfc-fip",
-                message="Data fetch success rate is 40.8% which is below the threshold of 70%",
+                fip_name="pnb-fip",
+                message="Data fetch success rate is 23.8% which is below the threshold of 70%",
                 metrics=AlertMetrics(
-                    current_rate=40.8,
-                    deviation=-35.6,
-                    historical_avg=76.0,
+                    current_rate=23.8,
+                    deviation=-55.6,
+                    historical_avg=86.0,
                     threshold=70
                 ),
                 recommended_actions=[
@@ -244,12 +248,12 @@ class AlertService:
                     historical_pattern="Unusual pattern during non-peak hours",
                     peak_hour=False
                 ),
-                fip_name="icici-fip",
-                message="Data fetch success rate is 62.8% which is below the threshold of 70%",
+                fip_name="kotak-fip",
+                message="Data fetch success rate is 64.4% which is below the threshold of 70%",
                 metrics=AlertMetrics(
-                    current_rate=62.8,
+                    current_rate=64.4,
                     deviation=-11.2,
-                    historical_avg=74.0,
+                    historical_avg=75.0,
                     threshold=70
                 ),
                 recommended_actions=[
@@ -270,7 +274,7 @@ class AlertService:
                     historical_pattern="New pattern emerged",
                     peak_hour=False
                 ),
-                fip_name="axis-fip",
+                fip_name="central-fip",
                 message="Data Quality Alert: 18% increase in partial/incomplete account data responses in last hour.",
                 metrics=AlertMetrics(
                     current_rate=18.5,
@@ -298,13 +302,13 @@ class AlertService:
                     historical_pattern="Deviating from planned maintenance window",
                     peak_hour=False
                 ),
-                fip_name="kotak-fip",
-                message="Maintenance Impact: Post-maintenance success rates at 78.5% (expected >90%). Recovery taking longer than planned.",
+                fip_name="pnb-fip",
+                message="Maintenance Impact: Post-maintenance success rates at 17.5% (expected >70%). Recovery taking longer than planned.",
                 metrics=AlertMetrics(
-                    current_rate=11.5,
-                    deviation=-83.7,
-                    historical_avg=95.2,
-                    threshold=90
+                    current_rate=17.5,
+                    deviation=-63.7,
+                    historical_avg=90.2,
+                    threshold=70
                 ),
                 recommended_actions=[
                     "Check the maintenance window",

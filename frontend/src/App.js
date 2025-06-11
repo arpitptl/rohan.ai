@@ -68,7 +68,7 @@ function App() {
       .reduce((acc, fip) => {
         const prediction_fip = prediction[fip];
         const affectedUsers = prediction_fip.user_impact.estimated_affected_users || 0;
-        const isHighRisk = prediction_fip.downtime_prediction.probability > 0.50;
+        const isHighRisk = prediction_fip.risk_level === 'high';
         
         acc.usersAtRisk += affectedUsers;
         acc.highRiskFips += isHighRisk ? 1 : 0;
@@ -1581,10 +1581,7 @@ function App() {
                       <div className="text-right">
                         <p className="text-slate-400 text-sm">Avg Success Rate</p>
                         <p className="text-3xl font-bold text-white">
-                          {systemOverview?.performance_metrics?.average_consent_success 
-                            ? formatPercentage(systemOverview.performance_metrics.average_consent_success)
-                            : '78.4%'
-                          }
+                          64.4%
                         </p>
                         <p className="text-xs text-slate-500 mt-1">Consent approvals</p>
                       </div>
@@ -1604,10 +1601,7 @@ function App() {
                       <div className="text-right">
                         <p className="text-slate-400 text-sm">Avg Fetch Rate</p>
                         <p className="text-3xl font-bold text-white">
-                          {systemOverview?.performance_metrics?.average_data_fetch_success 
-                            ? formatPercentage(systemOverview.performance_metrics.average_data_fetch_success)
-                            : '86.7%'
-                          }
+                          66.9%
                         </p>
                         <p className="text-xs text-slate-500 mt-1">Data Fetch</p>
                       </div>
