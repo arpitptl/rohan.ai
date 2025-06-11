@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import json
 import threading
 import time
+import random
 # Import services
 from utils.helpers import get_fip_status_from_success_rate
 from services.bedrock_service import BedrockService
@@ -247,6 +248,8 @@ def get_fip_predictions_hourly():
                 pred_data = json.loads(prediction.raw_prediction)
                 downtime_pred = pred_data.get('downtime_prediction', {})
                 time_window = downtime_pred.get('time_window', '')
+                is_maintenece = random.choices([True, False], weights=[80, 20])[0]
+                
                                 
                 # Extract hours from time window (e.g., "next 6-8 hours" -> [6,7,8])
                 if 'next' in time_window.lower() and 'hours' in time_window.lower():
@@ -279,6 +282,8 @@ def get_fip_predictions_hourly():
                                         'probability': downtime_pred.get('probability', 0),
                                         'confidence': downtime_pred.get('confidence', 'medium'),
                                         'reasoning': downtime_pred.get('reasoning', ''),
+                                        'isMaintenence': is_maintenece if downtime_pred.get('probability', 0) > 0.7 else False, # If confidence is low then always `False`
+                                        'timeWindow': time_window,
                                     }
                                     logger.info(f"Added prediction for hour {hour}, FIP {prediction.fip_name}")
                         else:
