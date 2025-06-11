@@ -5,6 +5,18 @@ from typing import Dict, List, Any
 import boto3
 from botocore.exceptions import ClientError
 from utils.logger import logger
+import numpy as np
+
+class NumpyEncoder(json.JSONEncoder):
+    """Custom JSON encoder for NumPy data types"""
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
 
 class BedrockService:
     """
@@ -83,390 +95,402 @@ class BedrockService:
         Generate realistic downtime predictions based on actual metrics
         """
         return {
-                "sbi-fip": {
+            "icici-fip": {
                 "downtime_prediction": {
-                        "probability": 0.25,
-                        "time_window": "next 6-8 hours",
-                        "confidence": "medium",
-                        "reasoning": "Moderate error rate of 12.3% with declining data fetch success (81.2%). Good response time (1.98s) indicates stable infrastructure, but consent success dropping suggests potential authentication issues."
-                    },
-                    "patterns_detected": [
-                        "Gradual decline in data fetch success rate",
-                        "Stable response times indicating good infrastructure",
-                        "Error rate within acceptable bounds but trending upward"
-                    ],
-                    "anomalies": [
-                        "6.5% gap between consent and data fetch success rates indicates post-consent failures"
-                    ],
+                    "probability": 0.25,
+                    "time_window": "next 6-8 hours",
+                    "confidence": "medium",
+                    "reasoning": "Consent success rate declining (-0.94%), response time increasing (+3.22%), but overall stability grade is 'good'. Low anomaly severity with 92.5% average consent success rate indicates stable performance with minor degradation trends."
+                },
+                "patterns_detected": [
+                    "Peak error rates at hour 21 (9 PM)",
+                    "Response time volatility during evening hours",
+                    "Negative correlation between consent success and response time (-0.61)",
+                    "Weekend performance slightly better than weekdays"
+                ],
+                "anomalies": [
+                    "35 consent/data fetch anomalies (1.37% rate)",
+                    "34 response time anomalies",
+                    "109 status anomalies (4.27% rate) - medium concern"
+                ],
                 "user_impact": {
-                        "consent_failure_rate": "12.3%",
-                        "data_fetch_failure_rate": "18.8%",
-                        "estimated_affected_users": 553,
-                        "recommended_fallback": "PDF upload for failed data fetches, manual verification for consent failures"
+                    "consent_failure_rate": "7.5%",
+                    "data_fetch_failure_rate": "9.0%",
+                    "estimated_affected_users": 1500,
+                    "recommended_fallback": "PDF upload during evening peak hours (21:00-22:00)"
                 },
                 "fiu_recommendations": {
-                        "should_activate_manual": False,
-                        "retry_after": "15 minutes",
-                        "communication_template": "Temporary delays in SBI data access. Please retry in 15 minutes or upload bank statements manually."
+                    "should_activate_manual": False,
+                    "retry_after": "15 minutes during peak error periods",
+                    "communication_template": "Temporary delays possible during evening hours. Alternative verification methods available."
                 },
                 "business_impact": {
-                        "processing_delay": "2-4 hours",
-                        "manual_processing_cost": "₹27,650",
-                        "user_satisfaction_impact": "Minor delays, manageable with retries"
-                    },
-                    "health_score": 7.2,
-                    "risk_level": "medium"
+                    "processing_delay": "2-3 minutes average",
+                    "manual_processing_cost": "₹50-75 per transaction during fallback",
+                    "user_satisfaction_impact": "Minimal - good overall performance maintained"
                 },
-                "hdfc-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.65,
-                        "time_window": "next 3-4 hours",
-                        "confidence": "high",
-                        "reasoning": "High error rate of 34.3% with only 65.7% consent success. System is already degraded and showing signs of potential cascade failure."
-                    },
-                    "patterns_detected": [
-                        "Sustained high error rates above 30%",
-                        "Poor consent success indicating authentication layer issues",
-                        "Response time relatively stable despite degraded performance"
-                    ],
-                    "anomalies": [
-                        "Large user base (3200) experiencing significant failures",
-                        "3.3% further drop from consent to data fetch success"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "34.3%",
-                        "data_fetch_failure_rate": "37.6%",
-                        "estimated_affected_users": 1203,
-                        "recommended_fallback": "Immediate manual verification setup, PDF upload portal activation"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "2-3 hours",
-                        "communication_template": "HDFC Bank connection experiencing issues. Please use manual upload option or try again in 2-3 hours."
-                    },
-                    "business_impact": {
-                        "processing_delay": "4-6 hours",
-                        "manual_processing_cost": "₹60,150",
-                        "user_satisfaction_impact": "Significant impact, requires immediate manual process activation"
-                    },
-                    "health_score": 4.1,
-                    "risk_level": "critical"
+                "health_score": 82,
+                "risk_level": "low"
+            },
+            "sbi-fip": {
+                "downtime_prediction": {
+                    "probability": 0.35,
+                    "time_window": "next 4-6 hours",
+                    "confidence": "medium",
+                    "reasoning": "Higher volatility than ICICI with 92% consent success rate. Response time increasing (+1.59%), error rates decreasing but status anomalies at medium severity. Stability grade 'good' but showing more stress indicators."
                 },
-                "icici-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.35,
-                        "time_window": "next 4-6 hours",
-                        "confidence": "medium",
-                        "reasoning": "Error rate of 19.2% is manageable but response time of 2.44s shows system stress. 80.8% consent success is borderline acceptable."
-                    },
-                    "patterns_detected": [
-                        "Moderate performance degradation",
-                        "Increasing response times under load",
-                        "Stable consent success rate around 80%"
-                    ],
-                    "anomalies": [
-                        "4.2% drop from consent to data fetch suggests backend processing issues"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "19.2%",
-                        "data_fetch_failure_rate": "23.4%",
-                        "estimated_affected_users": 656,
-                        "recommended_fallback": "PDF upload for data fetch failures, retry mechanism for consent"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": False,
-                        "retry_after": "20 minutes",
-                        "communication_template": "ICICI Bank experiencing minor delays. Please retry in 20 minutes or use manual upload if urgent."
-                    },
-                    "business_impact": {
-                        "processing_delay": "3-5 hours",
-                        "manual_processing_cost": "₹32,800",
-                        "user_satisfaction_impact": "Moderate delays, acceptable with retry mechanisms"
-                    },
-                    "health_score": 6.8,
-                    "risk_level": "medium"
+                "patterns_detected": [
+                    "Peak error rates at hour 15 (3 PM)",
+                    "Clear daily patterns in response time and error rate",
+                    "Higher coefficient of variation (16%) indicates less stability",
+                    "Weekend vs weekday performance variance"
+                ],
+                "anomalies": [
+                    "70 consent/data fetch anomalies (2.75% rate)",
+                    "150 status anomalies (5.89% rate) - medium severity"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "8.0%",
+                    "data_fetch_failure_rate": "9.6%",
+                    "estimated_affected_users": 2200,
+                    "recommended_fallback": "Phone verification during afternoon peak (15:00-16:00)"
                 },
-                "axis-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.95,
-                        "time_window": "next 1-2 hours",
-                        "confidence": "very high",
-                        "reasoning": "Critical status with 81.9% error rate and only 18.1% consent success. System is essentially non-functional and likely to completely fail soon."
-                    },
-                    "patterns_detected": [
-                        "Extreme system degradation with >80% failure rate",
-                        "Critical response time degradation (3.93s)",
-                        "Complete breakdown of consent and data fetch mechanisms"
-                    ],
-                    "anomalies": [
-                        "Catastrophic failure pattern - system barely operational",
-                        "2.2% additional drop from consent to data fetch indicates total system instability"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "81.9%",
-                        "data_fetch_failure_rate": "84.1%",
-                        "estimated_affected_users": 1009,
-                        "recommended_fallback": "Immediate complete manual process activation, emergency communication to users"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "6-8 hours minimum",
-                        "communication_template": "URGENT: Axis Bank connection unavailable. Please use manual upload immediately. Estimated restoration: 6-8 hours."
-                    },
-                    "business_impact": {
-                        "processing_delay": "8-12 hours",
-                        "manual_processing_cost": "₹50,450",
-                        "user_satisfaction_impact": "Severe impact, requires emergency manual processing and customer communication"
-                    },
-                    "health_score": 1.8,
-                    "risk_level": "critical"
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "20 minutes during afternoon peak",
+                    "communication_template": "Service may be slower during afternoon hours. Please try again or use phone verification."
                 },
-                "kotak-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.30,
-                        "time_window": "next 5-7 hours",
-                        "confidence": "medium",
-                        "reasoning": "Relatively stable with 82.7% consent success and 17.3% error rate. Response time of 2.19s is acceptable, indicating good infrastructure resilience."
-                    },
-                    "patterns_detected": [
-                        "Stable performance within warning thresholds",
-                        "Good consent success rate maintenance",
-                        "Acceptable response time performance"
-                    ],
-                    "anomalies": [
-                        "8.2% drop from consent to data fetch indicates backend processing bottlenecks"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "17.3%",
-                        "data_fetch_failure_rate": "25.5%",
-                        "estimated_affected_users": 204,
-                        "recommended_fallback": "Standard retry mechanism, PDF upload for persistent failures"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": False,
-                        "retry_after": "10 minutes",
-                        "communication_template": "Kotak Bank minor delays detected. Please retry in 10 minutes or use manual upload option."
-                    },
-                    "business_impact": {
-                        "processing_delay": "2-3 hours",
-                        "manual_processing_cost": "₹10,200",
-                        "user_satisfaction_impact": "Minimal impact, manageable with standard retry logic"
-                    },
-                    "health_score": 7.0,
-                    "risk_level": "medium"
+                "business_impact": {
+                    "processing_delay": "3-4 minutes average",
+                    "manual_processing_cost": "₹75-100 per transaction",
+                    "user_satisfaction_impact": "Moderate - noticeable delays during peak hours"
                 },
-                "boi-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.55,
-                        "time_window": "next 2-4 hours",
-                        "confidence": "high",
-                        "reasoning": "Degraded status with 33% error rate and slow response time (3.5s). 67% consent success is borderline, indicating system stress."
-                    },
-                    "patterns_detected": [
-                        "Degraded performance with high error rates",
-                        "Slow response times indicating infrastructure stress",
-                        "Poor consent-to-data-fetch conversion rate"
-                    ],
-                    "anomalies": [
-                        "1.9% additional failure rate from consent to data fetch",
-                        "Response time significantly higher than healthy FIPs"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "33.0%",
-                        "data_fetch_failure_rate": "34.9%",
-                        "estimated_affected_users": 209,
-                        "recommended_fallback": "Manual verification activation recommended, PDF upload portal"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "45 minutes",
-                        "communication_template": "Bank of India experiencing service disruptions. Please use manual upload or retry in 45 minutes."
-                    },
-                    "business_impact": {
-                        "processing_delay": "4-6 hours",
-                        "manual_processing_cost": "₹10,450",
-                        "user_satisfaction_impact": "Significant delays requiring manual process backup"
-                    },
-                    "health_score": 4.8,
-                    "risk_level": "critical"
+                "health_score": 78,
+                "risk_level": "medium"
+            },
+            "boi-fip": {
+                "downtime_prediction": {
+                    "probability": 0.15,
+                    "time_window": "next 12+ hours",
+                    "confidence": "high",
+                    "reasoning": "Excellent performance with 95.9% consent success rate and 'excellent' stability grade. Lowest coefficient of variation (5.3%) indicates very stable performance. All trends improving or stable."
                 },
-                "pnb-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.50,
-                        "time_window": "next 3-5 hours",
-                        "confidence": "medium",
-                        "reasoning": "27.4% error rate with degraded status. Slow response time (3.48s) and declining data fetch success suggest progressive system degradation."
-                    },
-                    "patterns_detected": [
-                        "Progressive system degradation pattern",
-                        "High response latency indicating infrastructure stress",
-                        "Moderate but concerning error rates"
-                    ],
-                    "anomalies": [
-                        "8.8% drop from consent to data fetch - significant backend issues",
-                        "Response time near critical threshold"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "27.4%",
-                        "data_fetch_failure_rate": "36.2%",
-                        "estimated_affected_users": 253,
-                        "recommended_fallback": "PDF upload activation, enhanced retry mechanisms"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "30 minutes",
-                        "communication_template": "PNB services experiencing delays. Manual upload recommended or retry in 30 minutes."
-                    },
-                    "business_impact": {
-                        "processing_delay": "3-5 hours",
-                        "manual_processing_cost": "₹12,650",
-                        "user_satisfaction_impact": "Moderate to significant impact, manual processes needed"
-                    },
-                    "health_score": 5.2,
-                    "risk_level": "critical"
+                "patterns_detected": [
+                    "Most stable FIP with minimal hourly variation",
+                    "Peak errors during hour 10 (10 AM)",
+                    "Strong weekend performance",
+                    "Consistent response times under 4 seconds average"
+                ],
+                "anomalies": [
+                    "Only 66 consent anomalies (2.57% rate) - very low",
+                    "17 response time anomalies (0.66% rate) - extremely low",
+                    "70 status anomalies (2.72% rate) - acceptable"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "4.1%",
+                    "data_fetch_failure_rate": "5.3%",
+                    "estimated_affected_users": 800,
+                    "recommended_fallback": "Minimal fallback needed"
                 },
-                "canara-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.40,
-                        "time_window": "next 4-6 hours",
-                        "confidence": "medium",
-                        "reasoning": "Warning status with 27.2% error rate. Response time of 3.67s is concerning but consent success at 72.8% provides some stability buffer."
-                    },
-                    "patterns_detected": [
-                        "Moderate degradation with slow recovery potential",
-                        "High response latency but stable consent processing",
-                        "Declining data fetch performance"
-                    ],
-                    "anomalies": [
-                        "3.8% drop from consent to data fetch",
-                        "Response time approaching critical threshold"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "27.2%",
-                        "data_fetch_failure_rate": "31.0%",
-                        "estimated_affected_users": 155,
-                        "recommended_fallback": "Standard retry with PDF upload option"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": False,
-                        "retry_after": "25 minutes",
-                        "communication_template": "Canara Bank experiencing minor service delays. Please retry in 25 minutes or use manual upload."
-                    },
-                    "business_impact": {
-                        "processing_delay": "3-4 hours",
-                        "manual_processing_cost": "₹7,750",
-                        "user_satisfaction_impact": "Moderate delays, manageable with enhanced retry mechanisms"
-                    },
-                    "health_score": 5.8,
-                    "risk_level": "medium"
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "5 minutes if needed",
+                    "communication_template": "Service running optimally. Minor delays possible during morning hours."
                 },
-                "ubi-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.70,
-                        "time_window": "next 2-3 hours",
-                        "confidence": "high",
-                        "reasoning": "High error rate of 39.3% with very slow response time (4.8s). Only 60.7% consent success indicates severe system stress and potential imminent failure."
-                    },
-                    "patterns_detected": [
-                        "Severe system stress with high error rates",
-                        "Critical response time degradation",
-                        "Poor consent success indicating authentication layer failure"
-                    ],
-                    "anomalies": [
-                        "5.2% additional drop from consent to data fetch",
-                        "Response time in critical zone (4.8s)"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "39.3%",
-                        "data_fetch_failure_rate": "44.5%",
-                        "estimated_affected_users": 178,
-                        "recommended_fallback": "Immediate manual process activation required"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "2-3 hours",
-                        "communication_template": "Union Bank services severely degraded. Please use manual upload immediately. Estimated restoration: 2-3 hours."
-                    },
-                    "business_impact": {
-                        "processing_delay": "6-8 hours",
-                        "manual_processing_cost": "₹8,900",
-                        "user_satisfaction_impact": "Severe impact requiring immediate manual processing activation"
-                    },
-                    "health_score": 3.2,
-                    "risk_level": "critical"
+                "business_impact": {
+                    "processing_delay": "1-2 minutes average",
+                    "manual_processing_cost": "₹25-40 per transaction",
+                    "user_satisfaction_impact": "Minimal - excellent user experience"
                 },
-                "iob-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.60,
-                        "time_window": "next 2-4 hours",
-                        "confidence": "high",
-                        "reasoning": "30.2% error rate with very slow response time (5.36s). Degraded status with poor performance metrics indicates high failure probability."
-                    },
-                    "patterns_detected": [
-                        "Severe performance degradation",
-                        "Critical response time issues (5.36s)",
-                        "Declining overall system health"
-                    ],
-                    "anomalies": [
-                        "7% drop from consent to data fetch - significant backend failure",
-                        "Response time in critical failure zone"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "30.2%",
-                        "data_fetch_failure_rate": "37.2%",
-                        "estimated_affected_users": 112,
-                        "recommended_fallback": "Manual verification process activation"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "1-2 hours",
-                        "communication_template": "Indian Overseas Bank connection unstable. Please use manual upload or retry in 1-2 hours."
-                    },
-                    "business_impact": {
-                        "processing_delay": "5-7 hours",
-                        "manual_processing_cost": "₹5,600",
-                        "user_satisfaction_impact": "Significant delays requiring manual process backup"
-                    },
-                    "health_score": 4.2,
-                    "risk_level": "critical"
+                "health_score": 92,
+                "risk_level": "low"
+            },
+            "central-fip": {
+                "downtime_prediction": {
+                    "probability": 0.40,
+                    "time_window": "next 3-4 hours",
+                    "confidence": "medium",
+                    "reasoning": "Declining consent (-1.81%) and data fetch (-2.19%) rates with increasing response times (+4.95%). Status showing downward trend. Good stability grade but concerning degradation patterns."
                 },
-                "central-fip": {
-                    "downtime_prediction": {
-                        "probability": 0.85,
-                        "time_window": "next 1-2 hours",
-                        "confidence": "very high",
-                        "reasoning": "Extremely poor performance with 46.5% error rate and critical response time (5.8s). Only 53.5% consent success indicates system on verge of complete failure."
-                    },
-                    "patterns_detected": [
-                        "Critical system failure pattern",
-                        "Extreme response time degradation (5.8s)",
-                        "Poor consent and data fetch success rates"
-                    ],
-                    "anomalies": [
-                        "5.8% additional drop from consent to data fetch",
-                        "Response time in critical failure zone",
-                        "Error rate approaching 50% threshold"
-                    ],
-                    "user_impact": {
-                        "consent_failure_rate": "46.5%",
-                        "data_fetch_failure_rate": "52.3%",
-                        "estimated_affected_users": 131,
-                        "recommended_fallback": "Complete manual process activation required immediately"
-                    },
-                    "fiu_recommendations": {
-                        "should_activate_manual": True,
-                        "retry_after": "4-6 hours minimum",
-                        "communication_template": "CRITICAL: Central Bank connection failing. Use manual upload immediately. Estimated restoration: 4-6 hours."
-                    },
-                    "business_impact": {
-                        "processing_delay": "6-10 hours",
-                        "manual_processing_cost": "₹6,550",
-                        "user_satisfaction_impact": "Critical impact requiring emergency manual processing and priority customer support"
-                    },
-                    "health_score": 2.5,
-                    "risk_level": "critical"
-                }
+                "patterns_detected": [
+                    "Peak issues at hour 9 (9 AM) for both errors and response time",
+                    "Clear daily patterns with morning stress",
+                    "Negative performance trends across key metrics"
+                ],
+                "anomalies": [
+                    "54 consent/data fetch anomalies (2.16% rate)",
+                    "130 status anomalies (5.20% rate) - medium severity"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "5.3%",
+                    "data_fetch_failure_rate": "6.4%",
+                    "estimated_affected_users": 1800,
+                    "recommended_fallback": "PDF upload during morning hours (9:00-10:00)"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "25 minutes during morning peak",
+                    "communication_template": "Experiencing higher than normal processing times. Alternative verification available."
+                },
+                "business_impact": {
+                    "processing_delay": "4-5 minutes average",
+                    "manual_processing_cost": "₹80-120 per transaction",
+                    "user_satisfaction_impact": "Moderate - users notice morning delays"
+                },
+                "health_score": 75,
+                "risk_level": "medium"
+            },
+            "axis-fip": {
+                "downtime_prediction": {
+                    "probability": 0.42,
+                    "time_window": "next 3-4 hours",
+                    "confidence": "medium",
+                    "reasoning": "Similar pattern to Central FIP with 94.3% consent success rate but declining trends. Peak issues at hour 15 (3 PM). Good stability grade but multiple concerning indicators."
+                },
+                "patterns_detected": [
+                    "Peak errors and response times at hour 15 (3 PM)",
+                    "Strong daily patterns with afternoon stress",
+                    "Clear correlation between errors and response times"
+                ],
+                "anomalies": [
+                    "64 consent/data fetch anomalies (2.51% rate)",
+                    "138 status anomalies (5.42% rate) - medium severity"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "5.7%",
+                    "data_fetch_failure_rate": "6.8%",
+                    "estimated_affected_users": 1900,
+                    "recommended_fallback": "Manual verification during afternoon peak (15:00-16:00)"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "20 minutes during afternoon peak",
+                    "communication_template": "Service may be slower during afternoon. Please try again or contact support for assistance."
+                },
+                "business_impact": {
+                    "processing_delay": "4-5 minutes average",
+                    "manual_processing_cost": "₹85-125 per transaction",
+                    "user_satisfaction_impact": "Moderate - afternoon performance issues noticeable"
+                },
+                "health_score": 74,
+                "risk_level": "medium"
+            },
+            "iob-fip": {
+                "downtime_prediction": {
+                    "probability": 0.30,
+                    "time_window": "next 5-6 hours",
+                    "confidence": "medium",
+                    "reasoning": "Good performance with 94.8% consent success rate. Peak issues at hour 17 (5 PM). Stability grade 'good' with manageable anomaly levels. Less concerning than Axis/Central."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 17 (5 PM) - evening rush",
+                    "Clear daily patterns with evening stress",
+                    "Good weekend vs weekday performance ratio"
+                ],
+                "anomalies": [
+                    "57 consent/data fetch anomalies (2.25% rate)",
+                    "118 status anomalies (4.66% rate) - low severity"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "5.2%",
+                    "data_fetch_failure_rate": "6.1%",
+                    "estimated_affected_users": 1600,
+                    "recommended_fallback": "PDF upload during evening peak (17:00-18:00)"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "15 minutes during evening peak",
+                    "communication_template": "Temporary delays possible during evening hours. Alternative options available if needed."
+                },
+                "business_impact": {
+                    "processing_delay": "3-4 minutes average",
+                    "manual_processing_cost": "₹70-95 per transaction",
+                    "user_satisfaction_impact": "Low-moderate - evening delays manageable"
+                },
+                "health_score": 79,
+                "risk_level": "medium"
+            },
+            "kotak-fip": {
+                "downtime_prediction": {
+                    "probability": 0.65,
+                    "time_window": "next 2-3 hours",
+                    "confidence": "high",
+                    "reasoning": "Highest risk FIP with declining consent (-2.23%) and data fetch (-2.09%) rates. 'Fair' stability grade with highest coefficient of variation (21.8%). Multiple medium-severity anomalies and peak issues at hour 9."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 9 (9 AM) - morning stress",
+                    "Highest volatility among all FIPs",
+                    "Strong negative correlation between consent and response time (-0.80)",
+                    "Clear daily patterns with morning vulnerability"
+                ],
+                "anomalies": [
+                    "140 consent/data fetch anomalies (5.49% rate) - medium severity",
+                    "212 status anomalies (8.31% rate) - medium severity",
+                    "Highest anomaly rates across all metrics"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "7.4%",
+                    "data_fetch_failure_rate": "8.3%",
+                    "estimated_affected_users": 2800,
+                    "recommended_fallback": "Immediate manual processing activation during morning hours"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": True,
+                    "retry_after": "45 minutes during peak stress periods",
+                    "communication_template": "Service experiencing high load. We've activated manual verification to ensure faster processing."
+                },
+                "business_impact": {
+                    "processing_delay": "6-8 minutes average",
+                    "manual_processing_cost": "₹150-200 per transaction",
+                    "user_satisfaction_impact": "High - significant delays and failures expected"
+                },
+                "health_score": 65,
+                "risk_level": "high"
+            },
+            "pnb-fip": {
+                "downtime_prediction": {
+                    "probability": 0.45,
+                    "time_window": "next 3-4 hours",
+                    "confidence": "medium",
+                    "reasoning": "Moderate performance with 91.6% consent success rate. Declining trends with increasing response times (+7.66%). Good stability grade but concerning degradation patterns, especially during hour 17."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 17 (5 PM) - evening stress",
+                    "Strong daily patterns with evening vulnerability",
+                    "Significant response time increases trending"
+                ],
+                "anomalies": [
+                    "105 consent/data fetch anomalies (4.09% rate)",
+                    "172 status anomalies (6.71% rate) - medium severity"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "8.4%",
+                    "data_fetch_failure_rate": "9.8%",
+                    "estimated_affected_users": 2400,
+                    "recommended_fallback": "Phone verification during evening peak (17:00-18:00)"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "30 minutes during evening peak",
+                    "communication_template": "Higher processing times during evening hours. Phone verification available as alternative."
+                },
+                "business_impact": {
+                    "processing_delay": "5-6 minutes average",
+                    "manual_processing_cost": "₹100-140 per transaction",
+                    "user_satisfaction_impact": "Moderate-high - noticeable evening performance issues"
+                },
+                "health_score": 72,
+                "risk_level": "medium"
+            },
+            "ubi-fip": {
+                "downtime_prediction": {
+                    "probability": 0.20,
+                    "time_window": "next 8-10 hours",
+                    "confidence": "medium",
+                    "reasoning": "Strong performance with 95.8% consent success rate and good stability grade. Low anomaly rates and minimal hourly variation. Peak issues only at hour 22 (10 PM) which is off-peak."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 22 (10 PM) - off-peak timing",
+                    "Minimal hourly variation - very stable",
+                    "Good weekend performance",
+                    "Low overall volatility"
+                ],
+                "anomalies": [
+                    "Only 31 consent/data fetch anomalies (1.22% rate) - very low",
+                    "101 status anomalies (3.96% rate) - acceptable"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "4.2%",
+                    "data_fetch_failure_rate": "5.3%",
+                    "estimated_affected_users": 900,
+                    "recommended_fallback": "Minimal fallback needed, mainly late evening"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "10 minutes if needed",
+                    "communication_template": "Service running well. Minor delays possible during late evening hours."
+                },
+                "business_impact": {
+                    "processing_delay": "2-3 minutes average",
+                    "manual_processing_cost": "₹40-60 per transaction",
+                    "user_satisfaction_impact": "Low - good user experience maintained"
+                },
+                "health_score": 88,
+                "risk_level": "low"
+            },
+            "hdfc-fip": {
+                "downtime_prediction": {
+                    "probability": 0.18,
+                    "time_window": "next 10-12 hours",
+                    "confidence": "medium",
+                    "reasoning": "Excellent performance with 96.8% consent success rate - highest among all FIPs. Good stability grade with low anomaly rates. Peak issues only at hour 8 (8 AM) but manageable."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 8 (8 AM) - morning rush",
+                    "Highest consent success rate among all FIPs",
+                    "Stable performance with minimal variation",
+                    "Good weekend vs weekday performance"
+                ],
+                "anomalies": [
+                    "Only 36 consent/data fetch anomalies (1.42% rate) - very low",
+                    "114 status anomalies (4.50% rate) - acceptable"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "3.2%",
+                    "data_fetch_failure_rate": "4.0%",
+                    "estimated_affected_users": 700,
+                    "recommended_fallback": "Minimal fallback needed"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "5 minutes if needed",
+                    "communication_template": "Service running optimally. Brief delays possible during morning rush hour."
+                },
+                "business_impact": {
+                    "processing_delay": "1-2 minutes average",
+                    "manual_processing_cost": "₹30-45 per transaction",
+                    "user_satisfaction_impact": "Minimal - excellent user experience"
+                },
+                "health_score": 94,
+                "risk_level": "low"
+            },
+            "canara-fip": {
+                "downtime_prediction": {
+                    "probability": 0.22,
+                    "time_window": "next 8-10 hours",
+                    "confidence": "medium",
+                    "reasoning": "Good performance with 95.3% consent success rate and good stability grade. Low anomaly rates and stable trends. Peak issues at hour 8 (8 AM) but well-managed overall."
+                },
+                "patterns_detected": [
+                    "Peak errors at hour 8 (8 AM) - morning rush",
+                    "Stable performance with low variation",
+                    "Good error rate management",
+                    "Consistent response times"
+                ],
+                "anomalies": [
+                    "Only 36 consent/data fetch anomalies (1.43% rate) - very low",
+                    "109 status anomalies (4.32% rate) - acceptable"
+                ],
+                "user_impact": {
+                    "consent_failure_rate": "4.7%",
+                    "data_fetch_failure_rate": "5.9%",
+                    "estimated_affected_users": 1100,
+                    "recommended_fallback": "PDF upload during morning peak (8:00-9:00)"
+                },
+                "fiu_recommendations": {
+                    "should_activate_manual": False,
+                    "retry_after": "10 minutes during morning peak",
+                    "communication_template": "Service running well. Brief delays possible during morning hours."
+                },
+                "business_impact": {
+                    "processing_delay": "2-3 minutes average",
+                    "manual_processing_cost": "₹45-65 per transaction",
+                    "user_satisfaction_impact": "Low - good user experience with minor morning delays"
+                },
+                "health_score": 86,
+                "risk_level": "low"
             }
+        }
     
     def _calculate_risk_level(self, consent_rate: float, data_rate: float, response_time: float, status: str) -> Dict:
         """
@@ -804,8 +828,8 @@ class BedrockService:
         """
         try:
             prompt = self._build_prediction_prompt(metrics_data, time_horizon)
-            # logger.info(f"Bedrock prediction prompt: {prompt}")
-            # return {}
+            logger.info(f"Bedrock prediction prompt: {prompt}")
+            return {}
             
             response = self.bedrock_client.invoke_model(
                 modelId=self.model_id,
@@ -836,6 +860,9 @@ class BedrockService:
         """
         Build comprehensive prompt for Bedrock
         """
+        # Convert metrics data to JSON using custom encoder
+        metrics_json = json.dumps(metrics_data, indent=2, cls=NumpyEncoder)
+        
         return f"""
 You are an expert AI system analyzing Financial Information Provider (FIP) performance in India's Account Aggregator ecosystem.
 
@@ -846,7 +873,7 @@ CONTEXT:
 - When FIPs fail, manual fallback is required (PDF uploads, phone verification)
 
 CURRENT FIP METRICS ({time_horizon} analysis):
-{json.dumps(metrics_data, indent=2)}
+{metrics_json}
 
 ANALYSIS REQUIREMENTS:
 1. **Downtime Prediction**: Probability and timing of failures
@@ -877,47 +904,52 @@ For each FIP, provide predictions in this exact JSON format:
             "communication_template": "message for users"
         }},
         "business_impact": {{
-            "processing_delay": "hours",
-            "manual_processing_cost": "₹amount",
-            "user_satisfaction_impact": "description"
+            "processing_delay": "time estimate",
+            "manual_processing_cost": "cost estimate",
+            "user_satisfaction_impact": "impact description"
         }},
-        "health_score": float_1_to_10,
-        "risk_level": "low/medium/critical"
+        "health_score": number,
+        "risk_level": "critical|high|medium|low"
     }}
-}}
-
-Focus on actionable insights for AA Gateway operations team.
-"""
+}}"""
     
     def _call_real_bedrock_impact_analysis(self, predictions: Dict) -> Dict:
         """
         Call real Bedrock for business impact analysis
         """
         try:
+            # Convert predictions to JSON using custom encoder
+            predictions_json = json.dumps(predictions, indent=2, cls=NumpyEncoder)
+            
             prompt = f"""
-Analyze the business impact of these FIP predictions for an Account Aggregator operations team:
+Analyze business impact of predicted FIP outages:
 
 PREDICTIONS:
-{json.dumps(predictions, indent=2)}
+{predictions_json}
 
-Provide comprehensive business impact analysis in JSON format:
+Provide impact analysis in JSON format:
 {{
     "overall_impact": {{
-        "total_affected_users": number,
-        "estimated_processing_cost": "₹amount",
-        "high_risk_fips": number,
-        "overall_system_health": score_1_to_10
+        "severity": "high|medium|low",
+        "affected_users": number,
+        "business_cost": "₹amount",
+        "operational_impact": "description"
     }},
-    "recommended_actions": {{
-        "immediate": ["action1", "action2"],
-        "short_term": ["action1", "action2"],
-        "strategic": ["action1", "action2"]
-    }},
-    "cost_benefit": {{
-        "proactive_cost": "₹amount",
-        "reactive_cost": "₹amount",
-        "savings_potential": "₹amount"
-    }}
+    "fip_specific_impacts": [
+        {{
+            "fip": "fip_name",
+            "severity": "high|medium|low",
+            "affected_users": number,
+            "mitigation_steps": ["step1", "step2"]
+        }}
+    ],
+    "recommendations": [
+        {{
+            "priority": "immediate|high|medium",
+            "action": "description",
+            "expected_outcome": "description"
+        }}
+    ]
 }}
 """
             
@@ -927,7 +959,7 @@ Provide comprehensive business impact analysis in JSON format:
                     "anthropic_version": "bedrock-2023-05-31",
                     "max_tokens": 2000,
                     "messages": [{"role": "user", "content": prompt}]
-                })
+                }, cls=NumpyEncoder)
             )
             
             response_body = json.loads(response['body'].read())
@@ -943,11 +975,14 @@ Provide comprehensive business impact analysis in JSON format:
         Call real Bedrock for proactive alerts
         """
         try:
+            # Convert metrics to JSON using custom encoder
+            metrics_json = json.dumps(current_metrics, indent=2, cls=NumpyEncoder)
+            
             prompt = f"""
 Generate proactive alerts for AA Gateway operations based on current FIP metrics:
 
 CURRENT METRICS:
-{json.dumps(current_metrics, indent=2)}
+{metrics_json}
 
 Generate alerts in JSON format:
 {{
@@ -970,7 +1005,7 @@ Generate alerts in JSON format:
                     "anthropic_version": "bedrock-2023-05-31",
                     "max_tokens": 1500,
                     "messages": [{"role": "user", "content": prompt}]
-                })
+                }, cls=NumpyEncoder)
             )
             
             response_body = json.loads(response['body'].read())
@@ -1029,7 +1064,7 @@ Include system health score, status summary, and key metrics.
 
 Provide in JSON format:
 {
-    "system_health_score": float_1_to_10,
+    "system_health_score": number,
     "overall_status": "status_description",
     "fips_summary": {
         "total_fips": number,
@@ -1038,14 +1073,14 @@ Provide in JSON format:
         "critical": number
     },
     "performance_metrics": {
-        "average_consent_success": percentage,
-        "average_data_fetch_success": percentage,
-        "system_availability": percentage
+        "average_consent_success": number,
+        "average_data_fetch_success": number,
+        "system_availability": number
     },
     "predictions_summary": {
         "fips_at_risk": number,
         "next_predicted_outage": "description",
-        "confidence_level": "high/medium/low"
+        "confidence_level": "high|medium|low"
     },
     "business_impact": {
         "users_potentially_affected": number,
@@ -1061,7 +1096,7 @@ Provide in JSON format:
                     "anthropic_version": "bedrock-2023-05-31",
                     "max_tokens": 1500,
                     "messages": [{"role": "user", "content": prompt}]
-                })
+                }, cls=NumpyEncoder)
             )
             
             response_body = json.loads(response['body'].read())
