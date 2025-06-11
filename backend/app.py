@@ -371,18 +371,6 @@ def get_proactive_alerts():
             for alert in alerts
         ]
         
-        # If we have alerts and Bedrock is available, enhance recommendations
-        if alert_dicts and not bedrock_service.use_mock:
-            try:
-                enhanced_alerts = bedrock_service.enhance_alert_recommendations({
-                    'alerts': alert_dicts,
-                    'current_metrics': current_metrics,
-                    'historical_context': historical_data
-                })
-                alert_dicts = enhanced_alerts.get('alerts', alert_dicts)
-            except Exception as e:
-                logger.error(f"Error enhancing alerts with Bedrock: {e}")
-        
         return jsonify({
             'success': True,
             'data': {
