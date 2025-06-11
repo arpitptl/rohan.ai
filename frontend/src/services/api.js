@@ -262,7 +262,11 @@ export const apiService = {
         };
       }
     }
-  }
+  },
+
+  // Hourly Predictions
+  getHourlyPrediction: (data) => api.post('/api/fips/predictions/hourly', data),
+
 };
 
 // FIP Action Endpoints

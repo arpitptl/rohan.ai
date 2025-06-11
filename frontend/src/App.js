@@ -38,7 +38,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import Loading from './components/common/Loading';
 import StatusBadge from './components/common/StatusBadge';
 import { apiService } from './services/api';
-import { formatPercentage } from './utils/helpers';
+import { formatPercentage, prependZero } from './utils/helpers';
 import { PER_USER_COST } from './constant';
 
 function App() {
@@ -54,6 +54,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [patternsData, setPatternsData] = useState({});
+  const [hourlyMaintenence, setHourlyMaintenence] = useState([])
 
   // Fetch data on component mount
   useEffect(() => {
@@ -69,15 +70,17 @@ function App() {
       setLoading(true);
       setError(null);
 
-      const [fipsResponse, overviewResponse, predictionsResponse] = await Promise.all([
+      const [fipsResponse, overviewResponse, predictionsResponse, hourlyPredictionsData] = await Promise.all([
         apiService.getFips(),
         apiService.getSystemOverview(),
-        apiService.predictFipIssues({ fips: Object.keys(fipsData), time_horizon: '24h' })
+        apiService.predictFipIssues({ fips: Object.keys(fipsData), time_horizon: '24h' }),
+        apiService.getHourlyPrediction({})
       ]);
 
       setFipsData(fipsResponse.data.data);
       setSystemOverview(overviewResponse.data.data);
       setPatternsData(predictionsResponse.data?.data || {});
+      setHourlyMaintenence(getMainteneceFips(hourlyPredictionsData.data?.data || []))
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -102,7 +105,6 @@ function App() {
       document.body.appendChild(notification);
       
       setTimeout(() => notification.remove(), 3000);
-      console.log('Predictions:', response.data);
     } catch (err) {
       console.error('Error generating predictions:', err);
       
@@ -156,6 +158,35 @@ function App() {
 
     setSelectedFipsForPrediction([]) // Reset for new tab
   }, [activeTab, fipsData]);
+
+  const getMainteneceFips = (hourlyMaintenenceData) => {
+    const predictedMaintenance = [];
+
+    hourlyMaintenenceData.forEach((hourData) => {
+      const hour = hourData.hour;
+      const predictions = hourData.predictions;
+
+      const maintenanceFips = Object.entries(predictions)
+        .filter(([_, prediction]) => prediction.isMaintenence)
+        .map(([fipName, prediction]) => ({
+          fip: fipName,
+          timeWindow: prediction.timeWindow
+        }));
+
+      if (maintenanceFips.length > 0) {
+        predictedMaintenance.push({
+          hour,
+          prediction: maintenanceFips
+        });
+      }
+    });
+  
+    return predictedMaintenance;
+  };
+  const fetchMainteneceFips = () => {
+    const hourlyPredictionsData = apiService.getHourlyPrediction({})
+    setHourlyMaintenence(getMainteneceFips(hourlyPredictionsData.data?.data || []))
+  }
 
   if (loading && Object.keys(fipsData).length === 0) {
     return (
@@ -2276,9 +2307,7 @@ function App() {
                   <button
                     onClick={async () => {
                       try {
-                        const allFips = Object.keys(fipsData);
-                        const response = await apiService.predictFipIssues({ fips: allFips, time_horizon: '24h' });
-                        setPredictionsData(response.data?.data || {});
+                        fetchMainteneceFips();
                         const notification = document.createElement('div');
                         notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
                         notification.innerHTML = '✅ Timeline updated with latest predictions';
@@ -2303,40 +2332,44 @@ function App() {
                 {/* Timeline View */}
                 <div className="relative">
                   <div className="absolute left-0 top-0 bottom-0 w-px bg-slate-700 ml-3"></div>
-                  
-                  {/* 2:00 AM - Combined Maintenance */}
-                  <div className="ml-6 mb-6 relative">
-                    <div className="absolute -left-9 mt-1.5">
-                      <div className="w-5 h-5 rounded-full border-2 bg-yellow-500/20 border-yellow-500"></div>
-                    </div>
-                    <div className="flex items-center text-sm text-slate-400 mb-1">
-                      <Clock className="w-4 h-4 mr-2" />
-                      2:00 AM • 2 hours
-                    </div>
-                    <div className="bg-slate-800/50 rounded-lg p-4">
-                      <p className="text-white font-medium">Scheduled System Maintenance</p>
-                      <div className="mt-2 space-y-1">
-                        <div className="flex items-center gap-2 text-sm text-slate-300">
-                          <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                          Axis Bank
+                  {
+                    hourlyMaintenence.map((hourlyData, idx) => {
+                      const color = idx == 0 ? "yellow" : "blue"
+                      const now = new Date();
+                      const maintenanceTimeHour = (now.getHours() + hourlyData['hour'])%24
+                      const maintenanceTime = `~ ${prependZero(maintenanceTimeHour)}:00`;
+
+                      return (
+                        <div className="ml-6 mb-6 relative">
+                          <div className="absolute -left-9 mt-1.5">
+                            <div className={`w-5 h-5 rounded-full border-2 bg-${color}-500/20 border-${color}-500`}></div>
+                          </div>
+                          <div className="flex items-center text-sm text-slate-400 mb-1">
+                            <Clock className="w-4 h-4 mr-2" />
+                            {maintenanceTime}
+                          </div>
+                          <div className="bg-slate-800/50 rounded-lg p-4">
+                            <p className="text-white font-medium">Scheduled System Maintenance</p>
+                            <div className="mt-2 space-y-1">
+                              {
+                                hourlyData.prediction.map(fipObject => {
+                                  return (
+                                    <div className="flex items-center gap-2 text-sm text-slate-300">
+                                      <span className={`w-2 h-2 rounded-full bg-${color}-500`}></span>
+                                      {fipsData[fipObject.fip].bank_name || ""} <small className='text-slate-400'>{fipObject.timeWindow.split("next ")[1]}</small>
+                                    </div>
+                                  )
+                                })
+                              }
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-slate-300">
-                          <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                          Bank of India
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-slate-300">
-                          <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
-                          Canara Bank
-                        </div>
-                      </div>
-                      <p className="text-sm text-slate-400 mt-2">
-                        Coordinated maintenance window for multiple FIPs
-                      </p>
-                    </div>
-                  </div>
+                      )
+                    })
+                  }
 
                   {/* 9:00 AM - Peak Load */}
-                  <div className="ml-6 mb-6 relative">
+                  {/* <div className="ml-6 mb-6 relative">
                     <div className="absolute -left-9 mt-1.5">
                       <div className="w-5 h-5 rounded-full border-2 bg-blue-500/20 border-blue-500"></div>
                     </div>
@@ -2360,7 +2393,7 @@ function App() {
                         High traffic period - Scale up resources recommended
                       </p>
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Add more timeline events here */}
                 </div>
