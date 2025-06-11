@@ -304,9 +304,9 @@ class GenerateHistoricalData:
         # Define downtime windows for each FIP
         forced_downtime = False
         
-        if fip_name == 'axis-fip' and 20 <= hour < 22:  # 8pm-10pm
+        if fip_name == 'axis-fip' and 19 <= hour < 23:  # 7pm-11pm
             forced_downtime = True
-        elif fip_name == 'hdfc-fip' and 13 <= hour < 14:  # 1-2pm
+        elif fip_name == 'hdfc-fip' and (23 <= hour < 24 or 0 <= hour < 1):  # 11pm-1am
             forced_downtime = True
         elif fip_name == 'icici-fip' and 2 <= hour < 3:  # 2-3am
             forced_downtime = True
