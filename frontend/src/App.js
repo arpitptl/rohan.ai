@@ -17,13 +17,23 @@ import {
   Settings,
   History,
   Bell,
-  FileText,
-  Shield,
-  HelpCircle,
   ChevronLeft,
   ChevronRight,
-  Calendar
-} from 'lucide-react';
+  Calendar,
+  } from 'lucide-react';
+
+  import { 
+    Plus,
+    Edit,
+    Trash2,
+    TestTube,
+    Save,
+    Globe,
+    Link,
+    Copy,
+    Check
+  } from 'lucide-react';
+  
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import Loading from './components/common/Loading';
 import StatusBadge from './components/common/StatusBadge';
@@ -211,6 +221,1114 @@ function App() {
     return null;
   };
 
+  const AlertsTab = ({ apiService }) => {
+    const [alertsData, setAlertsData] = useState({ alerts: [], summary: { total_alerts: 0, critical_alerts: 0, warning_alerts: 0, info_alerts: 0, affected_fips: 0 } });
+    const [selectedAlert, setSelectedAlert] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [filters, setFilters] = useState({
+      severity: 'all',
+      fip: 'all',
+      type: 'all'
+    });
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showDetails, setShowDetails] = useState(false);
+  
+    // Fetch alerts from API
+    useEffect(() => {
+      fetchAlerts();
+    }, []);
+  
+    const fetchAlerts = async () => {
+      if (!apiService) return;
+      
+      setLoading(true);
+      try {
+        const response = await apiService.alerts.getProactiveAlerts();
+        if (response.success) {
+          setAlertsData(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching alerts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    // Get severity icon and color
+    const getSeverityIcon = (severity) => {
+      switch (severity) {
+        case 'critical':
+          return <AlertTriangle className="w-5 h-5 text-red-400" />;
+        case 'warning':
+          return <Activity className="w-5 h-5 text-yellow-400" />;
+        case 'info':
+          return <CheckCircle className="w-5 h-5 text-blue-400" />;
+        default:
+          return <Bell className="w-5 h-5 text-slate-400" />;
+      }
+    };
+  
+    const getSeverityColor = (severity) => {
+      switch (severity) {
+        case 'critical':
+          return 'border-red-500/30 bg-red-500/10';
+        case 'warning':
+          return 'border-yellow-500/30 bg-yellow-500/10';
+        case 'info':
+          return 'border-blue-500/30 bg-blue-500/10';
+        default:
+          return 'border-slate-500/30 bg-slate-500/10';
+      }
+    };
+  
+    const getAlertTypeIcon = (type) => {
+      switch (type) {
+        case 'consent_success_rate':
+          return <Users className="w-4 h-4" />;
+        case 'data_fetch_success_rate':
+          return <BarChart3 className="w-4 h-4" />;
+        case 'response_time':
+          return <Clock className="w-4 h-4" />;
+        default:
+          return <Activity className="w-4 h-4" />;
+      }
+    };
+  
+    // Filter alerts based on filters and search
+    const filteredAlerts = alertsData.alerts.filter(alert => {
+      const matchesSeverity = filters.severity === 'all' || alert.severity === filters.severity;
+      const matchesFip = filters.fip === 'all' || alert.fip_name === filters.fip;
+      const matchesType = filters.type === 'all' || alert.alert_type === filters.type;
+      const matchesSearch = searchTerm === '' || 
+        alert.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        alert.fip_name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return matchesSeverity && matchesFip && matchesType && matchesSearch;
+    });
+  
+    // Get unique FIPs and alert types for filters
+    const uniqueFips = [...new Set(alertsData.alerts.map(alert => alert.fip_name))];
+    const uniqueTypes = [...new Set(alertsData.alerts.map(alert => alert.alert_type))];
+  
+    const formatTimestamp = (timestamp) => {
+      return new Date(timestamp).toLocaleString();
+    };
+  
+    const handleAlertClick = (alert) => {
+      setSelectedAlert(alert);
+      setShowDetails(true);
+    };
+  
+    const closeDetails = () => {
+      setShowDetails(false);
+      setSelectedAlert(null);
+    };
+  
+    const refreshAlerts = async () => {
+      setLoading(true);
+      try {
+        await fetchAlerts();
+      } catch (error) {
+        console.error('Error refreshing alerts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    return (
+      <div className="animate-slide-up space-y-8">
+        {/* Alert Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Total Alerts</p>
+                <p className="text-3xl font-bold text-white">{alertsData.summary.total_alerts}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                <Bell className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+  
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Critical</p>
+                <p className="text-3xl font-bold text-red-400">{alertsData.summary.critical_alerts}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+  
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Warnings</p>
+                <p className="text-3xl font-bold text-yellow-400">{alertsData.summary.warning_alerts}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-lg flex items-center justify-center">
+                <Activity className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+  
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-sm">Affected FIPs</p>
+                <p className="text-3xl font-bold text-white">{alertsData.summary.affected_fips}</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        {/* Filters and Search */}
+        <div className="glass-card rounded-xl p-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-semibold text-white">Active Alerts</h2>
+              <button
+                onClick={refreshAlerts}
+                className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+                disabled={loading}
+              >
+                <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+            </div>
+  
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Search */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search alerts..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 text-sm w-64"
+                />
+              </div>
+  
+              {/* Severity Filter */}
+              <select
+                value={filters.severity}
+                onChange={(e) => setFilters({...filters, severity: e.target.value})}
+                className="px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm"
+              >
+                <option value="all">All Severities</option>
+                <option value="critical">Critical</option>
+                <option value="warning">Warning</option>
+                <option value="info">Info</option>
+              </select>
+  
+              {/* FIP Filter */}
+              <select
+                value={filters.fip}
+                onChange={(e) => setFilters({...filters, fip: e.target.value})}
+                className="px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm"
+              >
+                <option value="all">All FIPs</option>
+                {uniqueFips.map(fip => (
+                  <option key={fip} value={fip}>{fip}</option>
+                ))}
+              </select>
+  
+              {/* Type Filter */}
+              <select
+                value={filters.type}
+                onChange={(e) => setFilters({...filters, type: e.target.value})}
+                className="px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white text-sm"
+              >
+                <option value="all">All Types</option>
+                {uniqueTypes.map(type => (
+                  <option key={type} value={type}>{type.replace('_', ' ')}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+  
+          {/* Alerts List */}
+          <div className="space-y-4">
+            {filteredAlerts.length === 0 ? (
+              <div className="text-center py-12">
+                <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Alerts Found</h3>
+                <p className="text-slate-400">
+                  {loading ? "Loading alerts..." : "No alerts match your current filters."}
+                </p>
+              </div>
+            ) : (
+              filteredAlerts.map((alert) => (
+                <div
+                  key={alert.alert_id}
+                  onClick={() => handleAlertClick(alert)}
+                  className={`${getSeverityColor(alert.severity)} border rounded-xl p-6 hover:border-blue-500/40 transition-all duration-300 cursor-pointer hover:transform hover:-translate-y-1`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className="flex items-center gap-2">
+                        {getSeverityIcon(alert.severity)}
+                        {getAlertTypeIcon(alert.alert_type)}
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-lg font-semibold text-white">{alert.fip_name.toUpperCase()}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium uppercase ${
+                            alert.severity === 'critical' ? 'bg-red-500/20 text-red-400' :
+                            alert.severity === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-blue-500/20 text-blue-400'
+                          }`}>
+                            {alert.severity}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            Confidence: {(alert.confidence * 100).toFixed(0)}%
+                          </span>
+                        </div>
+                        
+                        <p className="text-slate-300 mb-3">{alert.message}</p>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="bg-slate-800/50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 mb-1">Current Rate</p>
+                            <p className="text-lg font-semibold text-white">
+                              {alert.metrics.current_rate.toFixed(1)}%
+                            </p>
+                          </div>
+                          <div className="bg-slate-800/50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 mb-1">Affected Users</p>
+                            <p className="text-lg font-semibold text-white">
+                              {alert.context.affected_users.toLocaleString()}
+                            </p>
+                          </div>
+                          <div className="bg-slate-800/50 rounded-lg p-3">
+                            <p className="text-xs text-slate-400 mb-1">Deviation</p>
+                            <div className="flex items-center gap-1">
+                              <TrendingDown className="w-4 h-4 text-red-400" />
+                              <span className="text-lg font-semibold text-red-400">
+                                {alert.metrics.deviation.toFixed(1)}%
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-slate-400">
+                            {formatTimestamp(alert.timestamp)}
+                          </span>
+                          <span className="text-slate-400">
+                            Impact: {alert.context.business_impact}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <ChevronRight className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+  
+        {/* Alert Details Modal */}
+        {showDetails && selectedAlert && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="glass-card rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    {getSeverityIcon(selectedAlert.severity)}
+                    <h2 className="text-2xl font-bold text-white">
+                      Alert Details - {selectedAlert.fip_name.toUpperCase()}
+                    </h2>
+                  </div>
+                  <button
+                    onClick={closeDetails}
+                    className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
+  
+                {/* Alert Overview */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">Alert Information</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Alert ID:</span>
+                          <span className="text-white font-mono text-sm">{selectedAlert.alert_id}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Type:</span>
+                          <span className="text-white">{selectedAlert.alert_type.replace('_', ' ')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Severity:</span>
+                          <span className={`font-medium ${
+                            selectedAlert.severity === 'critical' ? 'text-red-400' :
+                            selectedAlert.severity === 'warning' ? 'text-yellow-400' :
+                            'text-blue-400'
+                          }`}>
+                            {selectedAlert.severity.toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Confidence:</span>
+                          <span className="text-white">{(selectedAlert.confidence * 100).toFixed(0)}%</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+  
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">Context</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Affected Users:</span>
+                          <span className="text-white font-semibold">{selectedAlert.context.affected_users.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Business Impact:</span>
+                          <span className="text-white">{selectedAlert.context.business_impact}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Historical Pattern:</span>
+                          <span className="text-white">{selectedAlert.context.historical_pattern}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Time:</span>
+                          <span className="text-white">{formatTimestamp(selectedAlert.timestamp)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+  
+                {/* Metrics Details */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">Performance Metrics</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="bg-slate-800/50 rounded-lg p-4">
+                      <p className="text-slate-400 text-sm mb-1">Current Rate</p>
+                      <p className="text-2xl font-bold text-white">{selectedAlert.metrics.current_rate.toFixed(1)}%</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4">
+                      <p className="text-slate-400 text-sm mb-1">Historical Average</p>
+                      <p className="text-2xl font-bold text-white">{selectedAlert.metrics.historical_avg.toFixed(1)}%</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4">
+                      <p className="text-slate-400 text-sm mb-1">Deviation</p>
+                      <p className="text-2xl font-bold text-red-400">{selectedAlert.metrics.deviation.toFixed(1)}%</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-lg p-4">
+                      <p className="text-slate-400 text-sm mb-1">Threshold</p>
+                      <p className="text-2xl font-bold text-yellow-400">{selectedAlert.metrics.threshold}%</p>
+                    </div>
+                  </div>
+                </div>
+  
+                {/* Recommended Actions */}
+                <div className="mb-8">
+                  <h3 className="text-lg font-semibold text-white mb-4">Recommended Actions</h3>
+                  <div className="space-y-3">
+                    {selectedAlert.recommended_actions.map((action, index) => (
+                      <div key={index} className="flex items-start gap-3 p-3 bg-slate-800/50 rounded-lg">
+                        <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <span className="text-blue-400 text-sm font-semibold">{index + 1}</span>
+                        </div>
+                        <p className="text-slate-300">{action}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+  
+             {/* Action Buttons */}
+             <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={closeDetails}
+                  className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 text-white rounded-lg transition-colors"
+                >
+                  Close
+                </button>
+                <button 
+                  onClick={async () => {
+                    try {
+                      // Send the complete alert data to the webhook endpoint
+                      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/api/alerts/${selectedAlert.alert_id}/notify`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                          alert_id: selectedAlert.alert_id,
+                          type: selectedAlert.alert_type,
+                          severity: selectedAlert.severity,
+                          fip_name: selectedAlert.fip_name,
+                          message: selectedAlert.message,
+                          metrics: selectedAlert.metrics,
+                          context: selectedAlert.context,
+                          timestamp: selectedAlert.timestamp,
+                          recommended_actions: selectedAlert.recommended_actions,
+                          confidence: selectedAlert.confidence
+                        })
+                      });
+
+                      const result = await response.json();
+                      
+                      if (result.success) {
+                        // Show success notification
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                        notification.innerHTML = '✅ Alert sent to webhook endpoints';
+                        document.body.appendChild(notification);
+                        setTimeout(() => notification.remove(), 3000);
+                      } else {
+                        throw new Error(result.error || 'Failed to send alert');
+                      }
+                    } catch (error) {
+                      console.error('Error sending alert to webhooks:', error);
+                      // Show error notification
+                      const notification = document.createElement('div');
+                      notification.className = 'fixed top-4 right-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                      notification.innerHTML = `❌ Failed to send alert: ${error.message}`;
+                      document.body.appendChild(notification);
+                      setTimeout(() => notification.remove(), 3000);
+                    }
+                  }}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                >
+                  Send to Webhooks
+                </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const SettingsTab = ({ apiService }) => {
+    const [webhooks, setWebhooks] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [editingWebhook, setEditingWebhook] = useState(null);
+    const [testingWebhook, setTestingWebhook] = useState(null);
+    const [formData, setFormData] = useState({
+      name: '',
+      url: '',
+      method: 'POST',
+      headers: {},
+      enabled: true,
+      alertTypes: ['critical', 'warning', 'info']
+    });
+    const [showHeaders, setShowHeaders] = useState(false);
+    const [headerKey, setHeaderKey] = useState('');
+    const [headerValue, setHeaderValue] = useState('');
+    const [copiedId, setCopiedId] = useState(null);
+  
+    useEffect(() => {
+      fetchWebhooks();
+    }, []);
+  
+    const fetchWebhooks = async () => {
+      if (!apiService) return;
+      
+      setLoading(true);
+      try {
+        const response = await apiService.webhooks.getSubscriptions();
+        if (response.success) {
+          setWebhooks(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching webhooks:', error);
+        showNotification('❌ Failed to fetch webhooks', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const showNotification = (message, type = 'success') => {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 text-white ${
+        type === 'success' ? 'bg-gradient-to-r from-green-500 to-green-600' :
+        type === 'error' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+        'bg-gradient-to-r from-blue-500 to-blue-600'
+      }`;
+      notification.innerHTML = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    };
+  
+    const resetForm = () => {
+      setFormData({
+        name: '',
+        url: '',
+        method: 'POST',
+        headers: {},
+        enabled: true,
+        alertTypes: ['critical', 'warning', 'info']
+      });
+      setEditingWebhook(null);
+    };
+  
+    const openCreateModal = () => {
+      resetForm();
+      setShowCreateModal(true);
+    };
+  
+    const openEditModal = (webhook) => {
+      setFormData({
+        name: webhook.name,
+        url: webhook.url,
+        method: webhook.method,
+        headers: webhook.headers || {},
+        enabled: webhook.enabled,
+        alertTypes: webhook.alertTypes || ['critical', 'warning', 'info']
+      });
+      setEditingWebhook(webhook);
+      setShowCreateModal(true);
+    };
+  
+    const closeModal = () => {
+      setShowCreateModal(false);
+      setEditingWebhook(null);
+      resetForm();
+    };
+  
+    const addHeader = () => {
+      if (headerKey && headerValue) {
+        setFormData({
+          ...formData,
+          headers: {
+            ...formData.headers,
+            [headerKey]: headerValue
+          }
+        });
+        setHeaderKey('');
+        setHeaderValue('');
+      }
+    };
+  
+    const removeHeader = (key) => {
+      const newHeaders = { ...formData.headers };
+      delete newHeaders[key];
+      setFormData({ ...formData, headers: newHeaders });
+    };
+  
+    const handleAlertTypeChange = (type) => {
+      const newAlertTypes = formData.alertTypes.includes(type)
+        ? formData.alertTypes.filter(t => t !== type)
+        : [...formData.alertTypes, type];
+      setFormData({ ...formData, alertTypes: newAlertTypes });
+    };
+  
+    const handleSubmit = async () => {
+      if (!formData.name || !formData.url) {
+        showNotification('❌ Please fill in all required fields', 'error');
+        return;
+      }
+  
+      setLoading(true);
+      try {
+        let response;
+        if (editingWebhook) {
+          response = await apiService.webhooks.updateSubscription(editingWebhook.id, formData);
+        } else {
+          response = await apiService.webhooks.createSubscription(formData);
+        }
+  
+        if (response.success) {
+          showNotification(`✅ Webhook ${editingWebhook ? 'updated' : 'created'} successfully`);
+          await fetchWebhooks();
+          closeModal();
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        console.error('Error saving webhook:', error);
+        showNotification(`❌ Failed to ${editingWebhook ? 'update' : 'create'} webhook`, 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const handleDelete = async (webhookId) => {
+      // eslint-disable-next-line no-restricted-globals
+      if (!window.confirm('Are you sure you want to delete this webhook?')) return;
+  
+      setLoading(true);
+      try {
+        const response = await apiService.webhooks.deleteSubscription(webhookId);
+        if (response.success) {
+          showNotification('✅ Webhook deleted successfully');
+          await fetchWebhooks();
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        console.error('Error deleting webhook:', error);
+        showNotification('❌ Failed to delete webhook', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const testWebhook = async (webhook) => {
+      setTestingWebhook(webhook.id);
+      try {
+        const response = await apiService.webhooks.testWebhook({
+          url: webhook.url,
+          method: webhook.method,
+          headers: webhook.headers
+        });
+        
+        if (response.success) {
+          showNotification('✅ Test notification sent successfully');
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        console.error('Error testing webhook:', error);
+        showNotification('❌ Failed to send test notification', 'error');
+      } finally {
+        setTestingWebhook(null);
+      }
+    };
+  
+    const testAllWebhooks = async () => {
+      setLoading(true);
+      try {
+        const response = await apiService.webhooks.testAllWebhooks();
+        if (response.success) {
+          showNotification('✅ Test alerts sent to all enabled webhooks');
+        } else {
+          throw new Error(response.error);
+        }
+      } catch (error) {
+        console.error('Error testing all webhooks:', error);
+        showNotification('❌ Failed to test all webhooks', 'error');
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const copyToClipboard = (text, id) => {
+      navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    };
+  
+    const getStatusColor = (enabled) => {
+      return enabled ? 'text-green-400' : 'text-slate-400';
+    };
+  
+    const getMethodColor = (method) => {
+      switch (method) {
+        case 'POST': return 'bg-blue-500/20 text-blue-400';
+        case 'PUT': return 'bg-yellow-500/20 text-yellow-400';
+        case 'PATCH': return 'bg-purple-500/20 text-purple-400';
+        default: return 'bg-slate-500/20 text-slate-400';
+      }
+    };
+  
+    return (
+      <div className="animate-slide-up space-y-8">
+        {/* Settings Header */}
+        <div className="glass-card rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Settings className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-white">Settings</h2>
+                <p className="text-slate-400">Manage your webhook endpoints and notification preferences</p>
+              </div>
+            </div>
+            <button
+              onClick={fetchWebhooks}
+              className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+              disabled={loading}
+            >
+              <RefreshCw className={`w-5 h-5 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
+  
+          {/* Quick Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Globe className="w-8 h-8 text-blue-400" />
+                <div>
+                  <p className="text-slate-400 text-sm">Total Webhooks</p>
+                  <p className="text-2xl font-bold text-white">{webhooks.length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <CheckCircle className="w-8 h-8 text-green-400" />
+                <div>
+                  <p className="text-slate-400 text-sm">Active Endpoints</p>
+                  <p className="text-2xl font-bold text-white">{webhooks.filter(w => w.enabled).length}</p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-slate-800/50 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Bell className="w-8 h-8 text-yellow-400" />
+                <div>
+                  <p className="text-slate-400 text-sm">Alert Types</p>
+                  <p className="text-2xl font-bold text-white">3</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        {/* Webhook Management */}
+        <div className="glass-card rounded-xl p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xl font-semibold text-white">Webhook Endpoints</h3>
+            <div className="flex gap-3">
+              <button
+                onClick={testAllWebhooks}
+                className="flex items-center gap-2 px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 text-white rounded-lg transition-colors"
+                disabled={loading || webhooks.length === 0}
+              >
+                <TestTube className="w-4 h-4" />
+                Test All
+              </button>
+              <button
+                onClick={openCreateModal}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <Plus className="w-4 h-4" />
+                Add Webhook
+              </button>
+            </div>
+          </div>
+  
+          {/* Webhooks List */}
+          {webhooks.length === 0 ? (
+            <div className="text-center py-12">
+              <Globe className="w-16 h-16 text-slate-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-white mb-2">No Webhooks Configured</h3>
+              <p className="text-slate-400 mb-4">Add your first webhook endpoint to start receiving alerts</p>
+              <button
+                onClick={openCreateModal}
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white rounded-lg transition-all duration-200"
+              >
+                <Plus className="w-4 h-4 inline mr-2" />
+                Add Your First Webhook
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {webhooks.map((webhook) => (
+                <div key={webhook.id} className="glass-light rounded-xl p-6 hover:border-blue-500/40 transition-all duration-300">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h4 className="text-lg font-semibold text-white">{webhook.name}</h4>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMethodColor(webhook.method)}`}>
+                          {webhook.method}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          <Activity className={`w-4 h-4 ${getStatusColor(webhook.enabled)}`} />
+                          <span className={`text-sm font-medium ${getStatusColor(webhook.enabled)}`}>
+                            {webhook.enabled ? 'Active' : 'Disabled'}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mb-3">
+                        <Link className="w-4 h-4 text-slate-400" />
+                        <span className="text-slate-300 font-mono text-sm flex-1">{webhook.url}</span>
+                        <button
+                          onClick={() => copyToClipboard(webhook.url, webhook.id)}
+                          className="p-1 hover:bg-slate-700/50 rounded transition-colors"
+                        >
+                          {copiedId === webhook.id ? (
+                            <Check className="w-4 h-4 text-green-400" />
+                          ) : (
+                            <Copy className="w-4 h-4 text-slate-400" />
+                          )}
+                        </button>
+                      </div>
+  
+                      <div className="flex items-center gap-4 mb-3">
+                        <div>
+                          <span className="text-slate-400 text-sm">Alert Types: </span>
+                          <div className="inline-flex gap-1">
+                            {webhook.alertTypes?.map((type) => (
+                              <span key={type} className={`px-2 py-1 rounded text-xs font-medium ${
+                                type === 'critical' ? 'bg-red-500/20 text-red-400' :
+                                type === 'warning' ? 'bg-yellow-500/20 text-yellow-400' :
+                                'bg-blue-500/20 text-blue-400'
+                              }`}>
+                                {type}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+  
+                      {Object.keys(webhook.headers || {}).length > 0 && (
+                        <div className="mb-3">
+                          <span className="text-slate-400 text-sm">Headers: </span>
+                          <span className="text-slate-300 text-sm">{Object.keys(webhook.headers).length} custom headers</span>
+                        </div>
+                      )}
+  
+                      <div className="text-xs text-slate-500">
+                        Created: {new Date(webhook.createdAt).toLocaleString()}
+                        {webhook.updatedAt !== webhook.createdAt && (
+                          <span className="ml-4">Updated: {new Date(webhook.updatedAt).toLocaleString()}</span>
+                        )}
+                      </div>
+                    </div>
+  
+                    <div className="flex items-center gap-2 ml-4">
+                      <button
+                        onClick={() => testWebhook(webhook)}
+                        disabled={testingWebhook === webhook.id}
+                        className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-blue-400 hover:text-blue-300"
+                        title="Test webhook"
+                      >
+                        <TestTube className={`w-4 h-4 ${testingWebhook === webhook.id ? 'animate-pulse' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => openEditModal(webhook)}
+                        className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-yellow-400 hover:text-yellow-300"
+                        title="Edit webhook"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(webhook.id)}
+                        className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-red-400 hover:text-red-300"
+                        title="Delete webhook"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+  
+        {/* Create/Edit Modal */}
+        {showCreateModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="glass-card rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-white">
+                    {editingWebhook ? 'Edit Webhook' : 'Add New Webhook'}
+                  </h2>
+                  <button
+                    onClick={closeModal}
+                    className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors"
+                  >
+                    <X className="w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
+  
+                <div className="space-y-6">
+                  {/* Basic Information */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        Webhook Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        placeholder="My Slack Webhook"
+                        className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-slate-300 mb-2">
+                        HTTP Method
+                      </label>
+                      <select
+                        value={formData.method}
+                        onChange={(e) => setFormData({...formData, method: e.target.value})}
+                        className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="PATCH">PATCH</option>
+                      </select>
+                    </div>
+                  </div>
+  
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Webhook URL *
+                    </label>
+                    <input
+                      type="url"
+                      value={formData.url}
+                      onChange={(e) => setFormData({...formData, url: e.target.value})}
+                      placeholder="https://hooks.slack.com/services/..."
+                      className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+  
+                  {/* Alert Types */}
+                  <div>
+                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                      Alert Types to Receive
+                    </label>
+                    <div className="flex gap-3">
+                      {['critical', 'warning', 'info'].map((type) => (
+                        <label key={type} className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={formData.alertTypes.includes(type)}
+                            onChange={() => handleAlertTypeChange(type)}
+                            className="rounded border-slate-600 bg-slate-700/50 text-blue-500 focus:ring-blue-500"
+                          />
+                          <span className={`text-sm font-medium ${
+                            type === 'critical' ? 'text-red-400' :
+                            type === 'warning' ? 'text-yellow-400' :
+                            'text-blue-400'
+                          }`}>
+                            {type.charAt(0).toUpperCase() + type.slice(1)}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+  
+                  {/* Headers Section */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-medium text-slate-300">
+                        Custom Headers
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowHeaders(!showHeaders)}
+                        className="text-blue-400 hover:text-blue-300 text-sm"
+                      >
+                        {showHeaders ? 'Hide' : 'Add'} Headers
+                      </button>
+                    </div>
+  
+                    {showHeaders && (
+                      <div className="space-y-3 p-4 bg-slate-800/50 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            value={headerKey}
+                            onChange={(e) => setHeaderKey(e.target.value)}
+                            placeholder="Header key (e.g., Authorization)"
+                            className="px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              value={headerValue}
+                              onChange={(e) => setHeaderValue(e.target.value)}
+                              placeholder="Header value"
+                              className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            />
+                            <button
+                              type="button"
+                              onClick={addHeader}
+                              disabled={!headerKey || !headerValue}
+                              className="px-3 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+  
+                        {Object.keys(formData.headers).length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-slate-400">Current Headers:</p>
+                            {Object.entries(formData.headers).map(([key, value]) => (
+                              <div key={key} className="flex items-center justify-between p-2 bg-slate-700/30 rounded">
+                                <span className="text-sm text-slate-300">
+                                  <strong>{key}:</strong> {value}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => removeHeader(key)}
+                                  className="text-red-400 hover:text-red-300"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+  
+                  {/* Enable/Disable */}
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.enabled}
+                        onChange={(e) => setFormData({...formData, enabled: e.target.checked})}
+                        className="rounded border-slate-600 bg-slate-700/50 text-blue-500 focus:ring-blue-500"
+                      />
+                      <span className="text-sm font-medium text-slate-300">
+                        Enable this webhook
+                      </span>
+                    </label>
+                  </div>
+  
+                  {/* Form Actions */}
+                  <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-700/50">
+                    <button
+                      type="button"
+                      onClick={closeModal}
+                      className="px-4 py-2 bg-slate-700/50 hover:bg-slate-600/70 border border-slate-600 text-white rounded-lg transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={loading}
+                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 disabled:from-slate-600 disabled:to-slate-700 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+                    >
+                      {loading && <RefreshCw className="w-4 h-4 animate-spin" />}
+                      <Save className="w-4 h-4" />
+                      {editingWebhook ? 'Update' : 'Create'} Webhook
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-900" style={{background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)'}}>
       {/* Collapsible Sidebar */}
@@ -249,6 +1367,7 @@ function App() {
               { icon: BarChart3, label: 'Analytics', id: 'analytics' },
               { icon: Bell, label: 'Alerts', id: 'alerts', count: criticalFips + degradedFips },
               { icon: History, label: 'History', id: 'history' },
+              { icon: Settings, label: 'Settings', id: 'settings' },
               // { icon: FileText, label: 'Reports', id: 'reports' },
               // { icon: Shield, label: 'Security', id: 'security' },
               // { icon: Settings, label: 'Settings', id: 'settings' },
@@ -1408,6 +2527,12 @@ function App() {
               </div>
             </div>
           )}
+          {activeTab === 'alerts' && (
+            <AlertsTab apiService={apiService} />
+          )}
+        {activeTab === 'settings' && (
+          <SettingsTab apiService={apiService} />
+        )}
         </main>
 
         {/* Footer */}
