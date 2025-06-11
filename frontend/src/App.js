@@ -1974,17 +1974,17 @@ function App() {
                   </div>
                   
                   {/* Chart Controls */}
-                  <div className="flex items-center gap-3">
+                  {/* <div className="flex items-center gap-3">
                     <select 
                       className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white"
-                      onChange={(e) => {/* Add metric selector handler */}}
+                      onChange={(e) => {console.log(e.target.value)}}
                     >
                       <option value="success_rate">Success Rate</option>
                       <option value="response_time">Response Time</option>
                       <option value="error_rate">Error Rate</option>
                       <option value="downtime">Downtime</option>
                     </select>
-                  </div>
+                  </div> */}
                 </div>
                 
                 <div className="h-96">
