@@ -221,7 +221,7 @@ function App() {
     return null;
   };
 
-  const AlertsTab = ({ apiService }) => {
+  const AlertsTab = ({ apiService, activeTab }) => {
     const [alertsData, setAlertsData] = useState({ alerts: [], summary: { total_alerts: 0, critical_alerts: 0, warning_alerts: 0, info_alerts: 0, affected_fips: 0 } });
     const [selectedAlert, setSelectedAlert] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -233,10 +233,18 @@ function App() {
     const [searchTerm, setSearchTerm] = useState('');
     const [showDetails, setShowDetails] = useState(false);
   
-    // Fetch alerts from API
+    // Fetch alerts only when alerts tab is active
     useEffect(() => {
-      fetchAlerts();
-    }, []);
+      if (activeTab === 'alerts') {
+        fetchAlerts();
+        
+        // Set up polling only when tab is active
+        const interval = setInterval(fetchAlerts, 60000); // Poll every 30 seconds
+        
+        // Cleanup interval when tab changes or component unmounts
+        return () => clearInterval(interval);
+      }
+    }, [activeTab]);
   
     const fetchAlerts = async () => {
       if (!apiService) return;
@@ -2528,7 +2536,7 @@ function App() {
             </div>
           )}
           {activeTab === 'alerts' && (
-            <AlertsTab apiService={apiService} />
+            <AlertsTab apiService={apiService} activeTab={activeTab} />
           )}
         {activeTab === 'settings' && (
           <SettingsTab apiService={apiService} />

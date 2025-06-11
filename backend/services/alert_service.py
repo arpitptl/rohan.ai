@@ -65,6 +65,20 @@ class AlertService:
             'data_fetch_success_rate': 90.0,
             'response_time': 2.0
         }
+
+        # Time windows for analysis (in minutes)
+        self.time_windows = {
+            'short_term': 180,  # 3 hours
+            'medium_term': 720,  # 12 hours
+            'long_term': 1440   # 24 hours
+        }
+
+        # Trend thresholds (percentage change)
+        self.trend_thresholds = {
+            'rapid_decline': -10.0,  # 10% decline in 3 hours
+            'gradual_decline': -5.0,  # 5% decline in 3 hours
+            'improvement': 5.0        # 5% improvement
+        }
     
     def notify_webhooks(self, alert_id: str) -> None:
         """Send alert to all enabled webhook subscriptions"""
@@ -136,98 +150,346 @@ class AlertService:
             raise
     
     def generate_alerts(self, historical_data: Dict, current_metrics: Dict) -> List[Alert]:
-        """Generate alerts based on metrics analysis"""
+        """Generate alerts based on metrics analysis with focus on last 3 hours"""
         alerts = []
         
         try:
-            # Generate alerts based on current metrics
+            # Process each FIP
             for fip_name, metrics in current_metrics.items():
-                # Check consent success rate
-                if metrics['consent_success_rate'] < self.thresholds['consent_success_rate']['critical']:
-                    alert = self._create_alert(
-                        fip_name=fip_name,
-                        severity='critical',
-                        alert_type='consent_success_rate',
-                        message=f"Critical: Consent success rate for {fip_name} is {metrics['consent_success_rate']}%, below threshold of {self.thresholds['consent_success_rate']['critical']}%",
-                        metrics=AlertMetrics(
-                            current_rate=metrics['consent_success_rate'],
-                            historical_avg=self.baselines['consent_success_rate'],
-                            deviation=metrics['consent_success_rate'] - self.baselines['consent_success_rate'],
-                            threshold=self.thresholds['consent_success_rate']['critical']
-                        ),
-                        context=AlertContext(
-                            affected_users=metrics['user_base'],
-                            business_impact="High impact on user transactions",
-                            historical_pattern=self._analyze_historical_pattern(historical_data, fip_name, 'consent_success_rate'),
-                            peak_hour=datetime.utcnow().hour
-                        ),
-                        recommended_actions=[
-                            "Investigate system logs",
-                            "Check for recent deployments",
-                            "Monitor error rates"
-                        ]
-                    )
-                    alerts.append(alert)
-                    self._store_alert(alert)
-                elif metrics['consent_success_rate'] < self.thresholds['consent_success_rate']['warning']:
-                    alert = self._create_alert(
-                        fip_name=fip_name,
-                        severity='warning',
-                        alert_type='consent_success_rate',
-                        message=f"Warning: Consent success rate for {fip_name} is {metrics['consent_success_rate']}%, below threshold of {self.thresholds['consent_success_rate']['warning']}%",
-                        metrics=AlertMetrics(
-                            current_rate=metrics['consent_success_rate'],
-                            historical_avg=self.baselines['consent_success_rate'],
-                            deviation=metrics['consent_success_rate'] - self.baselines['consent_success_rate'],
-                            threshold=self.thresholds['consent_success_rate']['warning']
-                        ),
-                        context=AlertContext(
-                            affected_users=metrics['user_base'],
-                            business_impact="Moderate impact on user transactions",
-                            historical_pattern=self._analyze_historical_pattern(historical_data, fip_name, 'consent_success_rate'),
-                            peak_hour=datetime.utcnow().hour
-                        ),
-                        recommended_actions=[
-                            "Monitor system performance",
-                            "Review error logs",
-                            "Prepare for potential escalation"
-                        ]
-                    )
-                    alerts.append(alert)
-                    self._store_alert(alert)
-
-                # Check data fetch success rate
-                if metrics['data_fetch_success_rate'] < self.thresholds['data_fetch_success_rate']['critical']:
-                    alert = self._create_alert(
-                        fip_name=fip_name,
-                        severity='critical',
-                        alert_type='data_fetch_success_rate',
-                        message=f"Critical: Data fetch success rate for {fip_name} is {metrics['data_fetch_success_rate']}%, below threshold of {self.thresholds['data_fetch_success_rate']['critical']}%",
-                        metrics=AlertMetrics(
-                            current_rate=metrics['data_fetch_success_rate'],
-                            historical_avg=self.baselines['data_fetch_success_rate'],
-                            deviation=metrics['data_fetch_success_rate'] - self.baselines['data_fetch_success_rate'],
-                            threshold=self.thresholds['data_fetch_success_rate']['critical']
-                        ),
-                        context=AlertContext(
-                            affected_users=metrics['user_base'],
-                            business_impact="High impact on data availability",
-                            historical_pattern=self._analyze_historical_pattern(historical_data, fip_name, 'data_fetch_success_rate'),
-                            peak_hour=datetime.utcnow().hour
-                        ),
-                        recommended_actions=[
-                            "Check FIP API connectivity",
-                            "Verify data fetch endpoints",
-                            "Monitor error patterns"
-                        ]
-                    )
-                    alerts.append(alert)
-                    self._store_alert(alert)
-            
+                # Get time-sliced data for different windows
+                short_term_data = self._get_time_sliced_data(historical_data, fip_name, self.time_windows['short_term'])
+                
+                # Generate different types of alerts
+                alerts.extend(self._check_threshold_violations(fip_name, metrics, short_term_data))
+                alerts.extend(self._check_trend_anomalies(fip_name, metrics, short_term_data))
+                alerts.extend(self._check_pattern_anomalies(fip_name, metrics, short_term_data))
+                alerts.extend(self._check_stability_issues(fip_name, metrics, short_term_data))
+                
+                # Deduplicate alerts
+                alerts = self._deduplicate_alerts(alerts)
+                
+                # Sort by severity and confidence
+                alerts.sort(key=lambda x: (x.severity == 'critical', x.confidence), reverse=True)
+                
         except Exception as e:
             self.logger.error(f"Error generating alerts: {e}")
         
         return alerts
+
+    def _get_time_sliced_data(self, historical_data: Dict, fip_name: str, minutes: int) -> Dict[str, pd.DataFrame]:
+        """Get data for specified time window"""
+        sliced_data = {}
+        cutoff_time = datetime.utcnow() - timedelta(minutes=minutes)
+        
+        for metric_name, df in historical_data.items():
+            if not df.empty:
+                # Filter for FIP and time window
+                mask = (df['fip_name'] == fip_name) & (df.index >= cutoff_time)
+                sliced_data[metric_name] = df[mask].copy()
+        
+        return sliced_data
+
+    def _check_threshold_violations(self, fip_name: str, current_metrics: Dict, 
+                                  short_term_data: Dict[str, pd.DataFrame]) -> List[Alert]:
+        """Check for immediate threshold violations with short-term context"""
+        alerts = []
+        
+        # Check consent success rate
+        current_consent_rate = current_metrics.get('consent_success_rate', 0)
+        if current_consent_rate < self.thresholds['consent_success_rate']['critical']:
+            # Calculate short-term trend
+            if 'consent_success_rate' in short_term_data:
+                df = short_term_data['consent_success_rate']
+                trend = self._calculate_trend(df['value']) if not df.empty else 0
+                
+                severity = 'critical' if trend < self.trend_thresholds['rapid_decline'] else 'warning'
+                confidence = 0.95 if trend < self.trend_thresholds['rapid_decline'] else 0.85
+                
+                alert = self._create_alert(
+                    fip_name=fip_name,
+                    severity=severity,
+                    alert_type='consent_rate_violation',
+                    message=self._generate_threshold_message(fip_name, current_consent_rate, trend),
+                    metrics=AlertMetrics(
+                        current_rate=current_consent_rate,
+                        historical_avg=df['value'].mean() if not df.empty else self.baselines['consent_success_rate'],
+                        deviation=trend,
+                        threshold=self.thresholds['consent_success_rate']['critical']
+                    ),
+                    context=self._get_enhanced_context(fip_name, current_metrics, short_term_data),
+                    recommended_actions=self._get_recommended_actions('consent_rate', severity, trend)
+                )
+                alerts.append(alert)
+        
+        # Similar checks for data fetch rate
+        current_fetch_rate = current_metrics.get('data_fetch_success_rate', 0)
+        if current_fetch_rate < self.thresholds['data_fetch_success_rate']['critical']:
+            if 'data_fetch_success_rate' in short_term_data:
+                df = short_term_data['data_fetch_success_rate']
+                trend = self._calculate_trend(df['value']) if not df.empty else 0
+                
+                alert = self._create_alert(
+                    fip_name=fip_name,
+                    severity='critical' if trend < self.trend_thresholds['rapid_decline'] else 'warning',
+                    alert_type='data_fetch_violation',
+                    message=self._generate_threshold_message(fip_name, current_fetch_rate, trend, metric_type='data fetch'),
+                    metrics=AlertMetrics(
+                        current_rate=current_fetch_rate,
+                        historical_avg=df['value'].mean() if not df.empty else self.baselines['data_fetch_success_rate'],
+                        deviation=trend,
+                        threshold=self.thresholds['data_fetch_success_rate']['critical']
+                    ),
+                    context=self._get_enhanced_context(fip_name, current_metrics, short_term_data),
+                    recommended_actions=self._get_recommended_actions('data_fetch', 'critical' if trend < self.trend_thresholds['rapid_decline'] else 'warning', trend)
+                )
+                alerts.append(alert)
+        
+        return alerts
+
+    def _check_trend_anomalies(self, fip_name: str, current_metrics: Dict, 
+                              short_term_data: Dict[str, pd.DataFrame]) -> List[Alert]:
+        """Analyze trends in the last 3 hours"""
+        alerts = []
+        
+        for metric_name in ['consent_success_rate', 'data_fetch_success_rate']:
+            if metric_name in short_term_data:
+                df = short_term_data[metric_name]
+                if not df.empty:
+                    # Calculate trend using rolling windows
+                    window_sizes = [30, 60, 180]  # 30min, 1hr, 3hr windows
+                    trends = []
+                    
+                    for window in window_sizes:
+                        trend = self._calculate_rolling_trend(df['value'], window)
+                        trends.append(trend)
+                    
+                    # Check for accelerating decline
+                    if all(t < 0 for t in trends) and trends[0] < trends[1] < trends[2]:
+                        alert = self._create_alert(
+                            fip_name=fip_name,
+                            severity='warning',
+                            alert_type='accelerating_decline',
+                            message=f"Accelerating decline detected in {metric_name.replace('_', ' ')}: -"
+                                   f"{abs(trends[0]):.1f}% (30min), -{abs(trends[1]):.1f}% (1hr), -{abs(trends[2]):.1f}% (3hr)",
+                            metrics=AlertMetrics(
+                                current_rate=current_metrics.get(metric_name, 0),
+                                historical_avg=df['value'].mean(),
+                                deviation=trends[0],
+                                threshold=self.trend_thresholds['rapid_decline']
+                            ),
+                            context=self._get_enhanced_context(fip_name, current_metrics, short_term_data),
+                            recommended_actions=self._get_recommended_actions(metric_name, 'warning', trends[0])
+                        )
+                        alerts.append(alert)
+        
+        return alerts
+
+    def _check_pattern_anomalies(self, fip_name: str, current_metrics: Dict,
+                                short_term_data: Dict[str, pd.DataFrame]) -> List[Alert]:
+        """Check for unusual patterns in metrics"""
+        alerts = []
+        
+        # Check for diverging metrics
+        consent_rate = current_metrics.get('consent_success_rate', 0)
+        data_fetch_rate = current_metrics.get('data_fetch_success_rate', 0)
+        
+        if abs(consent_rate - data_fetch_rate) > 20:  # Significant divergence
+            worse_metric = 'consent' if consent_rate < data_fetch_rate else 'data fetch'
+            better_metric = 'data fetch' if consent_rate < data_fetch_rate else 'consent'
+            
+            alert = self._create_alert(
+                fip_name=fip_name,
+                severity='warning',
+                alert_type='metric_divergence',
+                message=f"Unusual pattern: {worse_metric} rate ({min(consent_rate, data_fetch_rate):.1f}%) "
+                       f"significantly lower than {better_metric} rate ({max(consent_rate, data_fetch_rate):.1f}%)",
+                metrics=AlertMetrics(
+                    current_rate=min(consent_rate, data_fetch_rate),
+                    historical_avg=max(consent_rate, data_fetch_rate),
+                    deviation=abs(consent_rate - data_fetch_rate),
+                    threshold=20.0
+                ),
+                context=self._get_enhanced_context(fip_name, current_metrics, short_term_data),
+                recommended_actions=[
+                    f"Investigate {worse_metric} service health",
+                    f"Check {worse_metric} API endpoints",
+                    "Review error logs for specific failure patterns",
+                    "Monitor service dependencies"
+                ]
+            )
+            alerts.append(alert)
+        
+        return alerts
+
+    def _check_stability_issues(self, fip_name: str, current_metrics: Dict,
+                               short_term_data: Dict[str, pd.DataFrame]) -> List[Alert]:
+        """Check for stability issues in the last 3 hours"""
+        alerts = []
+        
+        for metric_name in ['consent_success_rate', 'data_fetch_success_rate']:
+            if metric_name in short_term_data:
+                df = short_term_data[metric_name]
+                if not df.empty:
+                    # Calculate volatility
+                    volatility = df['value'].std()
+                    mean_value = df['value'].mean()
+                    cv = (volatility / mean_value) * 100 if mean_value > 0 else 0
+                    
+                    if cv > 15:  # High coefficient of variation
+                        alert = self._create_alert(
+                            fip_name=fip_name,
+                            severity='warning',
+                            alert_type='stability_issue',
+                            message=f"High variability in {metric_name.replace('_', ' ')}: "
+                                   f"±{volatility:.1f}% around mean of {mean_value:.1f}%",
+                            metrics=AlertMetrics(
+                                current_rate=current_metrics.get(metric_name, 0),
+                                historical_avg=mean_value,
+                                deviation=volatility,
+                                threshold=15.0
+                            ),
+                            context=self._get_enhanced_context(fip_name, current_metrics, short_term_data),
+                            recommended_actions=[
+                                "Monitor service stability",
+                                "Check for intermittent issues",
+                                "Review system resources",
+                                "Investigate potential network issues"
+                            ]
+                        )
+                        alerts.append(alert)
+        
+        return alerts
+
+    def _calculate_rolling_trend(self, series: pd.Series, window_minutes: int) -> float:
+        """Calculate trend using rolling windows"""
+        if len(series) < 2:
+            return 0.0
+        
+        try:
+            rolling_mean = series.rolling(window=window_minutes//5).mean()  # Assuming 5-minute intervals
+            if len(rolling_mean) >= 2:
+                return ((rolling_mean.iloc[-1] - rolling_mean.iloc[0]) / rolling_mean.iloc[0]) * 100
+            return 0.0
+        except Exception:
+            return 0.0
+
+    def _generate_threshold_message(self, fip_name: str, current_rate: float, trend: float, 
+                                  metric_type: str = 'consent') -> str:
+        """Generate detailed alert message"""
+        trend_desc = "declining rapidly" if trend < self.trend_thresholds['rapid_decline'] else \
+                    "declining gradually" if trend < 0 else "stable"
+        
+        return (f"Critical: {metric_type} success rate for {fip_name} is {current_rate:.1f}%, "
+                f"below threshold and {trend_desc} (trend: {trend:.1f}% over 3 hours)")
+
+    def _get_enhanced_context(self, fip_name: str, current_metrics: Dict,
+                            short_term_data: Dict[str, pd.DataFrame]) -> AlertContext:
+        """Get enhanced context with short-term analysis"""
+        current_hour = datetime.utcnow().hour
+        is_business_hours = 9 <= current_hour <= 18
+        
+        # Calculate user impact
+        base_users = current_metrics.get('user_base', 0)
+        affected_users = int(base_users * (1 - current_metrics.get('consent_success_rate', 0) / 100))
+        
+        # Determine business impact
+        if is_business_hours and affected_users > base_users * 0.3:
+            business_impact = "Severe impact on business operations during peak hours"
+        elif is_business_hours:
+            business_impact = "Moderate impact on business operations"
+        else:
+            business_impact = "Limited business impact during off-hours"
+        
+        return AlertContext(
+            affected_users=affected_users,
+            business_impact=business_impact,
+            historical_pattern=self._analyze_short_term_pattern(short_term_data),
+            peak_hour=is_business_hours
+        )
+
+    def _analyze_short_term_pattern(self, short_term_data: Dict[str, pd.DataFrame]) -> str:
+        """Analyze pattern in short-term data"""
+        patterns = []
+        
+        for metric_name, df in short_term_data.items():
+            if not df.empty:
+                recent_std = df['value'].std()
+                recent_trend = self._calculate_trend(df['value'])
+                
+                if recent_std > 10:
+                    patterns.append("highly variable")
+                elif recent_trend < -5:
+                    patterns.append("declining")
+                elif recent_trend > 5:
+                    patterns.append("improving")
+                else:
+                    patterns.append("stable")
+        
+        if not patterns:
+            return "Insufficient short-term data"
+        
+        # Return most severe pattern
+        if "highly variable" in patterns:
+            return "Highly variable performance in last 3 hours"
+        elif "declining" in patterns:
+            return "Declining performance trend in last 3 hours"
+        elif "improving" in patterns:
+            return "Improving performance trend in last 3 hours"
+        else:
+            return "Stable performance in last 3 hours"
+
+    def _get_recommended_actions(self, metric_type: str, severity: str, trend: float) -> List[str]:
+        """Get context-aware recommended actions"""
+        actions = []
+        
+        if severity == 'critical':
+            actions.extend([
+                "Immediately investigate system logs",
+                "Check for recent deployments or changes",
+                "Monitor error rates and patterns",
+                "Prepare incident response if trend continues"
+            ])
+        else:
+            actions.extend([
+                "Monitor system performance",
+                "Review error logs for patterns",
+                "Prepare for potential escalation"
+            ])
+        
+        if trend < self.trend_thresholds['rapid_decline']:
+            actions.extend([
+                "Analyze recent system changes",
+                "Check service dependencies",
+                "Review capacity metrics"
+            ])
+        
+        if metric_type == 'consent_rate':
+            actions.extend([
+                "Verify authentication service health",
+                "Check consent flow configuration"
+            ])
+        elif metric_type == 'data_fetch':
+            actions.extend([
+                "Check data source connectivity",
+                "Verify API permissions and quotas"
+            ])
+        
+        return actions[:5]  # Return top 5 most relevant actions
+
+    def _deduplicate_alerts(self, alerts: List[Alert]) -> List[Alert]:
+        """Remove duplicate or similar alerts"""
+        unique_alerts = []
+        seen_combinations = set()
+        
+        for alert in alerts:
+            # Create a unique key for similar alerts
+            key = f"{alert.fip_name}:{alert.alert_type}:{alert.severity}"
+            
+            if key not in seen_combinations:
+                unique_alerts.append(alert)
+                seen_combinations.add(key)
+        
+        return unique_alerts
 
     def _create_alert(self, fip_name: str, severity: str, alert_type: str, message: str,
                      metrics: AlertMetrics, context: AlertContext, recommended_actions: List[str]) -> Alert:
