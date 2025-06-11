@@ -42,3 +42,7 @@ export const formatCurrency = (amount) => {
     maximumFractionDigits: 0,
   }).format(amount);
 };
+
+export const prependZero = (num) => {
+  return num < 10 ? "0"+num : num;
+}
